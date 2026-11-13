@@ -46,6 +46,7 @@ export const DISPLAY_ALIASES = {
   // too close to the XP star in yellow (owner 2026-11-08): reads, and is drawn, as a white heart
   'Yellow Heart': 'White Heart',
   Buckler: 'Buckler Shield',      // reads as a shield like its Kite/Heater/Tower siblings (owner 2026-11-02)
+  'Fen Hook': 'Fen Cutlass',      // a hook fits no weapon category; a cutlass is a sword (weaponClass, owner 2026-11-13). Saves keep 'Fen Hook'
   // the four farm workers, one of each per player, so each is a character
   'Farm Hand': 'Audrey',
   Rancher: 'Corin',

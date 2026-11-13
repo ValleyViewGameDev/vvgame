@@ -818,7 +818,7 @@ re-read it with a grids query on `isTemplate: true`):
 | Sunflower Lake (1) | Sunwoven Mail L16, AC 12 | Lakeside Spear L18, dmg 8, atk +2, reach +2 | Sunflower Crown L15, AC +1, hp +100 |
 | Mantua (1) |  | Mantuan Dagger L16, dmg 12, spd -1 | Apothecary's Vial L20, hp +150 |
 | Dunsinane (1) |  | Macbeth's Claymore L20, dmg 19, spd +1 | Witches' Charm L18, atk +2, hp -50 |
-| Sycorax Fen (1) | Fen Leathers L21, AC 12, spd -1 | Fen Hook L22, dmg 18, atk +2 | Sycorax's Hex L24, dmg +2 |
+| Sycorax Fen (1) | Fen Leathers L21, AC 12, spd -1 | Fen Hook (shown as Fen Cutlass) L22, dmg 18, atk +2 | Sycorax's Hex L24, dmg +2 |
 | Avondale (2) | Avon Scale L22, AC 14 | Bard's Blade L21, dmg 19, atk +1 | Swan Feather L20, atk +2 |
 | Messina (2) | Don Pedro's Mail L23, AC 14 | Messina Saber L24, dmg 20, atk +1 |  |
 | Windsor (2) | Garter Plate L27, AC 15, hp +100 | Herne's Bow L26, ranged 9, atk +3, reach +5 | Falstaff's Flagon L25, hp +250, spd +1 |

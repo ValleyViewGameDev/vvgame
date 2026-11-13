@@ -128,9 +128,9 @@ than from the header or a `playerId` in the body. Found while closing the open a
 
 Added 2026-11-10. Not a launch blocker (owner: "a big task ... come back to that later").
 **Plan written 2026-11-13: `docs/equipment-plan.md`** (hand-held weapons first). **A first prototype is
-in the game the same day** (a `weaponClass` column on the weapon rows: the **sword** category, 17 rows, shares one long sword,
-one guard and the `slash` cut; follows the Combat panel's weapon slot; out only while an enemy is on
-the grid; one rig a body): the plan's "The prototype" section says what is
+in the game the same day** (a `weaponClass` column on the weapon rows; six categories with a drawing each, sword / dagger / spear /
+polearm / axe / hammer, and three attacks, slash / thrust / chop, each an arm clip with the body's move;
+follows the Combat panel's weapon slot; out only while an enemy is on the grid; one rig a body): the plan's "The prototype" section says what is
 and is not built. Checked on offline renders only; the owner's look in a live fight decides what next.
 
 **What.** The equipped weapon drawn in the avatar's hand, held up in an en garde stance and swung

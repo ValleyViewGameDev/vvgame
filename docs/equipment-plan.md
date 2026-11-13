@@ -21,15 +21,25 @@ The owner asked to see the sword in the game before any more planning. What is i
 - **One drawing:** `game-client/public/assets/avatar/hand/weapon-long-sword.png` on the standard
   footprint (128x512, upright, grip at 64,448).
 - **Weapon categories (owner 2026-11-13):** a weapon's row names its category in a `weaponClass`
-  column, and the category owns the drawing in the hand, the guard and the swing
-  (`heldWeapon.WEAPON_CLASSES`). One category exists, **sword** (the long sword, the guard above, the
-  `slash` clip), on 17 rows: Short Sword, Long Sword, Great Sword, Sword of Song, Glowing Sword,
-  Legendary Sword, Dragonslayer, Broadsword, Bastard Sword, Arming Sword, Falchion, and the region
-  swords Portia's Rapier, Courtier's Rapier, Macbeth's Claymore, Bard's Blade, Messina Saber,
-  Demonbane. A row may name its own drawing as `heldArt` (none does yet). The other ten melee
-  weapons have no category and show nothing in the hand until theirs is built: axes (Giant Axe,
-  Executioner's Axe), Halberd, Magic Halberd, War Hammer, Stone Maul, Knife, Mantuan Dagger, Fen
-  Hook, Lethe Scythe. The two rapiers are swords for now and move when a thrust category exists.
+  column, and the category owns the drawing in the hand, how it sits in the hand, the guard and the
+  attack (`heldWeapon.WEAPON_CLASSES`). Six categories, three attacks:
+
+  | Category | Attack | Hands | In the hand | Weapons |
+  |---|---|---|---|---|
+  | `sword` | `slash` | as the row says | across the forearm | Short Sword, Long Sword, Great Sword, Sword of Song, Glowing Sword, Legendary Sword, Dragonslayer, Broadsword, Bastard Sword, Arming Sword, Falchion, Portia's Rapier, Courtier's Rapier, Macbeth's Claymore, Bard's Blade, Messina Saber, Demonbane, Fen Hook (shown as **Fen Cutlass**) |
+  | `dagger` | `thrust` | 1 | along the forearm | Knife, Mantuan Dagger |
+  | `spear` | `thrust` | 1 (all four; Boar Spear and Lakeside Spear were 2) | along the forearm | Spear, Magic Spear, Boar Spear, Lakeside Spear |
+  | `polearm` | `thrust` | 2 | along the forearm | Halberd, Magic Halberd, Morrow Glaive |
+  | `axe` | `chop` | 2 | across the forearm | Giant Axe, Executioner's Axe, Lethe Scythe (drawn as the axe) |
+  | `hammer` | `chop` | 2 | across the forearm | War Hammer, Stone Maul |
+
+  One drawing a category, all at one scale (`heldWeapon.PX_PER_TILE`), cut to the category's canvas
+  by `tools/art/weaponfit.js` from `tools/art/jobs/weapons-r2.json`. A row may name its own drawing
+  as `heldArt` (none does yet). `hands` only decides the shield: there is no two-handed animation,
+  so a two-handed weapon is swung by the same one arm. The two rapiers are swords for now.
+  **Fen Hook** keeps its code name in data and saves and is shown as Fen Cutlass through
+  `stringLookup.DISPLAY_ALIASES`, so no save needed migrating. Bows, crossbows and Darts have no
+  category and show nothing in the hand. The attacks at half speed: docs/art/equipment/categories.gif.
 - **Wired to the Combat panel's weapon slot:** what is in the hand comes from the equipped weapon
   (`player.settings.equippedWeapon`), which the panel changes on the tap. Unequip, or equip a weapon
   with no category, and the arm eases down and the plain drawing returns (rigshot `--away` shows it).
@@ -201,12 +211,15 @@ forearm.)
 
 Families, chosen by the weapon's `swing`, all on that pattern:
 
-- **slash** (swords, curved blades, great swords): as above.
-- **thrust** (rapiers, daggers, pole weapons): to be designed in P3. A blade at a right angle to
-  the forearm cannot be driven point-first, so a thrust needs these weapons mounted in line with
-  the forearm instead (a second fixed mounting angle, still with no wrist motion), or they simply
-  use the slash.
-- **chop** (axes, hammers): the same raise, higher and slower, the body leaning in.
+- **slash** (swords): as above.
+- **thrust** (daggers, spears, polearms; built 2026-11-13): the weapon lies ALONG the forearm. Guard:
+  the point forward at the hip. The elbow is drawn back, then the whole arm drives straight out, the
+  forearm staying level so the point travels in a line; the body steps back a little, then well
+  forward behind the point.
+- **chop** (axes and hammers share it; built 2026-11-13): the head stands across the forearm, as the
+  sword does. Guard: the haft leaning well forward so the head is clear of the face. The hand is
+  lifted to the chin, the head swinging back over the shoulder, then it comes down in front and on
+  past level. Slower than the slash (the blow lands at 385 ms) with a bigger rock back and step in.
 
 As built (see "The prototype"): the blow lands at the clip's `hit`, not on the tap, and the body's
 move is a `body` track in the same clip, so each category's swing and body move are authored
@@ -253,8 +266,8 @@ Still open:
 
 1. **Wide sleeves:** if the court gown or the robe cannot be cut cleanly, redraw that outfit's near
    arm (recommended), or let those outfits keep the weapon lowered?
-2. **Odd names:** rename Fen Hook and Lethe Scythe to match their drawings (recommended), or give
-   each its own drawing?
+2. ~~Odd names~~ Settled 2026-11-13: Fen Hook is shown as Fen Cutlass (a sword); Lethe Scythe is an
+   axe-category weapon, drawn as the axe until it has its own drawing.
 
 ## 7. Where things live
 

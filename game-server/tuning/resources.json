@@ -12776,7 +12776,8 @@
     "hands": 1,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 10
+    "gemcost": 10,
+    "weaponClass": "dagger"
   },
   {
     "type": "Short Sword",
@@ -13167,7 +13168,8 @@
     "ingredient4": "Book",
     "ingredient4qty": 24,
     "gemcost": 926,
-    "attackrange": 1
+    "attackrange": 1,
+    "weaponClass": "spear"
   },
   {
     "type": "Maelstrom",
@@ -13247,7 +13249,8 @@
     "ingredient4": "Book",
     "ingredient4qty": 70,
     "gemcost": 1315,
-    "attackrange": 1
+    "attackrange": 1,
+    "weaponClass": "polearm"
   },
   {
     "type": "Mystic Armor",
@@ -13382,7 +13385,8 @@
     "hands": 1,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
-    "attackrange": 2
+    "attackrange": 2,
+    "weaponClass": "spear"
   },
   {
     "type": "Titan",
@@ -13460,7 +13464,8 @@
     "hands": 2,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
-    "attackrange": 1
+    "attackrange": 1,
+    "weaponClass": "polearm"
   },
   {
     "type": "Caliban's Breastplate",
@@ -13514,7 +13519,8 @@
     "ranged": false,
     "hands": 2,
     "ingredient1": "Only Found in Scrolls",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "weaponClass": "axe"
   },
   {
     "type": "Titania's Bow",
@@ -13694,7 +13700,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 15000,
     "ingredient4": "Book",
-    "ingredient4qty": 30
+    "ingredient4qty": 30,
+    "weaponClass": "hammer"
   },
   {
     "type": "Recurve Bow",
@@ -13846,7 +13853,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 120000,
     "ingredient4": "Book",
-    "ingredient4qty": 200
+    "ingredient4qty": 200,
+    "weaponClass": "axe"
   },
   {
     "type": "Gilded Plate",
@@ -13921,7 +13929,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 9000,
     "ingredient4": "Book",
-    "ingredient4qty": 10
+    "ingredient4qty": 10,
+    "weaponClass": "hammer"
   },
   {
     "type": "Rock Totem",
@@ -14074,13 +14083,14 @@
     "attackbonus": 2,
     "attackrange": 2,
     "ranged": false,
-    "hands": 2,
+    "hands": 1,
     "ingredient1": "Money",
     "ingredient1qty": 12000,
     "ingredient3": "Sunflower",
     "ingredient3qty": 30,
     "ingredient4": "Book",
-    "ingredient4qty": 15
+    "ingredient4qty": 15,
+    "weaponClass": "spear"
   },
   {
     "type": "Sunflower Crown",
@@ -14119,7 +14129,8 @@
     "ingredient3": "Potion A",
     "ingredient3qty": 4,
     "ingredient4": "Book",
-    "ingredient4qty": 12
+    "ingredient4qty": 12,
+    "weaponClass": "dagger"
   },
   {
     "type": "Apothecary's Vial",
@@ -14221,7 +14232,8 @@
     "ingredient3": "Mushroom",
     "ingredient3qty": 30,
     "ingredient4": "Book",
-    "ingredient4qty": 30
+    "ingredient4qty": 30,
+    "weaponClass": "sword"
   },
   {
     "type": "Sycorax's Hex",
@@ -14381,13 +14393,14 @@
     "attackbonus": 2,
     "attackrange": 2,
     "ranged": false,
-    "hands": 2,
+    "hands": 1,
     "ingredient1": "Money",
     "ingredient1qty": 25000,
     "ingredient3": "Pelt",
     "ingredient3qty": 30,
     "ingredient4": "Book",
-    "ingredient4qty": 55
+    "ingredient4qty": 55,
+    "weaponClass": "spear"
   },
   {
     "type": "Hermione's Grace",
@@ -14573,7 +14586,8 @@
     "ingredient3": "Gold",
     "ingredient3qty": 6,
     "ingredient4": "Book",
-    "ingredient4qty": 80
+    "ingredient4qty": 80,
+    "weaponClass": "polearm"
   },
   {
     "type": "Morrow Ward",
@@ -14734,7 +14748,8 @@
     "ingredient3": "Potion C",
     "ingredient3qty": 8,
     "ingredient4": "Book",
-    "ingredient4qty": 160
+    "ingredient4qty": 160,
+    "weaponClass": "axe"
   },
   {
     "type": "Draught of Lethe",

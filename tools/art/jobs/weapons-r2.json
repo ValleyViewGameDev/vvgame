@@ -1,0 +1,69 @@
+{
+  "name": "weapons-r2",
+  "note": "The held weapons for the new weapon categories (docs/equipment-plan.md, owner 2026-11-13): a dagger and a spear (thrust, one-handed), a halberd (polearm: thrust, two-handed), a great axe and a war hammer (chop, two-handed). One candidate each. Cut to the weapon footprint with tools/art/weaponfit.js.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1536"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "dagger": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r1/exploration/openai/painterly-long-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached LONG SWORD on magenta is this game's approved sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background), and match the SWORD'S steel, brass and leather colours. SUBJECT: ONE DAGGER, a plain medieval fighting dagger, drawn as a game item for that farm man to hold. POINT UP, pommel down, symmetrical about its centre line. From the bottom: a small round brass pommel; a straight grip wrapped in dark brown leather, about as long as a fist is wide and a half; a short straight brass crossguard, about twice as wide as the blade; then a straight double-edged steel blade, broad at the guard and tapering evenly to a sharp point. The blade is only about TWICE as long as the grip: clearly a dagger, short and stout, not a sword. Colours: bright clean steel with one lighter and one darker side, warm brass, dark brown leather. Simple and bold: it is seen about 50 pixels tall on the board, so big plain shapes, no engraving, no jewels, no runes, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. It stands perfectly UPRIGHT in the middle of the picture, exactly vertical, seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    },
+    "spear": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r1/exploration/openai/painterly-long-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached LONG SWORD on magenta is this game's approved sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background), and match the SWORD'S steel, brass and leather colours. SUBJECT: ONE SPEAR, a plain medieval infantry spear, drawn as a game item for that farm man to hold. POINT UP, butt down, symmetrical about its centre line. A long, perfectly straight, round wooden shaft of even thickness, warm mid-brown ash wood, as thick as a broom handle; at the top a leaf-shaped steel spearhead on a short steel socket, the head about one seventh of the spear's whole length and about three times as wide as the shaft; at the very bottom a small plain steel butt cap. Nothing else on the shaft: no wrapping, no ribbons, no tassels. The spear is very long and thin: about twenty-five times as long as the spearhead is wide. Colours: bright clean steel with one lighter and one darker side, warm brown wood. Simple and bold: it is seen about 50 pixels tall on the board, so big plain shapes, no engraving, no jewels, no runes, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. It stands perfectly UPRIGHT in the middle of the picture, exactly vertical, seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    },
+    "halberd": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r1/exploration/openai/painterly-long-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached LONG SWORD on magenta is this game's approved sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background), and match the SWORD'S steel, brass and leather colours. SUBJECT: ONE HALBERD, a plain medieval polearm, drawn as a game item for that farm man to hold. POINT UP, butt down. A long, perfectly straight, round wooden shaft of even thickness, warm mid-brown ash wood, as thick as a broom handle; at the top a steel halberd head: a long straight spike pointing straight up in line with the shaft, a broad crescent axe blade on the RIGHT side of the shaft just below the spike, and a short downward-curved hook on the LEFT side opposite the blade; at the very bottom a small plain steel butt cap. The head is about one fifth of the whole length. Nothing else on the shaft: no wrapping, no ribbons, no tassels. Colours: bright clean steel with one lighter and one darker side, warm brown wood. Simple and bold: it is seen about 50 pixels tall on the board, so big plain shapes, no engraving, no jewels, no runes, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. It stands perfectly UPRIGHT in the middle of the picture, exactly vertical, seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    },
+    "axe": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r1/exploration/openai/painterly-long-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached LONG SWORD on magenta is this game's approved sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background), and match the SWORD'S steel, brass and leather colours. SUBJECT: ONE GREAT AXE, a big two-handed double-bitted battle axe, drawn as a game item for that farm man to hold. HEAD UP, butt down, symmetrical about its centre line. From the bottom: a small plain steel butt cap; a long straight round wooden haft, warm mid-brown ash wood, its lowest quarter wrapped in dark brown leather for the grip; at the top a heavy steel double axe head with two matching broad crescent blades, one on each side of the haft, mirror images of each other, and a small steel cap on top. The head is about as wide as one third of the axe's whole length. Colours: bright clean steel with lighter cutting edges and darker cheeks, warm brown wood, dark brown leather. Simple and bold: it is seen about 50 pixels tall on the board, so big plain shapes, no engraving, no jewels, no runes, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. It stands perfectly UPRIGHT in the middle of the picture, exactly vertical, seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    },
+    "hammer": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r1/exploration/openai/painterly-long-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached LONG SWORD on magenta is this game's approved sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background), and match the SWORD'S steel, brass and leather colours. SUBJECT: ONE WAR HAMMER, a big two-handed maul, drawn as a game item for that farm man to hold. HEAD UP, butt down, symmetrical about its centre line. From the bottom: a small plain steel butt cap; a long straight round wooden haft, warm mid-brown ash wood, its lowest quarter wrapped in dark brown leather for the grip; at the top a heavy blocky hammer head set crosswise on the haft like a T: a thick dark steel block with two matching flat square striking faces, one on each side, banded with a brighter steel rim at each face, and a small steel cap on top. The head is about as wide as one quarter of the hammer's whole length and nearly as tall as it is wide: a heavy sledge, not a carpenter's hammer. Colours: dark grey steel with brighter steel bands, warm brown wood, dark brown leather. Simple and bold: it is seen about 50 pixels tall on the board, so big plain shapes, no engraving, no jewels, no runes, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. It stands perfectly UPRIGHT in the middle of the picture, exactly vertical, seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    }
+  }
+}

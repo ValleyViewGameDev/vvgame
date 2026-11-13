@@ -112,6 +112,53 @@ export const ARM_CLIPS = {
       { t: 520, s: 0.15, e: -1.25 },
     ],
   },
+  // the avatar's THRUST (daggers, spears, polearms: the weapon lies along the forearm, heldWeapon.js).
+  // From the guard (the point forward at the hip) the elbow is drawn back, then the whole arm drives
+  // straight out at the target, the forearm staying level so the point travels in a line. The body
+  // goes with it: a short step back as the arm is drawn, a long one forward behind the point, then home
+  thrust: {
+    hit: 215,
+    body: [
+      { t: 0, d: 0 },
+      { t: 140, d: -0.08, ease: 'out' },
+      { t: 215, d: 0.34, ease: 'in' },
+      { t: 290, d: 0.3 },
+      { t: 480, d: 0 },
+    ],
+    lead: [
+      { t: 0, s: 0.3, e: -2.0 },
+      { t: 110, s: 0.85, e: -2.5, ease: 'out' },
+      { t: 145, s: 0.9, e: -2.55 },
+      { t: 210, s: -1.3, e: -0.4, ease: 'in' },
+      { t: 280, s: -1.25, e: -0.45 },
+      { t: 480, s: 0.3, e: -2.0 },
+    ],
+  },
+  // the avatar's CHOP (axes and hammers share it; the head stands at a right angle to the forearm, as
+  // the sword does). Slower and bigger than the slash: the hand is lifted to the chin with the elbow
+  // folded, the weapon's head swinging up and back over the shoulder (the hand stays below the eyes),
+  // then it comes down in front and on past level, the arm ending low. The body
+  // rocks back under the lift and steps in hard behind the blow
+  chop: {
+    hit: 385,
+    body: [
+      { t: 0, d: 0 },
+      { t: 260, d: -0.12, ease: 'out' },
+      { t: 385, d: 0.34, ease: 'in' },
+      { t: 470, d: 0.3 },
+      { t: 780, d: 0 },
+    ],
+    lead: [
+      { t: 0, s: 0.2, e: -1.07 },
+      { t: 170, s: -0.6, e: -1.5, ease: 'out' },
+      { t: 260, s: -1.1, e: -1.6 },
+      { t: 350, s: -0.7, e: -0.2, ease: 'in' },
+      { t: 385, s: -0.2, e: -0.05 },
+      { t: 420, s: 0.15, e: 0.1, ease: 'out' },
+      { t: 540, s: 0.15, e: 0.1 },
+      { t: 780, s: 0.2, e: -1.07 },
+    ],
+  },
   // the Coyote: no arm, the whole body lurches at the target (feet planted) and springs back; in the
   // same column it lurches straight down or up at it (`leanVertical`)
   lurch: {
