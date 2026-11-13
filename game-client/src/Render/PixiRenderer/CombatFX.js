@@ -344,6 +344,16 @@ export function playerLunge(fromX, fromY, toX, toY) {
   });
 }
 
+/**
+ * The player's weapon swing: the avatar's arm rig plays its attack clip (the sword's `slash`,
+ * heldWeapon.js), alongside the lunge. Nothing when no weapon is out. Returns the clip's hit (ms) or null.
+ */
+export function playerSwing() {
+  const obj = getPcDisplay();
+  if (!ready() || !obj || obj.destroyed || !obj.armRig) return null;
+  return obj.armRig.playAttack(1);
+}
+
 // ---------------------------------------------------------------- the drop
 
 /**
@@ -855,5 +865,5 @@ function tickHpBars(now) {
   }
 }
 
-const CombatFX = { attach, detach, registerPC, text, hitEnemy, enemyWindup, enemyLeapCharge, enemyLeapArc, killEnemy, playerLunge, playerHit, showCooldown, engageEnemy, projectile, dropBounce, FX };
+const CombatFX = { attach, detach, registerPC, text, hitEnemy, enemyWindup, enemyLeapCharge, enemyLeapArc, killEnemy, playerLunge, playerSwing, playerHit, showCooldown, engageEnemy, projectile, dropBounce, FX };
 export default CombatFX;

@@ -52,7 +52,7 @@ export const DEFINITIONS = [
       { ...str('type'), immutable: true, required: true },
       { ...str('layoutkey'), immutable: true },
       { ...str('category'), type: 'enum', enum: ['tile', 'special', 'doober', 'source', 'farmplot', 'travel', 'editor', 'deco', 'stall', 'training', 'crafting', 'trainingAndShop', 'station', 'farmhouse', 'shop', 'npc', 'skill', 'power', 'pet', 'region'], required: true },
-      str('symbol'), str('filename'), { ...str('iconFile'), label: 'iconFile (panel icon when the board art differs: a fruit doober\'s painted fruit while filename is the fruited tree)' }, str('action'), bool('passable'), num('level'), str('source'),
+      str('symbol'), str('filename'), { ...str('iconFile'), label: 'iconFile (panel icon when the board art differs: a fruit doober\'s painted fruit while filename is the fruited tree)' }, { ...str('heldArt'), label: 'heldArt (a weapon: its picture in the avatar\'s hand, a file under game-client/public/assets/avatar/hand on the standard weapon footprint; docs/equipment-plan.md)' }, str('action'), bool('passable'), num('level'), str('source'),
       { ...ref('shopregion', 'resource', 'error'), label: 'shopregion (only this region\'s shops sell it)' },
       { ...ref('growregion', 'resource', 'error'), label: 'growregion (farm plots: only planted, farm animals: only bought, on grids of this region)' }, str('requires'),
       bool('retired', 'retired (no longer sold or offered; players who own it keep it)'),

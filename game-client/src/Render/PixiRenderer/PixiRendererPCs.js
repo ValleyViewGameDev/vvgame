@@ -13,6 +13,8 @@ import { actorZ } from './depthSort';
 import { opaqueTopFraction } from './artHitTest';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
+import { cutRig, syncArmRig } from './ArmRig';
+import { avatarRig, armFigure, weaponSrc, SWING_CLIP } from './heldWeapon';
 import { loadAvatarCatalogue } from '../../Utils/TuningManager';
 import { lookFor, byId, specFor } from '../../Avatar/avatarLook';
 import { renderLook } from '../../Avatar/avatarCompositor';
@@ -106,6 +108,7 @@ const PixiRendererPCs = ({
   TILE_SIZE,              // Tile size in pixels
   gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
   hidden = false,         // the Settlement and Frontier views draw no player (owner 2026-11-10)
+  heldWeapon = null,      // the weapon in the avatar's hand: a file under assets/avatar/hand, or null when it is put away (PixiRenderer; heldWeapon.js)
 }) => {
   const pcContainerRef = useRef(null);
 
@@ -136,7 +139,9 @@ const PixiRendererPCs = ({
   // icon. A player who has not made one (or whose saved one names a face the catalogue no longer
   // has) is drawn in the DEFAULT look (avatarLook.specFor), so the old icon only stands in while
   // the catalogue loads or if it cannot be read. The textures are rebuilt only when the look changes.
-  const avatarTexRef = useRef(null); // { key, open, blink, body } | null
+  const avatarTexRef = useRef(null); // { key, open, blink, body, outfit } | null
+  const disarmTimerRef = useRef(null); // the re-render that takes the arm rig off once the weapon is put away
+  const renderPCsRef = useRef(null);
   const [avatarVersion, setAvatarVersion] = useState(0);
   const avatarKey = currentPlayer?.avatar && currentPlayer.avatar.skin ? JSON.stringify(currentPlayer.avatar) : '';
   useEffect(() => {
@@ -161,7 +166,7 @@ const PixiRendererPCs = ({
         const shut = look.blinkLayers ? await renderLook(look.blinkLayers, { size: AVATAR_PX }) : null;
         if (!live) return;
         const old = avatarTexRef.current;
-        avatarTexRef.current = { key: look.key, open: Texture.from(open), blink: shut ? Texture.from(shut) : null, body: face.body || 'female' };
+        avatarTexRef.current = { key: look.key, open: Texture.from(open), blink: shut ? Texture.from(shut) : null, body: face.body || 'female', outfit: spec.top || null };
         if (old) { releaseRider(old); retireAvatarTex(old, spriteRef.current, avatarTexRef.current); }
         setAvatarVersion((v) => v + 1);
       } catch (e) { console.warn('avatar: could not compose the saved look', e); }
@@ -574,6 +579,24 @@ const PixiRendererPCs = ({
       const blinkFile = !avatarTex && span ? iconToBlinkMap.get(normalizeEmoji(displayIcon)) : null;
       sprite.__openTex = texture;
       sprite.__blinkTex = avatarTex ? av.blink : (blinkFile ? (atlasTextureCache.get(blinkFile) || svgTextureCache.get(blinkFile) || null) : null);
+      // The weapon in the hand (docs/equipment-plan.md; heldWeapon.js): while it is out the figure is
+      // drawn as its body with the sword arm cut away and that arm as an ArmRig holding the weapon in
+      // the guard. Put away, the arm eases back to the drawing and the plain picture returns.
+      const rig = avatarTex ? avatarRig(av.body, av.outfit) : null;
+      const armed = !!(rig && heldWeapon);
+      const cut = rig && (armed || sprite.armRig) ? cutRig(app?.renderer, av.open, rig) : null;
+      if (cut && (armed || !sprite.armRig.atRest)) {
+        const blinkCut = av.blink ? cutRig(app?.renderer, av.blink, rig) : null;
+        sprite.texture = cut.body; sprite.__openTex = cut.body; sprite.__blinkTex = blinkCut ? blinkCut.body : null;
+        const arm = syncArmRig(sprite, rig, cut, { attackClip: SWING_CLIP });
+        if (armed) {
+          if (arm.__held !== heldWeapon) { armFigure(arm, Texture.from(weaponSrc(heldWeapon)), cut.w, AVATAR_SPAN); arm.__held = heldWeapon; }
+          else arm.setStance(null, true);
+        } else {
+          arm.setStance(null, false); // put away: the arm eases down; the plain figure comes back when it has
+          if (!disarmTimerRef.current) disarmTimerRef.current = setTimeout(() => { disarmTimerRef.current = null; renderPCsRef.current?.(); }, 280);
+        }
+      } else if (sprite.armRig) syncArmRig(sprite, null, null);
       if (blinkFile && !sprite.__blinkTex && !blinkRequestedRef.current.has(blinkFile)) {
         blinkRequestedRef.current.add(blinkFile);
         loadSvgTexture(blinkFile).then((tex) => { if (tex && spriteRef.current) spriteRef.current.__blinkTex = tex; });
@@ -626,7 +649,9 @@ const PixiRendererPCs = ({
         });
       }
     }
-  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, hideRider, getRider, getPCRenderPosition, loadSvgTexture, avatarVersion, hidden]);
+  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, hideRider, getRider, getPCRenderPosition, loadSvgTexture, avatarVersion, hidden, heldWeapon]);
+  renderPCsRef.current = renderPCs;
+  useEffect(() => () => { if (disarmTimerRef.current) clearTimeout(disarmTimerRef.current); }, []);
 
   // Initial render and re-render on state changes
   useEffect(() => {

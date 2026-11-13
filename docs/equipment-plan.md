@@ -1,6 +1,7 @@
 # Equipment plan: hand-held weapons first
 
-Status: PLAN v3, 2026-11-13. Nothing in the game has changed. Owner's brief: the equipped weapon in
+Status: PROTOTYPE IN THE GAME, 2026-11-13 (plan v3). The long sword is wired in as a first look:
+see "The prototype" just below for what is and is not built. Owner's brief: the equipped weapon in
 the avatar's hand, swords held UP in an en garde stance (not hanging down like the Ogre's club), a
 few weapon drawings per category on one standard footprint (tints and lengths make the variety;
 weapon names may change to avoid one-offs), no two-handed animation yet, bows and arrows later,
@@ -12,6 +13,31 @@ figure faces. That is the FAR arm of a three-quarter figure, half hidden behind 
 outfit, and lifted it is a sliver (docs/art/equipment/probe-m-tunic.jpg). The owner ruled that a
 deal-breaker: "it looks too unrealistic". The near arm is drawn whole and in front of the body, so
 it is used instead; the sword crosses the body in front and the swing comes over and across it.
+
+## The prototype (2026-11-13)
+
+The owner asked to see the sword in the game before any more planning. What is in:
+
+- **One drawing:** `game-client/public/assets/avatar/hand/weapon-long-sword.png` on the standard
+  footprint (128x512, upright, grip at 64,448). All 27 melee rows from the Warrior's Den name it in a
+  new `heldArt` column, so every melee weapon shows as this one sword for now.
+- **One rig a body, not one an outfit:** `avatar:male` (measured on the tunic) and `avatar:female`
+  (measured on the adventurer) in `rigs.json`. Other outfits use their body's rig, so a wide sleeve
+  may cut badly: that is the P2 outfit pass, not done.
+- **Out only while an enemy is on the grid:** `PixiRenderer.js` works out `heldWeapon` from the
+  grid's live NPC list (any `action: attack`) and the equipped weapon's row. While it is set,
+  `PixiRendererPCs.js` draws the avatar as its body with the near arm cut away plus an `ArmRig`
+  holding the sword in the guard (`heldWeapon.js`); when the last enemy dies the arm eases down and
+  the plain drawing returns.
+- **The cut:** the `slash` clip (`armClips.js`), played by `CombatFX.playerSwing()` alongside the
+  lunge in `Combat.js`. The player also turns to face the enemy struck.
+- **The fist:** the drawn hand is open, so the arm is cut without it and a small fist in the hand's
+  own colours is drawn round the grip (`ArmRig.handParts`).
+
+Checked only on offline renders (`tools/art/rigshot.js --held`; the whole cut is
+docs/art/equipment/prototype-slash.gif, at half speed). Not yet seen in a live fight. Things to
+judge there: the blade crossing the face at the top of the raise, the fist, whether the cut lands
+with the damage number, and how the other outfits' sleeves cut.
 
 ## 1. What exists today
 
@@ -214,7 +240,7 @@ Still open:
 ## 7. Where things live
 
 - Rig, clips, attachment: `game-client/src/Render/PixiRenderer/ArmRig.js`, `armClips.js`, `rigs.json`
-  (a rig per body and outfit).
+  (a rig per body today; per outfit when one needs it), `heldWeapon.js` (footprint, guard, which arm).
 - The look and its layers: `game-client/src/Avatar/avatarLook.js` (`equipFor`, `hand` in `Z_ORDER`),
   `avatarCompositor.js`; the board figure: `Render/PixiRenderer/PixiRendererPCs.js`.
 - Combat: `GameFeatures/Combat/Combat.js`, `combatGear.js`, `Render/PixiRenderer/CombatFX.js`

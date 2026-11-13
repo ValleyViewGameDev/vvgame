@@ -11,6 +11,7 @@
  *        [--view cut]                      the drawing with the rig drawn over it, the body alone, each limb alone
  *        [--clip swipe --times 0,130,260,400,520,780]   one frame per time (ms) of the clip
  *        [--pose 0.1,1.4,0 --lead R]       the lead arm HELD at shoulder, elbow, wrist angles (radians): try a stance before any clip exists
+ *        [--held <weapon png> --span 1.8]  an avatar: the weapon in its hand and the guard raised (heldWeapon.js); --times 0 shows the guard
  *        [--lead R] [--lean 1] [--mirror] [--px 384] [--top 0.3] [--pad 0.3] [--cols 6] [--walk] [--bg 76aa16] [--rigs <other rigs.json>]
  *
  * --lean 1 plays the clip's body lean toward the image's right (-1: left). --mirror flips the sprite, as
@@ -33,7 +34,7 @@ if (!args.art || !args.rig || !args.out) { console.error('need --art <png> --rig
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rigshot-'));
 const rigsFile = args.rigs ? path.resolve(args.rigs) : path.join(SRC, 'rigs.json');
 // the client's modules, with their two non-browser imports rewritten
-for (const f of ['ArmRig.js', 'armClips.js', 'BreathSprite.js', 'breathing.js', 'walking.js']) {
+for (const f of ['ArmRig.js', 'armClips.js', 'BreathSprite.js', 'breathing.js', 'walking.js', 'heldWeapon.js']) {
   let s = fs.readFileSync(path.join(SRC, f), 'utf8');
   s = s.replace(/from 'pixi\.js-legacy'/g, "from './pixi.mjs'");
   s = s.replace(/import RIGS from '\.\/rigs\.json';/, `const RIGS = ${fs.readFileSync(rigsFile, 'utf8')};`);
@@ -42,11 +43,12 @@ for (const f of ['ArmRig.js', 'armClips.js', 'BreathSprite.js', 'breathing.js', 
 }
 fs.copyFileSync(PIXI_MJS, path.join(dir, 'pixi.mjs'));
 fs.copyFileSync(path.resolve(args.art), path.join(dir, 'art.png'));
+if (args.held) fs.copyFileSync(path.resolve(args.held), path.join(dir, 'held.png'));
 
 const params = {
   rig: args.rig, view: args.view || (args.clip || args.pose || args.walk || args.times ? 'clip' : 'cut'), clip: args.pose ? '__pose' : args.clip || null, pose: args.pose ? String(args.pose).split(',').map(Number) : null,
   times: String(args.times || '0').split(',').map(Number), lead: args.lead || 'R', lean: Number(args.lean || 0),
-  mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0),
+  mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0), held: !!args.held, span: Number(args.span || 1.8),
 };
 fs.writeFileSync(path.join(dir, 'index.html'), `<!doctype html><meta charset="utf-8"><body style="margin:0"><script type="module" src="./harness.js"></script>`);
 fs.writeFileSync(path.join(dir, 'harness.js'), `
@@ -54,6 +56,7 @@ import * as PIXI from './pixi.mjs';
 import BreathSprite from './BreathSprite.js';
 import { rigFor, cutRig, syncArmRig } from './ArmRig.js';
 import { ARM_CLIPS } from './armClips.js';
+import { armFigure } from './heldWeapon.js';
 const P = ${JSON.stringify(params)};
 if (P.pose) { const [s, e, w] = P.pose; ARM_CLIPS.__pose = { lead: [{ t: 0, s, e, w: w || 0 }, { t: 1e7, s, e, w: w || 0 }] }; } // a held stance, this tool only
 const fail = (m) => fetch('/fail', { method: 'POST', body: String(m && m.stack || m) });
@@ -92,7 +95,8 @@ if (P.view === 'cut') {
   if (P.mirror) sprite.scale.x = -Math.abs(sprite.scale.x);
   app.stage.addChild(sprite);
   syncArmRig(sprite, rig, cut, { attackClip: P.clip });
-  app.renderer.render(app.stage); app.renderer.render(app.stage);
+  if (P.held) { armFigure(sprite.armRig, await PIXI.Assets.load('./held.png'), cut.w, P.span); if (P.clip) sprite.armRig.attackClip = P.clip; } // a weapon in the hand, the guard raised (heldWeapon.js)
+  app.renderer.render(app.stage); fake += 2000; app.renderer.render(app.stage); app.renderer.render(app.stage); // the stance eased in
   if (P.walk) { sprite.walking = true; sprite.walkSideways = true; sprite.walkCycleMs = 900; }
   const t0 = fake;
   if (P.clip) sprite.armRig.playClip(P.clip, P.lead, P.lean);

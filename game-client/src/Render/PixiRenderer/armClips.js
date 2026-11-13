@@ -83,6 +83,24 @@ export const ARM_CLIPS = {
       { t: 920, l: 0 },
     ],
   },
+  // the avatar's sword cut (docs/equipment-plan.md §3.4; rigs `avatar:*`, heldWeapon.js). Every key is
+  // a WHOLE pose and the clip starts and ends in the guard (heldWeapon.GUARD). The sword is rigid at a
+  // right angle to the forearm, so the forearm alone aims it. Raise: the elbow folds and the shoulder
+  // turns the arm part of the way forward, the blade rising and tipping a little back. Cut: the elbow
+  // straightens as the arm comes down in front, the blade coming over to level. Then back to the guard
+  slash: {
+    hit: 235,
+    lead: [
+      { t: 0, s: 0.15, e: -1.25 },
+      { t: 95, s: -0.4, e: -1.35, ease: 'out' },
+      { t: 155, s: -0.75, e: -1.35 },
+      { t: 220, s: -0.85, e: -0.2, ease: 'in' },
+      { t: 255, s: -0.3, e: -0.1 },
+      { t: 290, s: -0.05, e: -0.05, ease: 'out' },
+      { t: 350, s: -0.05, e: -0.05 },
+      { t: 520, s: 0.15, e: -1.25 },
+    ],
+  },
   // the Coyote: no arm, the whole body lurches at the target (feet planted) and springs back; in the
   // same column it lurches straight down or up at it (`leanVertical`)
   lurch: {

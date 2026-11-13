@@ -439,6 +439,14 @@ const PixiRenderer = ({
   // The player, speech and status-mark layers take `hidden`; the NPC sprites live in the shared
   // objects layer (for depth), so each one's `visible` is set here and in the NPC pass.
   const actorsHidden = isSettlementZoom || isFrontierZoom;
+  // The weapon in the avatar's hand (docs/equipment-plan.md; heldWeapon.js): out ONLY while an enemy is
+  // on the grid (owner 2026-11-13). `npcs` is the grid's live list, so this follows an arrival, a kill
+  // (the last enemy dead: away) and a Spawner making one (out). The equipped weapon's row names its art.
+  const heldWeapon = useMemo(() => {
+    if (!(allNpcs || []).some((n) => n && n.action === 'attack')) return null;
+    const row = (masterResources || []).find((r) => r && r.type === currentPlayer?.settings?.equippedWeapon);
+    return row?.heldArt || null;
+  }, [allNpcs, masterResources, currentPlayer?.settings?.equippedWeapon]);
   const actorsHiddenRef = useRef(actorsHidden);
   actorsHiddenRef.current = actorsHidden;
   useEffect(() => {
@@ -2412,6 +2420,7 @@ const PixiRenderer = ({
         TILE_SIZE={TILE_SIZE}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
         hidden={actorsHidden}
+        heldWeapon={heldWeapon}
       />
       {/* Speech bubbles and relationship outcomes */}
       <PixiRendererSpeech

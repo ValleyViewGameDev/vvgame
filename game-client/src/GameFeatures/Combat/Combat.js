@@ -24,6 +24,7 @@ import { showNotification } from '../../UI/Notifications/Notifications';
 import { footprintOf, footprintCells } from '../../Utils/footprint';
 import { npcNearestCell, npcCentre } from '../../Utils/npcFootprint';
 import { npcChest, pcChest, npcHead, pcHead } from '../../Render/PixiRenderer/shotPoints';
+import { facePlayerToward } from '../../PlayerMovement';
 
 // Defaults when globalTuning.combat is missing (the server copy is the real knob)
 const COMBAT_DEFAULTS = {
@@ -194,7 +195,9 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
     attackReadyAt = Date.now() + cooldown;
     CombatFX.showCooldown(attackReadyAt, cooldown);
     const near = npcNearestCell(freshNPC, player.position);   // the lunge goes at the nearest part of the body
+    facePlayerToward(near.x);                                  // turn to the enemy struck (a Space / F swing made no turn)
     CombatFX.playerLunge(player.position.x, player.position.y, near.x, near.y);
+    CombatFX.playerSwing();                                    // the weapon in the hand cuts with it (docs/equipment-plan.md)
     CombatFX.engageEnemy(freshNPC.id, freshNPC.hp, freshNPC.maxhp);
 
     // The roll is decided now; the feedback lands when the blow does (at once for melee,

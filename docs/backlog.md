@@ -127,7 +127,10 @@ than from the header or a `playerId` in the body. Found while closing the open a
 ### BL-23: Avatar equipment: the weapon in the hand, armour as the outfit
 
 Added 2026-11-10. Not a launch blocker (owner: "a big task ... come back to that later").
-**Plan written 2026-11-13: `docs/equipment-plan.md`** (hand-held weapons first; nothing built).
+**Plan written 2026-11-13: `docs/equipment-plan.md`** (hand-held weapons first). **A first prototype is
+in the game the same day** (one long sword for every melee weapon, one rig a body, out only while an
+enemy is on the grid, the `slash` cut with the lunge): the plan's "The prototype" section says what is
+and is not built. Checked on offline renders only; the owner's look in a live fight decides what next.
 
 **What.** The equipped weapon drawn in the avatar's hand, held up in an en garde stance and swung
 when the player attacks, then armour and helmets as overlays (armour rows are outfit rows, helmets

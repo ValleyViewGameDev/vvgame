@@ -217,6 +217,51 @@ function limbsByPath(rig, src, w, h) {
   return out;
 }
 
+/**
+ * For an arm that holds a weapon: the arm's mask with everything past the wrist taken off (the open,
+ * hanging hand of the drawing), and a FIST to put there instead: a small closed hand painted in the
+ * drawn hand's own colours (its middle tone, its shade, its outline), so it matches any skin tone,
+ * and a glove if the outfit has one, with nothing to tint. Returns { mask, fist } (canvases).
+ */
+function handParts(both, src, arm, w, h) {
+  const E = arm.elbow, G = arm.grip || arm.wrist, Wr = arm.wrist;
+  const len = Math.hypot(G[0] - E[0], G[1] - E[1]) || 1, ax = (G[0] - E[0]) / len, ay = (G[1] - E[1]) / len;
+  const m = both.getContext('2d').getImageData(0, 0, w, h), md = m.data;
+  const sd = src.getContext('2d').getImageData(0, 0, w, h).data;
+  const cols = []; let wide = 0;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4;
+    if (md[i + 3] < 128) continue;
+    const dx = x / w - Wr[0], dy = y / h - Wr[1], along = dx * ax + dy * ay;
+    if (along <= 0) continue;
+    md[i + 3] = 0; // past the wrist: off the arm
+    if (sd[i + 3] >= 250) { cols.push([sd[i], sd[i + 1], sd[i + 2]]); wide = Math.max(wide, Math.abs(dx * -ay + dy * ax)); }
+  }
+  const mask = blankCanvas(w, h); mask.getContext('2d').putImageData(m, 0, 0);
+  if (cols.length < 20) return { mask, fist: null };
+  const lum = (c) => c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114;
+  cols.sort((p, q) => lum(p) - lum(q));
+  const at = (f) => cols[Math.min(cols.length - 1, Math.floor(cols.length * f))];
+  const css = (c, k = 1) => `rgb(${Math.round(c[0] * k)},${Math.round(c[1] * k)},${Math.round(c[2] * k)})`;
+  const line = at(0.03), shade = at(0.3), mid = at(0.6), light = at(0.9);
+  // `fist` on the arm: its width (of the square); else most of the drawn hand's own width
+  const d = Math.max(10, Math.round((arm.fist || wide * 1.5) * w)), pad = 3, size = d + pad * 2, c = size / 2;
+  const fist = blankCanvas(size, size), f = fist.getContext('2d');
+  // drawn for a hanging arm: the knuckles toward the image's bottom, as the forearm points
+  f.beginPath(); f.ellipse(c, c, d * 0.5, d * 0.46, 0, 0, Math.PI * 2);
+  f.fillStyle = css(mid); f.fill();
+  f.save(); f.clip();
+  f.fillStyle = css(shade); f.beginPath(); f.ellipse(c + d * 0.16, c + d * 0.2, d * 0.5, d * 0.42, 0, 0, Math.PI * 2); f.fill();
+  f.fillStyle = css(mid); f.beginPath(); f.ellipse(c - d * 0.04, c - d * 0.04, d * 0.46, d * 0.4, 0, 0, Math.PI * 2); f.fill();
+  f.fillStyle = css(light); f.beginPath(); f.ellipse(c - d * 0.14, c - d * 0.16, d * 0.2, d * 0.14, -0.5, 0, Math.PI * 2); f.fill();
+  f.strokeStyle = css(line, 1.25); f.lineWidth = Math.max(1, d * 0.05); f.lineCap = 'round';
+  for (const k of [-0.2, 0.02, 0.24]) { f.beginPath(); f.moveTo(c + d * k, c + d * 0.12); f.lineTo(c + d * (k + 0.03), c + d * 0.4); f.stroke(); } // the fingers' creases
+  f.restore();
+  f.beginPath(); f.ellipse(c, c, d * 0.5, d * 0.46, 0, 0, Math.PI * 2);
+  f.strokeStyle = css(line); f.lineWidth = Math.max(1.5, d * 0.09); f.stroke();
+  return { mask, fist };
+}
+
 /** The box (fractions of the square) the arm's mesh covers: its outlines and discs, padded. */
 function armBox(arm) {
   let x0 = 1, y0 = 1, x1 = 0, y1 = 0;
@@ -269,6 +314,15 @@ export function cutRig(renderer, texture, rig) {
     const image = layer(feather ? blurMask(both, feather) : both); // the whole limb, one image
     if (arm.rim) rimCutEdges(image, both, src, arm, w, h);
     arms[side] = { tex: Texture.from(image), box: armBox(arm) };
+    // an arm that can HOLD something (`holds: true`, the avatar's sword arm) is also cut without its
+    // hand, and a closed fist is made in the hand's own colours, to draw over what it holds
+    if (arm.holds && arm.wrist) {
+      const { mask: handless, fist } = handParts(both, src, arm, w, h);
+      const bare = layer(feather ? blurMask(handless, feather) : handless);
+      if (arm.rim) rimCutEdges(bare, both, src, arm, w, h);
+      arms[side].texNoHand = Texture.from(bare);
+      arms[side].fist = fist ? Texture.from(fist) : null;
+    }
   }
   bctx.globalCompositeOperation = 'source-over';
   for (const side of limbNames(rig)) if (rig.arms[side].under) underpaint(body, rig.arms[side], side, w, h);
@@ -280,6 +334,7 @@ export function cutRig(renderer, texture, rig) {
 // ---------------------------------------------------------------------------------------------
 // The runtime: the arm sprites on a BreathSprite, and the clip player
 // ---------------------------------------------------------------------------------------------
+const STANCE_MS = 220;             // a stance eases in or out over this long
 const MESH_STEP = 1 / 72;          // the arm mesh's grid spacing (of the square): fine enough for a smooth bend
 const BLEND = [0.05, 0.04];          // default half-widths (of the square) of the shoulder and elbow blend zones
 const smooth01 = (t) => { const c = Math.max(0, Math.min(1, t)); return c * c * (3 - 2 * c); };
@@ -334,9 +389,12 @@ export class ArmRig {
       }
       const mesh = new SimpleMesh(part.tex, verts, uvs, indices);
       this.root.addChild(mesh);
-      this.arms[side] = { arm, mesh, n, rest, wU, wF, wW, bell, a1, S: [S[0] * w, S[1] * h], E: [E[0] * w, E[1] * h], W: Wr ? [Wr[0] * w, Wr[1] * h] : null, pose: null };
+      this.arms[side] = { arm, mesh, part, n, rest, wU, wF, wW, bell, a1, S: [S[0] * w, S[1] * h], E: [E[0] * w, E[1] * h], W: Wr ? [Wr[0] * w, Wr[1] * h] : null, pose: null,
+        G: [G[0] * w, G[1] * h], foreAngle: Math.atan2(-a2[0], a2[1]), held: null }; // foreAngle: how the forearm lies at rest, clockwise from straight down
     }
     this.play = null; // { clip, start, lead }
+    this.stance = null; // { side, s, e, w }: a pose HELD while no clip plays (the avatar's guard), eased in and out
+    this._stanceAmt = 0; this._stanceTo = 0; this._stanceAt = 0;
     sprite.addChild(this.root);
     sprite.armRig = this;
     this.sprite = sprite;
@@ -364,7 +422,10 @@ export class ArmRig {
       const a = this.arms[side];
       if (!a) continue;
       const track = clip ? (side === this.play.lead ? clip.lead : clip.off) : null;
-      const pose = track ? poseAt(track, t) : { s: 0, e: 0, w: 0 };
+      const st = this.stance && this.stance.side === side ? this.stance : null;
+      const k = st ? this.stanceAmount(now) : 0;
+      // a clip's keys are whole poses (the avatar's slash starts and ends in its guard); with no clip the arm rests in the stance
+      const pose = track ? poseAt(track, t) : st ? { s: st.s * k, e: st.e * k, w: (st.w || 0) * k } : { s: 0, e: 0, w: 0 };
       const out = side === 'R' ? -1 : 1; // outward is clockwise for the image's left arm
       const extra = auto[side];
       const ts = out * pose.s + (extra ? extra[0] : 0), te = out * pose.e + (extra ? extra[1] : 0), tw = a.W ? out * (pose.w || 0) : 0;
@@ -400,7 +461,66 @@ export class ArmRig {
       const shoulderLean = lean ? lean * h * Math.max(0, feetV - a.S[1] / h) / span : 0; // already in p.x, and in the mesh's shoulder point
       const shoulderLeanY = leanY ? leanY * h * Math.max(0, feetV - a.S[1] / h) / span : 0;
       a.mesh.position.set(p.x - p.f * ow * (a.S[0] + shoulderLean - ax), p.y - oh * (a.S[1] + shoulderLeanY - ay));
+      if (a.held) this.placeHeld(a, ts, te, tw, lean, leanY, h, feetV, span, ax, ay, st ? k : 1);
     }
+  }
+
+  /** How far into its stance the arm is, 0..1 (eased over STANCE_MS toward the last `setStance`). */
+  stanceAmount(now) {
+    if (this._stanceAmt !== this._stanceTo) {
+      const step = (now - this._stanceAt) / STANCE_MS; this._stanceAt = now;
+      this._stanceAmt = this._stanceTo > this._stanceAmt ? Math.min(this._stanceTo, this._stanceAmt + step) : Math.max(this._stanceTo, this._stanceAmt - step);
+    }
+    return smooth01(this._stanceAmt);
+  }
+
+  /** Hold `pose` ({ side, s, e, w? }) whenever no clip plays; `on` false eases back to the drawing. */
+  setStance(pose, on = true) {
+    if (pose) this.stance = pose;
+    const to = on && this.stance ? 1 : 0;
+    if (to !== this._stanceTo) { this._stanceTo = to; this._stanceAt = performance.now(); }
+  }
+
+  /** True once the arm is back as drawn (the stance eased out and no clip playing). */
+  get atRest() { return !this.play && this._stanceAmt === 0 && this._stanceTo === 0; }
+
+  /**
+   * Put a WEAPON in a limb's hand (docs/equipment-plan.md): its own sprite, fixed in the hand at
+   * `angle` to the forearm (the avatar's sword: a right angle, rigid, no wrist), gripped at `grip`
+   * (px in its texture), `scale` mesh px per texture px. The arm is drawn without its open hand and a
+   * fist is drawn over the handle. `null` puts it away.
+   */
+  setHeld(side, held) {
+    const a = this.arms[side];
+    if (!a) return;
+    if (a.held) { for (const o of [a.held.weapon, a.held.fist]) if (o) { a.mesh.removeChild(o); o.destroy(); } a.held = null; a.mesh.texture = a.part.tex; }
+    if (!held || !held.tex) return;
+    const weapon = new Sprite(held.tex);
+    const [tw0, th0] = held.size || [held.tex.width, held.tex.height]; // its canvas: a texture still loading has no size yet
+    weapon.anchor.set(held.grip[0] / tw0, held.grip[1] / th0);
+    weapon.scale.set(held.scale);
+    a.mesh.addChild(weapon);
+    let fist = null;
+    if (a.part.fist) { fist = new Sprite(a.part.fist); fist.anchor.set(0.5); a.mesh.addChild(fist); }
+    if (a.part.texNoHand) a.mesh.texture = a.part.texNoHand;
+    a.held = { weapon, fist, angle: held.angle ?? Math.PI / 2 };
+    a.pose = null; // placed on the next sync
+  }
+
+  /** Each frame: the held weapon and the fist at the hand, turned with the forearm. `show`: 0..1, the stance's ease. */
+  placeHeld(a, ts, te, tw, lean, leanY, h, feetV, span, ax, ay, show) {
+    let [x, y] = a.G;
+    const turn = (px, py, ang) => { if (!ang) return; const c = Math.cos(ang), s = Math.sin(ang), dx = x - px, dy = y - py; x = px + dx * c - dy * s; y = py + dx * s + dy * c; };
+    if (a.W) turn(a.W[0], a.W[1], tw);
+    turn(a.E[0], a.E[1], te);
+    turn(a.S[0], a.S[1], ts);
+    const above = Math.max(0, feetV - y / h) / span;
+    if (lean) x += lean * h * above;
+    if (leanY) y += leanY * h * above;
+    const fore = a.foreAngle + ts + te + tw; // the forearm now, clockwise from straight down
+    const { weapon, fist, angle } = a.held;
+    weapon.position.set(x - ax, y - ay); weapon.rotation = fore + angle; weapon.alpha = show;
+    if (fist) { fist.position.set(x - ax, y - ay); fist.rotation = fore; fist.alpha = show; }
   }
 
   /**
