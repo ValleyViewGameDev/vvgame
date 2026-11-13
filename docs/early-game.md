@@ -86,7 +86,7 @@ Teaches the core loop: plant, harvest, sell to Kent (generate resources, turn th
 money), then Town and a first skill (Grower). Today: 20 steps in `FTUEsteps.json`, from the
 forest edge at the Town gate (the opening grid; its code name is still `ftue-cave`) and Constable Elbow to the Home Deed, the avatar picker, 3 Wheat, Kent, planting, the Shepherd's
 To Do list, the Town Key and the Agriculture Center. No Mailbox beat (owner 2026-11-13): the
-starting goods (Money, Wood, 12 each of Wheat, Carrot and Corn) are in the starter account
+starting goods (Money, 5 Gems, Wood, 12 each of Wheat, Carrot and Corn) are in the starter account
 (`tuning/starterAccount.json`) and the welcome message (`messages.json` id 1) holds only 25 Gems,
 left for the player to find.
 
