@@ -1,6 +1,6 @@
 # Equipment plan: hand-held weapons first
 
-Status: PLAN v2, 2026-11-13. Nothing in the game has changed. Owner's brief: the equipped weapon in
+Status: PLAN v3, 2026-11-13. Nothing in the game has changed. Owner's brief: the equipped weapon in
 the avatar's hand, swords held UP in an en garde stance (not hanging down like the Ogre's club), a
 few weapon drawings per category on one standard footprint (tints and lengths make the variety;
 weapon names may change to avoid one-offs), no two-handed animation yet, bows and arrows later,
@@ -111,23 +111,48 @@ Every weapon is drawn the same way so any of them drops onto the hand:
 
 A held pose of the rig (data): the near arm's elbow bent so the forearm lies across the body at belt
 height, the wrist turned so the blade stands up and leans toward the side the figure faces, passing
-the far shoulder. It eases in when the weapon comes out and out when it is put away. Shown where the
-avatar plan already decided (valley, dungeon, the FTUE opening); away in Town and on the Homestead.
-The pose holds while walking, with the walk's bob.
+the far shoulder. The pose holds while walking, with the walk's bob.
 
-### 3.4 Swings: over and across the body
+**The weapon is out only while there is an enemy on the grid** (owner 2026-11-13). Checked:
 
-Clips by family, chosen by the weapon's `swing`, all with the near arm:
+- on arriving on a grid (any enemy there: out);
+- when an enemy dies (it was the last one: away);
+- when an enemy appears (a Spawner makes one, a story moment adds one: out).
 
-- **slash** (swords, curved blades, great swords): the arm lifts up and back on its own side with
-  the blade cocked over that shoulder, then cuts down across the body toward the target.
-- **thrust** (rapiers, daggers, pole weapons): the fist draws back along the belt and drives
-  straight across toward the target.
-- **chop** (axes, hammers): higher and slower than the slash, the body leaning in.
+So it is away in Town and on the Homestead without a rule of its own, and away in a cleared valley
+or dungeon. Out and away ease the arm between the drawing's hanging arm and the guard; the weapon
+and the fist appear and go with it. "Enemy" is an NPC whose `action` is `attack` (Spawners do not
+count until they make one). This replaces the avatar plan's older zone rule (out in the valley,
+the dungeon and the FTUE opening).
+
+### 3.4 The swing: raise, cut down and forward, reset
+
+Three motions, all with the near arm (owner 2026-11-13, replacing v2's first idea of swinging the
+arm back on its own side):
+
+1. **Raise.** The shoulder turns the arm FORWARD and up (counter-clockwise on a figure facing
+   right), so the sword rises in front of the body, goes up over the head and at the top tips a
+   little back.
+2. **Cut down and forward.** The shoulder brings the arm down in front while the elbow straightens,
+   so the hand reaches forward toward the target and the blade comes down onto it.
+3. **Reset** to the guard.
+
+![swing](art/equipment/probe-swing.jpg)
+
+(Held poses of the test rig with a stand-in sword, not an animation yet. To tune in P1: for a
+moment at the top the forearm passes in front of the face; keeping the elbow lower, or leaning the
+body back in the raise, takes it beside the head.)
+
+Families, chosen by the weapon's `swing`, all on that pattern:
+
+- **slash** (swords, curved blades, great swords): as above.
+- **thrust** (rapiers, daggers, pole weapons): a short raise, the fist drawn back to the chest, then
+  straight out forward with the elbow.
+- **chop** (axes, hammers): the same raise, higher and slower, the body leaning in.
 
 A player's hit resolves on the tap (the combat rule), so each clip is short (under 300 ms) with the
-blow early. The body's short step toward the target (`playerLunge`) stays and plays with the clip,
-because the across-the-body cut needs the reach; unarmed is the lunge alone.
+blow early. The body's short step toward the target (`playerLunge`) stays and plays with the clip
+for reach; unarmed is the lunge alone.
 
 ### 3.5 Which arm, mirrored
 
@@ -152,7 +177,7 @@ to face the way it moves and fights, and the arm, weapon and fist mirror with it
 |---|---|---|
 | P0 | The probes (far arm rejected, near arm works) | Done |
 | **P1 Prototype, outside the game** | Weapon attachment in `ArmRig`; the two fists; the guard pose; the `slash` clip; ONE long sword drawn on the standard footprint; near-arm outlines for one outfit a body (male tunic, female adventurer). All shown as rigshot animations | The owner approves the guard and the slash on both bodies |
-| P2 In the game | `PixiRendererPCs` rigs the composed avatar; the `hand` layer feeds the attachment; combat plays the clip with the lunge; the zone rule (out in the valley, away in Town); near-arm outlines for all 14 outfits, each checked on a rigshot sheet | Every outfit holds and swings the one sword cleanly, both bodies, both directions |
+| P2 In the game | `PixiRendererPCs` rigs the composed avatar; the `hand` layer feeds the attachment; combat plays the clip with the lunge; the weapon out only while an enemy is on the grid (§3.3); near-arm outlines for all 14 outfits, each checked on a rigshot sheet | Every outfit holds and swings the one sword cleanly, both bodies, both directions |
 | P3 Weapon art | The sheet of base drawings, tints and lengths on the rows, `thrust` and `chop`, the renames, panel and shop icons from the same art | Every melee weapon shows in the hand and in the panels |
 | P4 Later | Shields; bows and Darts; armour and helmet overlays; a two-hand grip only if wanted | |
 
@@ -163,15 +188,14 @@ weapon sheet is commissioned.
 ## 6. Decisions for the owner
 
 Settled 2026-11-13: the near arm; a few drawings per category with tints; renaming allowed; no
-two-handed animation yet.
+two-handed animation yet; the swing is raise, cut down and forward, reset; the weapon is out only
+while an enemy is on the grid.
 
 Still open:
 
-1. **The guard:** always held while a weapon is out (recommended, simplest), or raised only when an
-   enemy is near?
-2. **Wide sleeves:** if the court gown or the robe cannot be cut cleanly, redraw that outfit's near
+1. **Wide sleeves:** if the court gown or the robe cannot be cut cleanly, redraw that outfit's near
    arm (recommended), or let those outfits keep the weapon lowered?
-3. **Odd names:** rename Fen Hook and Lethe Scythe to match their drawings (recommended), or give
+2. **Odd names:** rename Fen Hook and Lethe Scythe to match their drawings (recommended), or give
    each its own drawing?
 
 ## 7. Where things live
