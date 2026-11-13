@@ -65,14 +65,15 @@ What this direction costs, said plainly:
 
 The Ogre's club is painted into his arm; that cannot swap. For the avatar:
 
-- **The weapon** is a separate sprite attached to the arm rig at the grip, turning with the wrist.
+- **The weapon** is a separate sprite attached to the arm rig at the grip, fixed at a right angle
+  to the forearm (§3.4).
 - **The fist** is a small skin-tinted piece per body (two drawings). While a weapon is held the arm
   image ends at the wrist and the fist is drawn there, fingers over the handle. It takes the skin
   tone exactly as the face does.
 
 Draw order: body, arm, weapon, fist. All of it is in front of the body, which is correct for the
 near arm with no extra work. `ArmRig` gains the attachment (a child placed at the grip each frame,
-turned by shoulder + elbow + wrist); the wrist, the grip point and the mirroring already exist.
+turned by shoulder + elbow); the grip point and the mirroring already exist.
 
 ### 3.2 One standard weapon footprint, a few drawings
 
@@ -110,8 +111,8 @@ Every weapon is drawn the same way so any of them drops onto the hand:
 ### 3.3 The stance: en garde is a pose, not a drawing
 
 A held pose of the rig (data): the near arm's elbow bent so the forearm lies across the body at belt
-height, the wrist turned so the blade stands up and leans toward the side the figure faces, passing
-the far shoulder. The pose holds while walking, with the walk's bob.
+height, a little below level; the blade, at its right angle to the forearm, stands up and leans
+toward the side the figure faces, passing the far shoulder. The pose holds while walking, with the walk's bob.
 
 **The weapon is out only while there is an enemy on the grid** (owner 2026-11-13). Checked:
 
@@ -130,26 +131,36 @@ the dungeon and the FTUE opening).
 Three motions, all with the near arm (owner 2026-11-13, replacing v2's first idea of swinging the
 arm back on its own side):
 
-1. **Raise.** The ELBOW does most of it: it folds, bringing the fist up from the belt to beside the
-   jaw, while the shoulder turns the upper arm only part of the way forward (counter-clockwise on a
-   figure facing right). The sword rises in front of the body and at the top tips a little back.
-   (Owner: with the shoulder doing the raise it pivoted too far and the joint looked wrong.)
-2. **Cut down and forward.** The elbow straightens and the shoulder carries the arm out in front,
-   so the hand reaches forward toward the target and the blade comes down onto it.
+**The sword is rigid in the hand: always at a right angle to the forearm** (owner 2026-11-13). The
+wrist does not turn, in the guard or anywhere in a swing, so where the blade points is decided by
+the forearm alone: forearm level, blade upright; forearm tilted up, blade tipped back; forearm
+hanging, blade level and pointing forward. (The rig's wrist joint stays, unused by the avatar.)
+
+1. **Raise.** The elbow folds and the shoulder turns the upper arm part of the way forward
+   (counter-clockwise on a figure facing right), lifting the forearm from just below level to
+   tilted up, so the sword rises and at the top tips a little back. (Owner: with the shoulder doing
+   the whole raise it pivoted too far and the joint looked wrong.)
+2. **Cut down and forward.** The elbow straightens as the arm comes down in front, the hand
+   reaching forward toward the target; the forearm swings down through level to hanging, so the
+   blade comes over from tipped back, through upright, to level and pointing at the target.
 3. **Reset** to the guard.
 
 ![swing](art/equipment/probe-swing.jpg)
 
 (Held poses of the test rig with a stand-in sword, not an animation yet. As shoulder and elbow
-angles in radians: guard 0.15, -1.25; raise -0.45, -1.8; up -0.85, -2.3; top -1.05, -2.5; cut
--1.3, -0.35; follow-through -1.0, -0.15. At the top the fist sits beside the jaw, not over the
-face.)
+angles in radians: guard 0.15, -1.25; raise -0.4, -1.35; top -0.75, -1.35; cut -0.85, -0.2; down
+-0.3, -0.1; end -0.05, -0.05. The blade's angle is the sum of the two plus a right angle. Two
+things follow from the rigid grip, to judge in P1: at the top the blade stands in front of the
+face for a moment, and the cut finishes with the arm low, because a level blade needs a hanging
+forearm.)
 
 Families, chosen by the weapon's `swing`, all on that pattern:
 
 - **slash** (swords, curved blades, great swords): as above.
-- **thrust** (rapiers, daggers, pole weapons): a short raise, the fist drawn back to the chest, then
-  straight out forward with the elbow.
+- **thrust** (rapiers, daggers, pole weapons): to be designed in P3. A blade at a right angle to
+  the forearm cannot be driven point-first, so a thrust needs these weapons mounted in line with
+  the forearm instead (a second fixed mounting angle, still with no wrist motion), or they simply
+  use the slash.
 - **chop** (axes, hammers): the same raise, higher and slower, the body leaning in.
 
 A player's hit resolves on the tap (the combat rule), so each clip is short (under 300 ms) with the
