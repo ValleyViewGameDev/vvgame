@@ -43,9 +43,18 @@ The owner asked to see the sword in the game before any more planning. What is i
 - **Wired to the Combat panel's weapon slot:** what is in the hand comes from the equipped weapon
   (`player.settings.equippedWeapon`), which the panel changes on the tap. Unequip, or equip a weapon
   with no category, and the arm eases down and the plain drawing returns (rigshot `--away` shows it).
-- **One rig a body, not one an outfit:** `avatar:male` (measured on the tunic) and `avatar:female`
-  (measured on the adventurer) in `rigs.json`. Other outfits use their body's rig, so a wide sleeve
-  may cut badly: that is the P2 outfit pass, not done.
+- **A rig for every outfit (2026-11-13):** `rigs.json` has `avatar:<top id>` for twelve outfits and
+  the two body rigs `avatar:male` / `avatar:female` for the two they were measured on (green tunic,
+  adventurer). The first prototype used the body rig for every outfit, and the owner's first fight in
+  the black leathers showed why that fails: a padded shoulder was left behind on a thrust, and a
+  sliver of the coat beside the hand swung with the arm on a chop. Each outfit hangs its arm in a
+  different place, so each needs its own joints and its own edge against the body. How a rig is
+  traced: the outer edge is set WIDE of the art (x 0.2: only background is there, and it takes in
+  any padding), the edge against the body is traced on the art and runs down the middle of any gap
+  between sleeve and body, the two pieces overlap at the elbow, and `under` is the torso's own edge
+  behind the arm (never across a real gap, or the gap is painted in). Every outfit thrusting and
+  chopping: docs/art/equipment/outfit-rigs.jpg. Not checked: hair that falls over the near shoulder
+  is cut with the arm and moves with it.
 - **Out only while an enemy is on the grid:** `PixiRenderer.js` also checks the grid's live NPC
   list (any `action: attack`). While a sword is equipped AND an enemy is there, `PixiRendererPCs.js`
   draws the avatar as its body with the near arm cut away plus an `ArmRig` holding the sword in the
