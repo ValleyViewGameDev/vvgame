@@ -51,6 +51,18 @@ export const npcReach = (npc, to, at = null) => {
   return Math.max(Math.abs(c.x - Math.round(to.x)), Math.abs(c.y - Math.round(to.y)));
 };
 
+/**
+ * Every tile within `range` of the NPC's body (Chebyshev, as reach is measured) and not on it: where
+ * someone with that reach could stand to strike it. Range 1 is the ring round the body.
+ */
+export const tilesInReach = (npc, range = 1, at = null) => {
+  const { w, h } = footprintOf(npc); const a = anchorOf(npc, at); const r = Math.max(1, Math.floor(range)); const tiles = [];
+  for (let y = a.y - h + 1 - r; y <= a.y + r; y++) {
+    for (let x = a.x - r; x <= a.x + w - 1 + r; x++) if (!npcCovers(npc, x, y, at)) tiles.push({ x, y });
+  }
+  return tiles;
+};
+
 /** The middle of the body in tile units (the anchor itself for a 1 x 1). `at` may be a mid-step render position. */
 export const npcCentre = (npc, at = null) => {
   const { w, h } = footprintOf(npc); const p = at || npc.position;

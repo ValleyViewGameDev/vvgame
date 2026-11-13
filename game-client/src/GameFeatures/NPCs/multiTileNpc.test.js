@@ -6,8 +6,8 @@
  */
 import NPC from './AllNPCsShared';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import { npcCells, npcReach, npcCovers, npcNearestCell, npcCentre, anchorsBeside } from '../../Utils/npcFootprint';
-import { buildPassability, findPath } from '../../Utils/Pathfinding';
+import { npcCells, npcReach, npcCovers, npcNearestCell, npcCentre, anchorsBeside, tilesInReach } from '../../Utils/npcFootprint';
+import { buildPassability, findPath, findPathToAny } from '../../Utils/Pathfinding';
 
 const mockWorld = { npcs: {}, player: { playerId: 'p1', username: 'tester', hp: 100, armorclass: 10, position: { x: 0, y: 0 } } };
 
@@ -218,6 +218,31 @@ describe('the player and a 2 x 2 enemy', () => {
     const end = path[path.length - 1];
     expect(npcCovers(npc, end.x, end.y)).toBe(false);
     expect(npcReach(npc, end)).toBe(1);
+  });
+});
+
+describe('a tap on an enemy out of reach walks to a tile it can be struck from', () => {
+  test('the tiles in reach: the ring round the body for a sword, wider for a bow, never on the body', () => {
+    const small = { position: { x: 5, y: 5 } }, big = { sizeX: 2, sizeY: 2, position: { x: 5, y: 5 } };
+    expect(tilesInReach(small, 1)).toHaveLength(8);
+    expect(tilesInReach(big, 1)).toHaveLength(12);
+    expect(tilesInReach(small, 3)).toHaveLength(48);
+    for (const npc of [small, big]) for (const range of [1, 2, 4]) {
+      for (const t of tilesInReach(npc, range)) { expect(npcCovers(npc, t.x, t.y)).toBe(false); expect(npcReach(npc, t)).toBeGreaterThanOrEqual(1); expect(npcReach(npc, t)).toBeLessThanOrEqual(range); }
+    }
+  });
+  test('the walk ends on the nearest such tile; with every one walled off there is no walk', () => {
+    const open = world(['.......', '.......', '.......', '.......', '.......', '.......']);
+    const npc = enemy('big', 4, 2, { sizeX: 2, sizeY: 2 });
+    const pass = (map) => buildPassability({ tiles: map.tiles, resources: map.resources, npcs: [npc], masterResources: [{ type: 'g', category: 'tile', passable: true }], currentPlayer: {} });
+    const path = findPathToAny({ x: 0, y: 5 }, npc.position, tilesInReach(npc, 1), pass(open));
+    const end = path[path.length - 1];
+    expect(npcReach(npc, end)).toBe(1);
+    expect(path.length).toBe(3); // (3, 3) is the nearest tile of the ring, three steps away
+    const bow = findPathToAny({ x: 0, y: 5 }, npc.position, tilesInReach(npc, 3), pass(open));
+    expect(bow.length).toBe(1);  // a bow needs only one step for the shot
+    const walled = world(['...#...', '...#...', '...#...', '...#...', '...#...', '...#...']);
+    expect(findPathToAny({ x: 0, y: 5 }, npc.position, tilesInReach(npc, 1), pass(walled))).toEqual([]);
   });
 });
 

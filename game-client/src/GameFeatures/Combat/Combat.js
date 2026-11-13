@@ -22,7 +22,7 @@ import { createImpactEffect, createNPCDeathEffect } from '../../VFX/VFX';
 import { isViewOnly } from '../../Utils/viewOnly';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { footprintOf, footprintCells } from '../../Utils/footprint';
-import { npcNearestCell, npcCentre } from '../../Utils/npcFootprint';
+import { npcNearestCell, npcCentre, tilesInReach } from '../../Utils/npcFootprint';
 import { npcChest, pcChest, npcHead, pcHead } from '../../Render/PixiRenderer/shotPoints';
 import { facePlayerToward } from '../../PlayerMovement';
 
@@ -132,6 +132,23 @@ function checkRange(player, target, TILE_SIZE) {
         return false;
     }
     return true;
+}
+
+/**
+ * The local player's reach on an enemy, read from the live stores (never React state, which trails a
+ * walk): `inReach` when it can be struck from where the player stands, by the same two rules as
+ * checkRange above (within the weapon's reach of the nearest tile of its body, no wall or tree in the
+ * line), and `spots()`, every tile it could be struck from. null when either is gone or it is dying.
+ * A tap on an enemy out of reach walks to the nearest spot and attacks there (PixiRenderer.walkToAttack).
+ */
+export function reachOnEnemy(gridId, playerId, npcId) {
+    const player = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+    const npc = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcId];
+    if (!player?.position || !npc?.position || npc.hp <= 0) return null;
+    const range = player.attackrange || 1;
+    const clear = (tile) => !isWallBlocking(tile, npcNearestCell(npc, tile), { trees: true });
+    const inReach = reachDistance(player.position, npcNearestCell(npc, player.position)) <= range && clear(player.position);
+    return { npc, player, inReach, spots: () => tilesInReach(npc, range).filter(clear) };
 }
 
 /** d20 + attack bonus vs armour class **/

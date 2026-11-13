@@ -33,6 +33,7 @@ import { findArtAt, opaqueTopFraction } from './artHitTest';
 import { setNpcHeadTop, clearNpcHeadTop, npcOverlaySpot, onNpcHeadTopsChanged } from './npcHeadTops';
 import { loadAtlas, getAtlasTexture, resetAtlas, isAtlasLoaded } from './AtlasTextures';
 import CombatFX from './CombatFX';
+import { reachOnEnemy, getAttackCooldownStatus } from '../../GameFeatures/Combat/Combat';
 import { emojiKey } from '../../Utils/emojiKey';
 import {
   TILES_PER_GRID,
@@ -1841,6 +1842,51 @@ const PixiRenderer = ({
     if (steps === 0 && openIfStuck) arrive();
   }, []);
 
+  /**
+   * A tap on an ENEMY out of the weapon's reach (owner 2026-11-13): walk to the nearest tile it can
+   * be struck from (within the weapon's reach of its body, no wall or tree in the line: a sword
+   * walks up to it, a bow only until it has the shot) and attack there. Enemies move, mostly toward
+   * the player, so the walk ends the moment it is in reach, and one that has moved off by the end of
+   * the walk is followed again (`retries`). No way to any such tile: the walk reports it as any walk
+   * does (App's onWalkTo: "You can't go that way."). A new tap replaces the pursuit.
+   */
+  const pursuitRef = useRef(0);
+  const walkToAttack = useCallback((npcId, retries) => {
+    const L = latestRef.current;
+    const playerId = String(L?.currentPlayer?._id || '');
+    const reach = L?.onWalkTo ? reachOnEnemy(L.gridId, playerId, npcId) : null;
+    if (!reach) return;
+    const pursuit = pursuitRef.current;
+    const strike = () => {
+      const now = latestRef.current;
+      const r = reachOnEnemy(now.gridId, playerId, npcId);
+      if (!r || !r.inReach || pursuit !== pursuitRef.current) return;
+      turnToEachOther(r.npc, now.gridId);
+      handleNPCClickShared(r.npc, {
+        currentPlayer: now.currentPlayer, playersInGrid: now.playersInGrid, gridId: now.gridId,
+        TILE_SIZE: now.TILE_SIZE, masterResources: now.masterResources, masterSkills: now.masterSkills,
+        masterTrophies: now.masterTrophies, globalTuning: now.globalTuning, strings: now.strings,
+        onNPCClick: now.onNPCClick, setHoverTooltip: now.setHoverTooltip, setInventory: now.setInventory,
+        setBackpack: now.setBackpack, setResources: now.setResources, setCurrentPlayer: now.setCurrentPlayer,
+        setModalContent: now.setModalContent, setIsModalOpen: now.setIsModalOpen, updateStatus: now.updateStatus,
+        openPanel: now.openPanel, setActiveStation: now.setActiveStation, isDeveloper: now.isDeveloper,
+      });
+    };
+    const arrive = () => {
+      const r = reachOnEnemy(latestRef.current.gridId, playerId, npcId);
+      if (!r || pursuit !== pursuitRef.current) return; // it died or left meanwhile, or the player tapped elsewhere
+      if (!r.inReach) { if (retries > 0) walkToAttack(npcId, retries - 1); return; }
+      // a swing still cooling down (the player had just struck something else): the blow waits for it
+      const wait = getAttackCooldownStatus().cooldownEnd - Date.now();
+      if (wait > 0) setTimeout(strike, wait + 20); else strike();
+    };
+    L.onWalkTo(Math.floor(reach.npc.position.y), Math.floor(reach.npc.position.x), {
+      spots: reach.spots(),
+      until: () => !!reachOnEnemy(latestRef.current.gridId, playerId, npcId)?.inReach,
+      onArrive: arrive,
+    });
+  }, []);
+
   // The NPC whose RENDERED sprite is under a board-relative screen point, or null. Enemies tween
   // between tiles, so the tile under the cursor is often empty (half a tile of slack); a figure
   // (resources.json artSpan) stands span tiles tall and nearly a tile wide on its tile, so a tap
@@ -1882,6 +1928,7 @@ const PixiRenderer = ({
     // Phones: a tap while a panel is open dismisses it and stops here (no walking, no acting),
     // unless it places from a placement cursor (App's onBoardTap decides)
     if (onBoardTap && onBoardTap({ placing: !!cursorMode })) return;
+    pursuitRef.current += 1; // any new tap ends a walk-up-and-attack still waiting to strike
 
     const rect = containerRef.current.getBoundingClientRect();
     let { row, col } = PixiCamera.screenToTile(event.clientX - rect.left, event.clientY - rect.top);
@@ -1958,11 +2005,16 @@ const PixiRenderer = ({
     if (npc) {
       // A helper NPC beyond reach: walk up to it (stopping on a neighbouring tile, never on
       // the NPC) and open it on arrival, as if it had been tapped from there. Range is from the
-      // NPC's own tile, not the tapped one (a tap on a tall figure's head is a tile or two north). Enemies
-      // keep the plain click (walking into them is not a tap's intent).
+      // NPC's own tile, not the tapped one (a tap on a tall figure's head is a tile or two north). An
+      // enemy out of the weapon's reach is walked up to and attacked (walkToAttack, owner 2026-11-13).
       const isHostile = npc.action === 'attack';
       // On a homestead a tap never walks the avatar to the thing tapped, only to the ground (owner 2026-11-10)
       const onHomestead = currentPlayer?.location?.gtype === 'homestead';
+      if (isHostile && !cursorMode && !onHomestead) {
+        // camping or afloat the attack is refused where the player stands (Combat.js says why): no walk
+        const reach = reachOnEnemy(gridId, String(currentPlayer?._id || ''), npc.id);
+        if (reach && !reach.inReach && !reach.player.iscamping && !reach.player.isinboat && !currentPlayer?.isinboat) { walkToAttack(npc.id, 3); return; }
+      }
       if (!isHostile && !cursorMode && !onHomestead && outOfRange(npc.position?.x ?? col, npc.position?.y ?? row)) { walkToNpc(npc.id, 1); return; } // the walk turns the figure; the two face each other on arrival
       // In reach too: a helper NPC is talked to from beside it, one tile to its left or right in its
       // row (owner 2026-11-10), so a player anywhere else first steps there; already there, it opens
@@ -2032,7 +2084,7 @@ const PixiRenderer = ({
     if (handleTileClick) {
       handleTileClick(row, col);
     }
-  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, cursorMode, onWalkTo, walkToNpc, findHostileAtScreen, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
+  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, cursorMode, onWalkTo, walkToNpc, walkToAttack, findHostileAtScreen, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
       onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,

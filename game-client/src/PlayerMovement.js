@@ -7,7 +7,7 @@ import FloatingTextManager from "./UI/FloatingText";
 import { handleTransitSignpost, canTravel } from './GameFeatures/Transit/Transit';
 import { prefetchNeighbour } from './Utils/GridPrefetch';
 import PixiCamera from './Render/PixiRenderer/PixiCamera';
-import { buildPassability, findPath } from './Utils/Pathfinding';
+import { buildPassability, findPath, findPathToAny } from './Utils/Pathfinding';
 
 // Render-only animation state for interpolated player positions (used by rendering components)
 const renderPositions = {};
@@ -80,6 +80,7 @@ let pathReplanned = false;
 let pathCrossDelta = null;  // set when the tap was beyond an edge: the final step crosses it
 let pathArrive = null;      // called once when the walk completes (not when it is cancelled)
 let pathGoalOpts = {};      // findPath options of the current walk, reused by a re-plan
+let pathUntil = null;       // a walk's own test, asked after each step: true ends it there, as an arrival
 
 // The player's FACING (docs/avatar-plan.md D1): 1 = as drawn (turned a little to the viewer's
 // right), -1 = mirrored. Set by every horizontal step here and by an interaction (facing the NPC
@@ -141,12 +142,14 @@ function clearPath() {
   pathReplanned = false;
   pathCrossDelta = null;
   pathArrive = null;
+  pathUntil = null;
 }
 
 /** The walk reached its goal: tell whoever asked for it (after React has the final position). */
 function fireArrive() {
   const cb = pathArrive;
   pathArrive = null;
+  pathUntil = null;
   if (!cb) return;
   playersInGridManager.flushReactSync();
   try { cb(); } catch (err) { console.error('Error in walk arrival handler:', err); }
@@ -183,6 +186,7 @@ function planPath(goal, opts) {
     masterResources: ctx.masterResources,
     currentPlayer: ctx.currentPlayer,
   });
+  if (opts?.spots) return findPathToAny(from, goal, opts.spots, passable); // the nearest of a set of tiles
   return findPath(from, goal, passable, opts);
 }
 
@@ -194,8 +198,12 @@ function planPath(goal, opts) {
  * options.stopShort  never step onto the goal tile, stop on a neighbour (tapping an NPC)
  * options.beside     with stopShort: stop to the goal's left or right, in its row (Pathfinding.js)
  * options.onArrive   called once when the walk completes; dropped if it is cancelled
+ * options.spots      [{x, y}]: walk to the NEAREST of these tiles instead (the tiles an enemy can be
+ *                    struck from); (col, row) is then only what the route heads for
+ * options.until      () => boolean, asked after each step: true ends the walk there, as an arrival
+ *                    (the enemy walked into reach on its way to the player)
  */
-export function walkTo(col, row, { stopShort = false, beside = false, onArrive = null } = {}) {
+export function walkTo(col, row, { stopShort = false, beside = false, onArrive = null, spots = null, until = null } = {}) {
   const ctx = movementContext;
   if (!ctx?.currentPlayer) return 0;
   if (ctx.currentPlayer.iscamping) {
@@ -218,18 +226,22 @@ export function walkTo(col, row, { stopShort = false, beside = false, onArrive =
   }
 
   const goal = { x: col, y: row };
-  const path = planPath(goal, { stopShort, beside });
+  const path = planPath(goal, { stopShort, beside, spots });
   pathQueue = path;
   pathGoal = path.length ? goal : null;
-  pathGoalOpts = { stopShort, beside };
+  pathGoalOpts = { stopShort, beside, spots };
   pathCrossDelta = cross;
   pathArrive = onArrive;
+  pathUntil = until;
   if (!cross && path.length === 0 && onArrive) {
     // Already standing at (or beside) the goal: arrive right away
     const pos = currentPosition();
-    const adjacent = pos && Math.max(Math.abs(Math.round(pos.x) - col), Math.abs(Math.round(pos.y) - row)) <= 1;
+    const adjacent = pos && (spots
+      ? spots.some((t) => t.x === Math.round(pos.x) && t.y === Math.round(pos.y)) // already standing on one of them
+      : Math.max(Math.abs(Math.round(pos.x) - col), Math.abs(Math.round(pos.y) - row)) <= 1);
     if (adjacent) { fireArrive(); return -1; }
     pathArrive = null;
+    pathUntil = null;
     return 0;
   }
   if (cross && path.length === 0) {
@@ -288,6 +300,7 @@ function loopTick() {
         if (!forced) return;
         if (moved) {
           if (pathQueue[0] === stepTarget) pathQueue.shift();
+          if (pathUntil && pathQueue.length && !pathCrossDelta && pathUntil()) pathQueue = []; // near enough already: arrive here
           if (pathQueue.length === 0 && pathCrossDelta) {
             // The walk reached the edge tile: one more step crosses it (transit rules apply)
             const cross = pathCrossDelta;
