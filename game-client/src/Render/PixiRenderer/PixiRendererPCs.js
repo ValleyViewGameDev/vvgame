@@ -14,7 +14,7 @@ import { opaqueTopFraction } from './artHitTest';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
 import { cutRig, syncArmRig } from './ArmRig';
-import { avatarRig, armFigure, weaponSrc, SWING_CLIP } from './heldWeapon';
+import { avatarRig, armFigure, weaponSrc } from './heldWeapon';
 import { loadAvatarCatalogue } from '../../Utils/TuningManager';
 import { lookFor, byId, specFor } from '../../Avatar/avatarLook';
 import { renderLook } from '../../Avatar/avatarCompositor';
@@ -108,7 +108,7 @@ const PixiRendererPCs = ({
   TILE_SIZE,              // Tile size in pixels
   gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
   hidden = false,         // the Settlement and Frontier views draw no player (owner 2026-11-10)
-  heldWeapon = null,      // the weapon in the avatar's hand: a file under assets/avatar/hand, or null when it is put away (PixiRenderer; heldWeapon.js)
+  heldWeapon = null,      // the weapon in the avatar's hand (heldWeapon.heldFor of the equipped row), or null when none is out (PixiRenderer)
 }) => {
   const pcContainerRef = useRef(null);
 
@@ -588,9 +588,9 @@ const PixiRendererPCs = ({
       if (cut && (armed || !sprite.armRig.atRest)) {
         const blinkCut = av.blink ? cutRig(app?.renderer, av.blink, rig) : null;
         sprite.texture = cut.body; sprite.__openTex = cut.body; sprite.__blinkTex = blinkCut ? blinkCut.body : null;
-        const arm = syncArmRig(sprite, rig, cut, { attackClip: SWING_CLIP });
+        const arm = syncArmRig(sprite, rig, cut, { attackClip: heldWeapon ? heldWeapon.clip : sprite.armRig?.attackClip });
         if (armed) {
-          if (arm.__held !== heldWeapon) { armFigure(arm, Texture.from(weaponSrc(heldWeapon)), cut.w, AVATAR_SPAN); arm.__held = heldWeapon; }
+          if (arm.__held !== heldWeapon) { armFigure(arm, heldWeapon, Texture.from(weaponSrc(heldWeapon.art)), cut.w, AVATAR_SPAN); arm.__held = heldWeapon; }
           else arm.setStance(null, true);
         } else {
           arm.setStance(null, false); // put away: the arm eases down; the plain figure comes back when it has

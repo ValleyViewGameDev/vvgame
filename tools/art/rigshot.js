@@ -12,6 +12,8 @@
  *        [--clip swipe --times 0,130,260,400,520,780]   one frame per time (ms) of the clip
  *        [--pose 0.1,1.4,0 --lead R]       the lead arm HELD at shoulder, elbow, wrist angles (radians): try a stance before any clip exists
  *        [--held <weapon png> --span 1.8]  an avatar: the weapon in its hand and the guard raised (heldWeapon.js); --times 0 shows the guard
+ *        [--class sword]                   the weapon's category (heldWeapon.WEAPON_CLASSES): its guard and its clip
+ *        [--away]                          with --held: the weapon is put away at 0 ms, the frames show the arm easing down (and say when it is at rest)
  *        [--lead R] [--lean 1] [--mirror] [--px 384] [--top 0.3] [--pad 0.3] [--cols 6] [--walk] [--bg 76aa16] [--rigs <other rigs.json>]
  *
  * --lean 1 plays the clip's body lean toward the image's right (-1: left). --mirror flips the sprite, as
@@ -48,7 +50,7 @@ if (args.held) fs.copyFileSync(path.resolve(args.held), path.join(dir, 'held.png
 const params = {
   rig: args.rig, view: args.view || (args.clip || args.pose || args.walk || args.times ? 'clip' : 'cut'), clip: args.pose ? '__pose' : args.clip || null, pose: args.pose ? String(args.pose).split(',').map(Number) : null,
   times: String(args.times || '0').split(',').map(Number), lead: args.lead || 'R', lean: Number(args.lean || 0),
-  mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0), held: !!args.held, span: Number(args.span || 1.8),
+  mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0), held: !!args.held, span: Number(args.span || 1.8), cls: args.class || 'sword', away: !!args.away,
 };
 fs.writeFileSync(path.join(dir, 'index.html'), `<!doctype html><meta charset="utf-8"><body style="margin:0"><script type="module" src="./harness.js"></script>`);
 fs.writeFileSync(path.join(dir, 'harness.js'), `
@@ -56,7 +58,7 @@ import * as PIXI from './pixi.mjs';
 import BreathSprite from './BreathSprite.js';
 import { rigFor, cutRig, syncArmRig } from './ArmRig.js';
 import { ARM_CLIPS } from './armClips.js';
-import { armFigure } from './heldWeapon.js';
+import { armFigure, heldFor } from './heldWeapon.js';
 const P = ${JSON.stringify(params)};
 if (P.pose) { const [s, e, w] = P.pose; ARM_CLIPS.__pose = { lead: [{ t: 0, s, e, w: w || 0 }, { t: 1e7, s, e, w: w || 0 }] }; } // a held stance, this tool only
 const fail = (m) => fetch('/fail', { method: 'POST', body: String(m && m.stack || m) });
@@ -95,15 +97,16 @@ if (P.view === 'cut') {
   if (P.mirror) sprite.scale.x = -Math.abs(sprite.scale.x);
   app.stage.addChild(sprite);
   syncArmRig(sprite, rig, cut, { attackClip: P.clip });
-  if (P.held) { armFigure(sprite.armRig, await PIXI.Assets.load('./held.png'), cut.w, P.span); if (P.clip) sprite.armRig.attackClip = P.clip; } // a weapon in the hand, the guard raised (heldWeapon.js)
+  if (P.held) { const held = heldFor({ weaponClass: P.cls }); if (!held) throw new Error('no weapon class named ' + P.cls); armFigure(sprite.armRig, held, await PIXI.Assets.load('./held.png'), cut.w, P.span); if (P.clip) sprite.armRig.attackClip = P.clip; } // a weapon in the hand, the guard raised (heldWeapon.js)
   app.renderer.render(app.stage); fake += 2000; app.renderer.render(app.stage); app.renderer.render(app.stage); // the stance eased in
   if (P.walk) { sprite.walking = true; sprite.walkSideways = true; sprite.walkCycleMs = 900; }
   const t0 = fake;
   if (P.clip) sprite.armRig.playClip(P.clip, P.lead, P.lean);
+  if (P.away) sprite.armRig.setStance(null, false); // what the board does when the weapon is unequipped or the last enemy dies
   for (const t of P.times) {
     fake = t0 + t;
     app.renderer.render(app.stage); app.renderer.render(app.stage); // twice: an attached part reads the body's last drawn frame
-    snap((P.clip || 'rest') + ' ' + t + ' ms' + (P.mirror ? ' (mirrored)' : ''));
+    snap((P.away ? 'put away' : P.clip || 'rest') + ' ' + t + ' ms' + (P.away ? (sprite.armRig.atRest ? ': at rest' : ': easing') : '') + (P.mirror ? ' (mirrored)' : ''));
   }
 }
 const cols = Math.min(frames.length, P.cols || (P.view === 'cut' ? 4 : 6)), rows = Math.ceil(frames.length / cols);

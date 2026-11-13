@@ -51,6 +51,7 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
 import { rigFor, cutRig, syncArmRig } from './ArmRig';
+import { heldFor } from './heldWeapon';
 import { WALK } from './walking';
 import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
 import { skillsBySource as buildSkillsBySource, useBuildingOffers } from '../../Utils/buildingStatus';
@@ -439,14 +440,17 @@ const PixiRenderer = ({
   // The player, speech and status-mark layers take `hidden`; the NPC sprites live in the shared
   // objects layer (for depth), so each one's `visible` is set here and in the NPC pass.
   const actorsHidden = isSettlementZoom || isFrontierZoom;
-  // The weapon in the avatar's hand (docs/equipment-plan.md; heldWeapon.js): out ONLY while an enemy is
-  // on the grid (owner 2026-11-13). `npcs` is the grid's live list, so this follows an arrival, a kill
-  // (the last enemy dead: away) and a Spawner making one (out). The equipped weapon's row names its art.
-  const heldWeapon = useMemo(() => {
-    if (!(allNpcs || []).some((n) => n && n.action === 'attack')) return null;
-    const row = (masterResources || []).find((r) => r && r.type === currentPlayer?.settings?.equippedWeapon);
-    return row?.heldArt || null;
-  }, [allNpcs, masterResources, currentPlayer?.settings?.equippedWeapon]);
+  // The weapon in the avatar's hand (docs/equipment-plan.md; heldWeapon.js). Two things decide it:
+  // WHAT is equipped (the Combat panel's weapon slot, player.settings.equippedWeapon: its row's
+  // `weaponClass` picks the drawing, the guard and the swing; nothing equipped, or a weapon with no
+  // category yet, and the hand is empty), and WHETHER an enemy is on the grid (owner 2026-11-13: out
+  // only then). `npcs` is the grid's live list, so this follows an arrival, a kill and a Spawner.
+  const equippedHeld = useMemo(
+    () => heldFor((masterResources || []).find((r) => r && r.type === currentPlayer?.settings?.equippedWeapon)),
+    [masterResources, currentPlayer?.settings?.equippedWeapon],
+  );
+  const enemyOnGrid = useMemo(() => (allNpcs || []).some((n) => n && n.action === 'attack'), [allNpcs]);
+  const heldWeapon = enemyOnGrid ? equippedHeld : null;
   const actorsHiddenRef = useRef(actorsHidden);
   actorsHiddenRef.current = actorsHidden;
   useEffect(() => {

@@ -19,16 +19,27 @@ it is used instead; the sword crosses the body in front and the swing comes over
 The owner asked to see the sword in the game before any more planning. What is in:
 
 - **One drawing:** `game-client/public/assets/avatar/hand/weapon-long-sword.png` on the standard
-  footprint (128x512, upright, grip at 64,448). All 27 melee rows from the Warrior's Den name it in a
-  new `heldArt` column, so every melee weapon shows as this one sword for now.
+  footprint (128x512, upright, grip at 64,448).
+- **Weapon categories (owner 2026-11-13):** a weapon's row names its category in a `weaponClass`
+  column, and the category owns the drawing in the hand, the guard and the swing
+  (`heldWeapon.WEAPON_CLASSES`). One category exists, **sword** (the long sword, the guard above, the
+  `slash` clip), on 17 rows: Short Sword, Long Sword, Great Sword, Sword of Song, Glowing Sword,
+  Legendary Sword, Dragonslayer, Broadsword, Bastard Sword, Arming Sword, Falchion, and the region
+  swords Portia's Rapier, Courtier's Rapier, Macbeth's Claymore, Bard's Blade, Messina Saber,
+  Demonbane. A row may name its own drawing as `heldArt` (none does yet). The other ten melee
+  weapons have no category and show nothing in the hand until theirs is built: axes (Giant Axe,
+  Executioner's Axe), Halberd, Magic Halberd, War Hammer, Stone Maul, Knife, Mantuan Dagger, Fen
+  Hook, Lethe Scythe. The two rapiers are swords for now and move when a thrust category exists.
+- **Wired to the Combat panel's weapon slot:** what is in the hand comes from the equipped weapon
+  (`player.settings.equippedWeapon`), which the panel changes on the tap. Unequip, or equip a weapon
+  with no category, and the arm eases down and the plain drawing returns (rigshot `--away` shows it).
 - **One rig a body, not one an outfit:** `avatar:male` (measured on the tunic) and `avatar:female`
   (measured on the adventurer) in `rigs.json`. Other outfits use their body's rig, so a wide sleeve
   may cut badly: that is the P2 outfit pass, not done.
-- **Out only while an enemy is on the grid:** `PixiRenderer.js` works out `heldWeapon` from the
-  grid's live NPC list (any `action: attack`) and the equipped weapon's row. While it is set,
-  `PixiRendererPCs.js` draws the avatar as its body with the near arm cut away plus an `ArmRig`
-  holding the sword in the guard (`heldWeapon.js`); when the last enemy dies the arm eases down and
-  the plain drawing returns.
+- **Out only while an enemy is on the grid:** `PixiRenderer.js` also checks the grid's live NPC
+  list (any `action: attack`). While a sword is equipped AND an enemy is there, `PixiRendererPCs.js`
+  draws the avatar as its body with the near arm cut away plus an `ArmRig` holding the sword in the
+  guard (`heldWeapon.js`); when the last enemy dies the arm eases down and the plain drawing returns.
 - **The cut:** the `slash` clip (`armClips.js`), played by `CombatFX.playerSwing()` alongside the
   lunge in `Combat.js`. The player also turns to face the enemy struck.
 - **The fist:** the drawn hand is open, so the arm is cut without it and a small fist in the hand's

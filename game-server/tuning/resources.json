@@ -12776,8 +12776,7 @@
     "hands": 1,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 10,
-    "heldArt": "weapon-long-sword.png"
+    "gemcost": 10
   },
   {
     "type": "Short Sword",
@@ -12795,7 +12794,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 2000,
     "gemcost": 20,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Darts",
@@ -12906,7 +12905,7 @@
     "ingredient4": "Book",
     "ingredient4qty": 3,
     "gemcost": 409,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Precision",
@@ -13029,7 +13028,7 @@
     "ingredient4": "Book",
     "ingredient4qty": 12,
     "gemcost": 666,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Horizon Eye",
@@ -13248,8 +13247,7 @@
     "ingredient4": "Book",
     "ingredient4qty": 70,
     "gemcost": 1315,
-    "attackrange": 1,
-    "heldArt": "weapon-long-sword.png"
+    "attackrange": 1
   },
   {
     "type": "Mystic Armor",
@@ -13424,7 +13422,7 @@
     "hands": 1,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Magic Crossbow",
@@ -13462,8 +13460,7 @@
     "hands": 2,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
-    "attackrange": 1,
-    "heldArt": "weapon-long-sword.png"
+    "attackrange": 1
   },
   {
     "type": "Caliban's Breastplate",
@@ -13498,7 +13495,7 @@
     "hands": 1,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Giant Axe",
@@ -13517,8 +13514,7 @@
     "ranged": false,
     "hands": 2,
     "ingredient1": "Only Found in Scrolls",
-    "ingredient1qty": 1,
-    "heldArt": "weapon-long-sword.png"
+    "ingredient1qty": 1
   },
   {
     "type": "Titania's Bow",
@@ -13558,7 +13554,7 @@
     "hands": 1,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Dragonslayer",
@@ -13578,7 +13574,7 @@
     "hands": 2,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Legendary Crossbow",
@@ -13629,7 +13625,7 @@
     "ingredient1qty": 6000,
     "ingredient4": "Book",
     "ingredient4qty": 8,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Vigor",
@@ -13698,8 +13694,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 15000,
     "ingredient4": "Book",
-    "ingredient4qty": 30,
-    "heldArt": "weapon-long-sword.png"
+    "ingredient4qty": 30
   },
   {
     "type": "Recurve Bow",
@@ -13776,7 +13771,7 @@
     "ingredient1qty": 40000,
     "ingredient4": "Book",
     "ingredient4qty": 100,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Bulwark",
@@ -13851,8 +13846,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 120000,
     "ingredient4": "Book",
-    "ingredient4qty": 200,
-    "heldArt": "weapon-long-sword.png"
+    "ingredient4qty": 200
   },
   {
     "type": "Gilded Plate",
@@ -13927,8 +13921,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 9000,
     "ingredient4": "Book",
-    "ingredient4qty": 10,
-    "heldArt": "weapon-long-sword.png"
+    "ingredient4qty": 10
   },
   {
     "type": "Rock Totem",
@@ -13987,7 +13980,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Book",
     "ingredient4qty": 4,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Lead Casket",
@@ -14126,8 +14119,7 @@
     "ingredient3": "Potion A",
     "ingredient3qty": 4,
     "ingredient4": "Book",
-    "ingredient4qty": 12,
-    "heldArt": "weapon-long-sword.png"
+    "ingredient4qty": 12
   },
   {
     "type": "Apothecary's Vial",
@@ -14167,7 +14159,7 @@
     "ingredient1qty": 16000,
     "ingredient4": "Book",
     "ingredient4qty": 25,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Witches' Charm",
@@ -14229,8 +14221,7 @@
     "ingredient3": "Mushroom",
     "ingredient3qty": 30,
     "ingredient4": "Book",
-    "ingredient4qty": 30,
-    "heldArt": "weapon-long-sword.png"
+    "ingredient4qty": 30
   },
   {
     "type": "Sycorax's Hex",
@@ -14291,7 +14282,7 @@
     "ingredient3qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 25,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Swan Feather",
@@ -14352,7 +14343,7 @@
     "ingredient3qty": 6,
     "ingredient4": "Book",
     "ingredient4qty": 40,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Bearskin Mantle",
@@ -14520,7 +14511,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 60,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Academe Tome",
@@ -14743,8 +14734,7 @@
     "ingredient3": "Potion C",
     "ingredient3qty": 8,
     "ingredient4": "Book",
-    "ingredient4qty": 160,
-    "heldArt": "weapon-long-sword.png"
+    "ingredient4qty": 160
   },
   {
     "type": "Draught of Lethe",
@@ -14807,7 +14797,7 @@
     "ingredient3qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 260,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Charon's Obol",
@@ -14941,7 +14931,7 @@
     "ingredient1qty": 16000,
     "ingredient4": "Book",
     "ingredient4qty": 30,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Falchion",
@@ -14961,7 +14951,7 @@
     "ingredient1qty": 60000,
     "ingredient4": "Book",
     "ingredient4qty": 120,
-    "heldArt": "weapon-long-sword.png"
+    "weaponClass": "sword"
   },
   {
     "type": "Cat",
