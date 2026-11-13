@@ -130,18 +130,20 @@ the dungeon and the FTUE opening).
 Three motions, all with the near arm (owner 2026-11-13, replacing v2's first idea of swinging the
 arm back on its own side):
 
-1. **Raise.** The shoulder turns the arm FORWARD and up (counter-clockwise on a figure facing
-   right), so the sword rises in front of the body, goes up over the head and at the top tips a
-   little back.
-2. **Cut down and forward.** The shoulder brings the arm down in front while the elbow straightens,
+1. **Raise.** The ELBOW does most of it: it folds, bringing the fist up from the belt to beside the
+   jaw, while the shoulder turns the upper arm only part of the way forward (counter-clockwise on a
+   figure facing right). The sword rises in front of the body and at the top tips a little back.
+   (Owner: with the shoulder doing the raise it pivoted too far and the joint looked wrong.)
+2. **Cut down and forward.** The elbow straightens and the shoulder carries the arm out in front,
    so the hand reaches forward toward the target and the blade comes down onto it.
 3. **Reset** to the guard.
 
 ![swing](art/equipment/probe-swing.jpg)
 
-(Held poses of the test rig with a stand-in sword, not an animation yet. To tune in P1: for a
-moment at the top the forearm passes in front of the face; keeping the elbow lower, or leaning the
-body back in the raise, takes it beside the head.)
+(Held poses of the test rig with a stand-in sword, not an animation yet. As shoulder and elbow
+angles in radians: guard 0.15, -1.25; raise -0.45, -1.8; up -0.85, -2.3; top -1.05, -2.5; cut
+-1.3, -0.35; follow-through -1.0, -0.15. At the top the fist sits beside the jaw, not over the
+face.)
 
 Families, chosen by the weapon's `swing`, all on that pattern:
 
