@@ -56,6 +56,32 @@
       }
     }
   },
+  "npc-enemy-ogre.svg": {
+    "_note": "The Ogre's club arm (owner 2026-11-13; the prototype for a held weapon): the arm on the image's LEFT, hand and club in ONE piece. Three joints: shoulder, elbow, and a `wrist` that turns the hand and the club out to `tip` (`blend`'s third number is its ramp). `attackArm` makes it the attacking arm on every side: the art faces left, the Ogre turns to its target, so that arm is always the one nearest it. The other arm stays part of the body.",
+    "attackArm": "L",
+    "arms": {
+      "L": {
+        "upper": [[0.372, 0.236], [0.345, 0.205], [0.29, 0.2], [0.24, 0.23], [0.215, 0.3], [0.2, 0.35], [0.185, 0.4], [0.18, 0.418], [0.348, 0.418], [0.36, 0.41], [0.366, 0.4], [0.373, 0.38], [0.377, 0.36], [0.376, 0.3]],
+        "fore": [[0.17, 0.472], [0.338, 0.472], [0.336, 0.6], [0.328, 0.64], [0.322, 0.74], [0.308, 0.76], [0.306, 0.9], [0.296, 0.92], [0.284, 0.945], [0.277, 0.975], [0.268, 1], [0.12, 1], [0.12, 0.85], [0.16, 0.72], [0.16, 0.6], [0.165, 0.53]],
+        "shoulder": [0.305, 0.295],
+        "elbow": [0.268, 0.445],
+        "wrist": [0.258, 0.615],
+        "grip": [0.262, 0.665],
+        "tip": [0.235, 0.92],
+        "cap": 0.078,
+        "shoulderCap": 0.06,
+        "blend": [0.07, 0.04, 0.02],
+        "feather": 1,
+        "rim": 0.85,
+        "rimWidth": 0.0045,
+        "bulge": 0.5,
+        "bulgeReach": 0.2,
+        "under": [[0.42, 0.2], [0.362, 0.212], [0.336, 0.24], [0.322, 0.278], [0.317, 0.32], [0.321, 0.36], [0.334, 0.393], [0.352, 0.413], [0.372, 0.42], [0.42, 0.42]],
+        "fill": "clone",
+        "cloneStep": [0.06, 0]
+      }
+    }
+  },
   "npc-enemy-spider.svg": {
     "exclude": [[0.5, 0.53, 0.203, 0.155], [0.5, 0.735, 0.142, 0.115]],
     "gait": {

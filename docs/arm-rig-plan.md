@@ -1,6 +1,6 @@
 # Arm rig plan: jointed arms for attacks, held items and gestures
 
-Status: the Zombie (claw) and the Bear (swipe) BUILT 2026-11-12 as SKINNED arms (see §0); not yet seen in a live fight. Owner asked for a foundation for arm animation that
+Status: the Zombie (claw) and the Bear (swipe) BUILT 2026-11-12 as SKINNED arms (see §0); the Ogre (a club in his hand, `smash`) BUILT 2026-11-13 as the prototype for held equipment (§0a); not yet seen in a live fight. Owner asked for a foundation for arm animation that
 works for enemies, named NPCs and, later, the player's avatar (any outfit), after the Zombie
 "grope" built on mesh warping failed. The Zombie is the first slice.
 
@@ -49,6 +49,46 @@ meeting would show a seam). Two drivers run without a clip (`ArmRig.autoPose`): 
 moved in the last moments: each limb swings about its root and bends its knee, each in its own phase;
 the Spider's legs alternate) and `idle` (while it stands: every 0.9 to 2.2 s, per figure, the listed
 limbs open and close twice; the Spider's fangs). Both are data in `rigs.json`.
+
+## 0a. A held weapon: the Ogre's club (2026-11-13, the prototype for equipment)
+
+Owner: give the Ogre a club, held through idle and walk, swung when he attacks, with the arm nearest
+his target; if it works, the avatar's hand can hold whatever is equipped. What it took:
+
+- **The drawing is made for the rig** (job `enemies-r10`): the same Ogre, leaner round the middle so
+  the belly no longer hides the arm, both arms hanging FREE of the body with background between the
+  whole arm and the torso from the armpit down (natural, not a T-pose), and the club in the hand on the
+  side the art faces, hanging in line with the forearm and clear of the leg. Nothing overlaps the arm
+  or the club, so arm, hand and club cut as ONE limb image and at rest the figure is the drawing.
+- **The club is part of the arm image** (the `fore` outline runs on round it). No second sprite, no
+  attachment point to keep in step: it bends, mirrors, leans and takes hit flashes with the arm.
+- **A third joint, the `wrist`** (`ArmRig`, optional per arm; `tip` is the far end of what the hand
+  holds; `blend`'s third number its ramp): what is past it turns about it by a clip key's `w`. A weapon
+  locked stiff to the forearm swings like a plank; with a wrist it is cocked back at the top and snaps
+  through at the bottom, so its head arrives last.
+- **`attackArm` on the rig** names the one arm that attacks on every side. The Ogre has no `noFlip`,
+  so he turns to face his target (`faceTarget`), and with `artFacing` set to the club's side that arm
+  is always the one nearest it: the owner's "facing arm". (The drawing came back with the club in the
+  hand on the viewer's left, so the row says `artFacing: left`.)
+- **`rim` on an arm** (with `rimWidth`, `rimColor`): where the cut runs THROUGH the figure (the arm's
+  edge against the chest) the arm image has an edge the drawing never outlined; once the arm lifts,
+  that edge is the visible underside of the arm and it read as a soft, lineless smear on smooth skin
+  (fur hid it on the Bear). Those edges, and the outer edge of the painted-in torso, get the drawing's
+  dark outline, fading in with how much that part of the arm turns. Run the cut along a line the
+  drawing already has (the inner arm's outline, the chest's edge) so nothing new shows at rest, and
+  keep that line on the ARM's side of the cut. Smooth skin also wants `feather: 1` (a crisp edge) and
+  `fill: "clone"` (the smear fill bands).
+- **The clip, `smash`:** up (the arm out and over, elbow bent, wrist cocked, the club laid back over
+  the head), down (the shoulder drives it toward the target while elbow and wrist open: the club passes
+  straight overhead and lands level, beside him, at 480 ms: `hit`), a short follow-through, back to
+  hang. The body leans into it as the Bear's does.
+- **Seen before the game was opened:** `tools/art/rigshot.js` (§6) draws all of this with the client's
+  own code.
+
+For the avatar this proves the joints, the weapon riding the wrist and the outline trick. What it does
+NOT yet do is swap weapons: here the club is painted into the arm. A weapon per equipped item needs
+the weapon as its own image on the hand (the grip point and the wrist's angle are already there), and
+fingers drawn over its handle (a small hand overlay cut from the arm image).
 
 ## 1. Why the mesh grope failed (and what mesh warping is still good for)
 
@@ -128,8 +168,12 @@ Whole drawings, rigged one by one and only when one needs an arm move, with the 
 
 ## 6. Tools
 
-- `tools/art/rigcut.js`: cut a drawing into pieces from its rig, underpaint the body, write the
-  pieces for the atlas, and a contact sheet of the pieces with the joints marked.
+- `tools/art/rigshot.js` (2026-11-13): renders a rigged figure with the client's REAL `ArmRig`,
+  `BreathSprite` and `armClips` in headless Chrome, no game and no login. `--view cut`: the drawing with
+  the rig drawn over it, the body alone (arms cut away, torso painted in), each limb alone. `--clip
+  <name> --times 0,150,...`: one frame per time; `--mirror`, `--lean`, `--walk`. Use it for every new
+  rig and clip: outlines read off a grid are wrong until they are drawn over the art.
+- (planned, not needed so far) `tools/art/rigcut.js`: bake the pieces for the atlas.
 - Later, an editor Rig page: drag the joints and outline points over the art with a live preview
   of the clips. Phase 1 writes the Zombie's rig by hand.
 
@@ -138,7 +182,7 @@ Whole drawings, rigged one by one and only when one needs an arm move, with the 
 | Phase | Scope | Done when |
 |---|---|---|
 | P1 Zombie | rig both arms by hand; `rigcut.js` + underpaint; `ArmRig` runtime following the breathing body; one `claw` clip with a hit mark; the enemy attack plays the row's clip | the claw reads as an arm at board size, no holes, no stretching, in a live fight |
-| P2 Enemies | other armed enemies case by case (the Ogre's club, a Bear swipe, Duke Angelo) | each has a clip the owner approves |
+| P2 Enemies | other armed enemies case by case (the Bear's swipe and the Ogre's club are built; Duke Angelo) | each has a clip the owner approves |
 | P3 Avatar | per-body arm outlines; compose-time cut for every outfit; the `hand` slot on the forearm; a sword-swing clip for the player's melee (with `playerLunge`); the walk arm swing on the shoulder | every outfit swings cleanly, both bodies |
 | P4 Rig page | the editor page and clip preview | rigs and clips authored without code |
 
@@ -182,8 +226,8 @@ Whole drawings, rigged one by one and only when one needs an arm move, with the 
   Test the arm that actually attacks: the test page only ever swung the other one for a while.
 - Art rule for anything that will get an arm rig: arms hang free of the body with a visible gap
   from the armpit down (the Zombie, the new Bear). Arms held in front of the chest can't be cut.
-- Not yet: arms drawn BEHIND the body (both of the Zombie's are in front), a held item on the grip,
-  the bone stretch.
+- Not yet: arms drawn BEHIND the body (both of the Zombie's are in front), a held item as its OWN
+  sprite on the grip (the Ogre's club is painted into his arm, §0a), the bone stretch.
 
 ## 9. Decisions for the owner
 

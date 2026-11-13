@@ -7,6 +7,9 @@
  *                 across the body).
  *
  * `lead` is the arm on the target's side (the attacking arm), `off` the other one (optional).
+ *   wrist (w):    only for an arm whose rig has a `wrist` (the Ogre's club arm): + turns the hand and what
+ *                 it holds the same way again (the weapon cocked back at the top of a swing), - the
+ *                 other way (it snaps on through at the bottom). Optional on a key (0).
  * Each key is { t (ms), s, e, ease } where `ease` shapes the move INTO that key: 'inOut' (default),
  * 'in' (starts slow, arrives fast: a strike), 'out' (leaves fast, settles). `hit` is when the blow
  * lands (ms from the start): the attack's damage waits for it. An optional `lean` track ({ t, l, ease })
@@ -58,6 +61,28 @@ export const ARM_CLIPS = {
     // the other arm stays hanging at the bear's side: it leans with the body (ArmRig shears it), and
     // any swing of its own opened a gap at the flank (owner 2026-11-12)
   },
+  // the Ogre: an overhead club smash with the club arm (rig `attackArm`, three joints). Up: the arm
+  // rises out and over with the elbow bent and the wrist cocked, the club laid back over the head.
+  // Down: the shoulder drives the arm down toward the target while the elbow opens and the wrist snaps
+  // through, so the club's head arrives last and lands beside him. Then it is drawn back to hang
+  smash: {
+    hit: 480,
+    lead: [
+      { t: 0, s: 0, e: 0, w: 0 },
+      { t: 320, s: 2.5, e: 0.75, w: 0.7, ease: 'out' },
+      { t: 380, s: 2.55, e: 0.8, w: 0.75 },
+      { t: 490, s: 0.85, e: 0.05, w: -0.3, ease: 'in' },
+      { t: 570, s: 0.75, e: 0, w: -0.35 },
+      { t: 920, s: 0, e: 0, w: 0 },
+    ],
+    lean: [
+      { t: 0, l: 0 },
+      { t: 320, l: -0.03, ease: 'out' },
+      { t: 490, l: 0.09, ease: 'in' },
+      { t: 590, l: 0.08 },
+      { t: 920, l: 0 },
+    ],
+  },
   // the Coyote: no arm, the whole body lurches at the target (feet planted) and springs back; in the
   // same column it lurches straight down or up at it (`leanVertical`)
   lurch: {
@@ -79,20 +104,20 @@ const EASE = {
   out: (p) => 1 - (1 - p) ** 3,
 };
 
-/** The pose of one arm's key track at time t (ms): { s, e }. */
+/** The pose of one arm's key track at time t (ms): { s, e, w }. */
 export function poseAt(keys, t) {
-  if (!keys || !keys.length) return { s: 0, e: 0 };
-  if (t <= keys[0].t) return { s: keys[0].s, e: keys[0].e };
+  if (!keys || !keys.length) return { s: 0, e: 0, w: 0 };
+  if (t <= keys[0].t) return { s: keys[0].s, e: keys[0].e, w: keys[0].w || 0 };
   for (let i = 1; i < keys.length; i++) {
     const b = keys[i];
     if (t <= b.t) {
       const a = keys[i - 1];
       const p = (EASE[b.ease] || EASE.inOut)((t - a.t) / Math.max(1, b.t - a.t));
-      return { s: a.s + (b.s - a.s) * p, e: a.e + (b.e - a.e) * p };
+      return { s: a.s + (b.s - a.s) * p, e: a.e + (b.e - a.e) * p, w: (a.w || 0) + ((b.w || 0) - (a.w || 0)) * p };
     }
   }
   const z = keys[keys.length - 1];
-  return { s: z.s, e: z.e };
+  return { s: z.s, e: z.e, w: z.w || 0 };
 }
 
 /** A single-value key track (the lean's `l`) at time t (ms). */

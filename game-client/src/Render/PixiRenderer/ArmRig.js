@@ -80,9 +80,11 @@ function underpaint(body, arm, side, w, h) {
   const step = arm.fillDir || (side === 'L' ? 1 : -1), reach = Math.round(w * 0.2);
   const cs = arm.fill === 'clone' ? (arm.cloneStep || [0.08 * step, 0]) : null;
   const cdx = cs ? Math.round(cs[0] * w) : 0, cdy = cs ? Math.round(cs[1] * h) : 0;
+  const filled = arm.rim ? new Uint8Array(w * h) : null;
   const put = (i, j) => {
     const a = d[i + 3] / 255; // blend over what is left (the cut's soft edge)
     d[i] = src[j] * (1 - a) + d[i] * a; d[i + 1] = src[j + 1] * (1 - a) + d[i + 1] * a; d[i + 2] = src[j + 2] * (1 - a) + d[i + 2] * a; d[i + 3] = 255;
+    if (filled) filled[i >> 2] = 1;
   };
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
@@ -98,7 +100,59 @@ function underpaint(body, arm, side, w, h) {
       }
     }
   }
+  // `rim`: the painted-in torso ends in a new outer edge the drawing never had (it is only seen once the
+  // arm has moved off it); it gets the drawing's dark outline, like every other edge of the figure
+  if (filled) {
+    const R = rimRadius(arm, w), [cr, cg, cb] = arm.rimColor || RIM_COLOUR;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      if (!filled[y * w + x]) continue;
+      let best = Infinity;
+      for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+        const X = x + dx, Y = y + dy;
+        if (X < 0 || Y < 0 || X >= w || Y >= h || d[(Y * w + X) * 4 + 3] < 128) best = Math.min(best, Math.hypot(dx, dy));
+      }
+      if (best > R) continue;
+      const k = arm.rim * (1 - (best - 1) / R), i = (y * w + x) * 4;
+      d[i] = d[i] * (1 - k) + cr * k; d[i + 1] = d[i + 1] * (1 - k) + cg * k; d[i + 2] = d[i + 2] * (1 - k) + cb * k;
+    }
+  }
   bctx.putImageData(img, 0, 0);
+}
+
+const RIM_COLOUR = [56, 40, 14];
+const rimRadius = (arm, w) => Math.max(1, Math.round((arm.rimWidth || 0.005) * w));
+
+/**
+ * `rim` on an arm (0..1; the Ogre, owner 2026-11-13): where the cut ran THROUGH the figure (the arm's
+ * edge against the chest, not its own silhouette), the arm image has an edge the drawing never outlined,
+ * and once the arm lifts it shows as a soft, lineless side. Those edges get the drawing's dark outline,
+ * `rimWidth` (of the square) wide, in `rimColor`, fading in with how much that part of the arm turns:
+ * nothing at and above the shoulder, where the arm stays on the body. At rest the line lies along the
+ * cut, so run the cut along a crease the drawing already has (the chest's edge, the inner arm's line).
+ */
+function rimCutEdges(canvas, mask, src, arm, w, h) {
+  const R = rimRadius(arm, w), [cr, cg, cb] = arm.rimColor || RIM_COLOUR;
+  const m = mask.getContext('2d').getImageData(0, 0, w, h).data, s = src.getContext('2d').getImageData(0, 0, w, h).data;
+  const ctx = canvas.getContext('2d'), img = ctx.getImageData(0, 0, w, h), d = img.data;
+  const S = arm.shoulder, E = arm.elbow || arm.grip || S, len = Math.hypot(E[0] - S[0], E[1] - S[1]) || 1;
+  const ax = (E[0] - S[0]) / len, ay = (E[1] - S[1]) / len, b1 = (arm.blend || BLEND)[0];
+  const box = armBox(arm), x0 = Math.floor(box.x0 * w), x1 = Math.ceil(box.x1 * w), y0 = Math.floor(box.y0 * h), y1 = Math.ceil(box.y1 * h);
+  for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+    const i = (y * w + x) * 4;
+    if (m[i + 3] < 128 || s[i + 3] < 200) continue;
+    let best = Infinity;
+    for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+      const X = x + dx, Y = y + dy;
+      if (X < 0 || Y < 0 || X >= w || Y >= h) continue;
+      const j = (Y * w + X) * 4;
+      if (m[j + 3] < 128 && s[j + 3] >= 200) best = Math.min(best, Math.hypot(dx, dy)); // solid figure just outside the arm: a cut edge
+    }
+    if (best > R) continue;
+    const turns = smooth01(((x / w - S[0]) * ax + (y / h - S[1]) * ay + b1) / (2 * b1));
+    const k = arm.rim * turns * (1 - (best - 1) / R);
+    d[i] = d[i] * (1 - k) + cr * k; d[i + 1] = d[i + 1] * (1 - k) + cg * k; d[i + 2] = d[i + 2] * (1 - k) + cb * k;
+  }
+  ctx.putImageData(img, 0, 0);
 }
 
 /** Cut a drawing into its rig's pieces (cached per texture). Null if it cannot be read. */
@@ -186,7 +240,8 @@ export function cutRig(renderer, texture, rig) {
     const c = blankCanvas(w, h), ctx = c.getContext('2d');
     ctx.drawImage(src, 0, 0);
     ctx.globalCompositeOperation = 'destination-in'; ctx.drawImage(mask, 0, 0);
-    return Texture.from(c);
+    ctx.globalCompositeOperation = 'source-over';
+    return c;
   };
   const body = blankCanvas(w, h), bctx = body.getContext('2d');
   bctx.drawImage(src, 0, 0);
@@ -211,7 +266,9 @@ export function cutRig(renderer, texture, rig) {
     }
     bctx.drawImage(both, 0, 0); // erased from the body (destination-out) with the HARD outline
     const feather = arm.feather ?? (arm.path ? 0 : r); // legs cut along each other stay hard: two soft edges meeting would show a seam
-    arms[side] = { tex: layer(feather ? blurMask(both, feather) : both), box: armBox(arm) }; // the whole limb, one image
+    const image = layer(feather ? blurMask(both, feather) : both); // the whole limb, one image
+    if (arm.rim) rimCutEdges(image, both, src, arm, w, h);
+    arms[side] = { tex: Texture.from(image), box: armBox(arm) };
   }
   bctx.globalCompositeOperation = 'source-over';
   for (const side of limbNames(rig)) if (rig.arms[side].under) underpaint(body, rig.arms[side], side, w, h);
@@ -240,13 +297,17 @@ export class ArmRig {
       const { box } = part;
       const cols = Math.max(2, Math.ceil((box.x1 - box.x0) / MESH_STEP) + 1), rows = Math.max(2, Math.ceil((box.y1 - box.y0) / MESH_STEP) + 1);
       const n = cols * rows, uvs = new Float32Array(n * 2), verts = new Float32Array(n * 2);
-      const rest = new Float32Array(n * 2), wU = new Float32Array(n), wF = new Float32Array(n), bell = new Float32Array(n);
+      const rest = new Float32Array(n * 2), wU = new Float32Array(n), wF = new Float32Array(n), wW = new Float32Array(n), bell = new Float32Array(n);
       // the bones: shoulder -> elbow, elbow -> grip (the hand)
       // a one-joint limb (a spider's fang) has no elbow: nothing past the shoulder turns on its own
       const S = arm.shoulder, E = arm.elbow || arm.grip || S, G = arm.grip || E;
       const axis = (a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1; return [dx / l, dy / l]; };
       const a1 = axis(S, E), a2 = axis(E, G);
       const [b1, b2] = arm.blend || BLEND;
+      // a third joint, the WRIST (the Ogre's club; owner 2026-11-13: the prototype for a held weapon): what is
+      // past it, the hand and whatever it holds out to `tip`, turns about it as well, so a weapon can be
+      // cocked back at the top of a swing and snap through at the bottom instead of riding the forearm stiffly
+      const Wr = arm.wrist || null, a3 = Wr ? axis(Wr, arm.tip || G) : null, b3 = (arm.blend && arm.blend[2]) || 0.025;
       // the shoulder bulge (the deltoid): a raised arm is swollen sideways near the shoulder, most at
       // the shoulder and fading out by `bulgeReach` down the arm, so its top keeps its thickness where
       // the drawing's arm tapers into the body (owner 2026-11-12: "too pinched at the shoulder")
@@ -259,6 +320,7 @@ export class ArmRig {
           // how much of this point belongs to the upper arm (past the shoulder along the arm) and to the forearm (past the elbow)
           wU[k] = smooth01(((u - S[0]) * a1[0] + (v - S[1]) * a1[1] + b1) / (2 * b1));
           wF[k] = arm.elbow ? smooth01(((u - E[0]) * a2[0] + (v - E[1]) * a2[1] + b2) / (2 * b2)) : 0;
+          wW[k] = Wr ? smooth01(((u - Wr[0]) * a3[0] + (v - Wr[1]) * a3[1] + b3) / (2 * b3)) : 0;
           const along = (u - S[0]) * a1[0] + (v - S[1]) * a1[1];
           bell[k] = along >= 0 ? 1 - smooth01(along / reach) : 1 - smooth01(-along / 0.04); // 1 at the shoulder, 0 a reach down the arm (and just above it)
         }
@@ -272,7 +334,7 @@ export class ArmRig {
       }
       const mesh = new SimpleMesh(part.tex, verts, uvs, indices);
       this.root.addChild(mesh);
-      this.arms[side] = { arm, mesh, n, rest, wU, wF, bell, a1, S: [S[0] * w, S[1] * h], E: [E[0] * w, E[1] * h], pose: null };
+      this.arms[side] = { arm, mesh, n, rest, wU, wF, wW, bell, a1, S: [S[0] * w, S[1] * h], E: [E[0] * w, E[1] * h], W: Wr ? [Wr[0] * w, Wr[1] * h] : null, pose: null };
     }
     this.play = null; // { clip, start, lead }
     sprite.addChild(this.root);
@@ -302,16 +364,16 @@ export class ArmRig {
       const a = this.arms[side];
       if (!a) continue;
       const track = clip ? (side === this.play.lead ? clip.lead : clip.off) : null;
-      const pose = track ? poseAt(track, t) : { s: 0, e: 0 };
+      const pose = track ? poseAt(track, t) : { s: 0, e: 0, w: 0 };
       const out = side === 'R' ? -1 : 1; // outward is clockwise for the image's left arm
       const extra = auto[side];
-      const ts = out * pose.s + (extra ? extra[0] : 0), te = out * pose.e + (extra ? extra[1] : 0);
+      const ts = out * pose.s + (extra ? extra[0] : 0), te = out * pose.e + (extra ? extra[1] : 0), tw = a.W ? out * (pose.w || 0) : 0;
       // the body's lean shears every row by its height (feet planted): each arm point gets its own row's
       // shift, so a hanging arm leans with the flank beside it instead of sliding off it as one block
       const P = sprite._pt, lean = P ? sprite.lean || 0 : 0, leanY = P ? sprite.leanY || 0 : 0; // this frame's lean (set above), not the last drawn frame's: no lag
       const span = P ? Math.max(0.01, P.feetV - P.vStart) : 1, feetV = P ? P.feetV : 1;
-      if (!a.pose || a.pose[0] !== ts || a.pose[1] !== te || a.pose[2] !== lean || a.pose[3] !== leanY) {
-        a.pose = [ts, te, lean, leanY];
+      if (!a.pose || a.pose[0] !== ts || a.pose[1] !== te || a.pose[2] !== lean || a.pose[3] !== leanY || a.pose[4] !== tw) {
+        a.pose = [ts, te, lean, leanY, tw];
         const V = a.mesh.verticesBuffer.data, R = a.rest;
         const [Sx, Sy] = a.S, [Ex, Ey] = a.E;
         const bulge = (a.arm.bulge || 0) * Math.min(1, Math.abs(ts) / (Math.PI / 2)); // fully swollen at a level arm
@@ -319,7 +381,9 @@ export class ArmRig {
           let x = R[k * 2], y = R[k * 2 + 1];
           const sw = bulge * a.bell[k];              // the shoulder swells as the arm rises (in the rest frame, across the arm)
           if (sw) { const dx = x - Sx, dy = y - Sy, along = dx * a.a1[0] + dy * a.a1[1]; x = Sx + a.a1[0] * along + (dx - a.a1[0] * along) * (1 + sw); y = Sy + a.a1[1] * along + (dy - a.a1[1] * along) * (1 + sw); }
-          const fe = a.wF[k] * te;               // the elbow first (in the arm's rest frame) ...
+          const fw = tw ? a.wW[k] * tw : 0;      // the wrist first of all (the hand and what it holds) ...
+          if (fw) { const c = Math.cos(fw), s = Math.sin(fw), dx = x - a.W[0], dy = y - a.W[1]; x = a.W[0] + dx * c - dy * s; y = a.W[1] + dx * s + dy * c; }
+          const fe = a.wF[k] * te;               // ... then the elbow (in the arm's rest frame) ...
           if (fe) { const c = Math.cos(fe), s = Math.sin(fe), dx = x - Ex, dy = y - Ey; x = Ex + dx * c - dy * s; y = Ey + dx * s + dy * c; }
           const fs = a.wU[k] * ts;               // ... then the shoulder carries it
           if (fs) { const c = Math.cos(fs), s = Math.sin(fs), dx = x - Sx, dy = y - Sy; x = Sx + dx * c - dy * s; y = Sy + dx * s + dy * c; }
@@ -398,7 +462,10 @@ export class ArmRig {
     const clip = ARM_CLIPS[this.attackClip];
     // in the same column a `leanVertical` clip lurches toward the target below (+) or above (-) instead
     const leanY = !lean && clip?.leanVertical && targetDy ? Math.sign(targetDy) : 0;
-    return this.playClip(this.attackClip, screenRight !== mirrored ? 'R' : 'L', lean ? (screenRight ? 1 : -1) : 0, leanY);
+    // `attackArm` on the rig: the one arm that attacks whatever side the target is on (the Ogre's club arm;
+    // the figure turns to face its target, so that arm is the one nearest it)
+    const lead = this.rig.attackArm || (screenRight !== mirrored ? 'R' : 'L');
+    return this.playClip(this.attackClip, lead, lean ? (screenRight ? 1 : -1) : 0, leanY);
   }
 
   destroy() {

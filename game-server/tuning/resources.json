@@ -11371,7 +11371,7 @@
     "sizeX": 1,
     "sizeY": 2,
     "category": "npc",
-    "artFacing": "right",
+    "artFacing": "left",
     "movespeed": 0.7,
     "action": "attack",
     "output": "Magic Mushroom",
@@ -11405,7 +11405,8 @@
     "filename": "npc-enemy-ogre.svg",
     "iconFile": "npc-head-ogre.svg",
     "artSpan": 2.7,
-    "walks": true
+    "walks": true,
+    "attackClip": "smash"
   },
   {
     "type": "Demon",
