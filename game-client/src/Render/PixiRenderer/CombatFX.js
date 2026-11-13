@@ -19,6 +19,7 @@ import { BLEND_MODES, Container, Graphics, Sprite, Text } from 'pixi.js-legacy';
 import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import { holdResourceRender } from '../../VFX/VFX';
+import { npcCells } from '../../Utils/npcFootprint';
 
 const FX = {
   DAMAGE_RISE_MS: 900,       // damage number lifetime
@@ -46,6 +47,10 @@ const FX = {
   FIREBALL_MS_PER_TILE: 95,  // fireballs fly a little slower than arrows, so they read
   EMBER_EVERY_MS: 28,        // a fireball sheds an ember this often
   EMBER_MS: 320,
+  IMPACT_MS: 420,            // a fireball's strike (fireImpact)
+  FLAME_MS_PER_TILE: 45,     // the Dragon's stream: how fast its head (then its tail) runs out
+  FLAME_POUR_MS: 260,        // how long the mouth keeps pouring once the stream has reached the target
+  FLAME_SPARK_EVERY_MS: 22,  // while it pours onto the target: sparks this often (two at a time)
   LEAP_SHAKE_PX: 2.5,        // an enemy's leap wind-up: how hard it vibrates
   LEAP_ARC_TILES: 0.7,       // how high the leap rises at its middle
 };
@@ -237,10 +242,22 @@ export function hitEnemy(npcId, fromX, fromY, toX, toY) {
   });
 }
 
-/** A small anticipation before an enemy swings: squash down, then spring up. */
-export function enemyWindup(npcId) {
+/**
+ * A small anticipation before an enemy swings: squash down, then spring up. A rigged enemy (an
+ * ArmRig with an attack clip, the Zombie's claw) plays its clip instead, led by the arm on the
+ * target's side. Returns when the blow should land (ms from now).
+ */
+export function enemyWindup(npcId, target = null, npc = null) {
   const obj = getNpcDisplay(npcId);
-  if (!ready() || !obj || obj.destroyed) return;
+  if (!ready() || !obj || obj.destroyed) return FX.WINDUP_MS;
+  if (obj.armRig) {
+    const dx = target ? (target.x + 0.5) * TILE - obj.x : 1;
+    // the body leans into the blow only when the player stands in another column (owner 2026-11-12)
+    const sameColumn = !target || !npc || npcCells(npc).some((c) => c.x === target.x);
+    const dy = target && npc?.position ? target.y - npc.position.y : 0; // tiles: + = the target is below (south)
+    const hit = obj.armRig.playAttack(dx, !sameColumn, dy);
+    if (hit != null) return hit;
+  }
   const start = Date.now();
   run({
     update(now) {
@@ -252,6 +269,7 @@ export function enemyWindup(npcId) {
       return true;
     },
   });
+  return FX.WINDUP_MS;
 }
 
 /**
@@ -390,17 +408,39 @@ export async function dropBounce(x, y, { symbol, filename } = {}) {
 // ---------------------------------------------------------------- projectiles
 
 // One shot's look (resources.json `projectile` on the enemy; the player's bows are arrows):
-// 'arrow', 'fireball' (the Dragon), 'fireball-small' (the Demon), 'blob' (the Spider's spit), 'lightning' (the Ghost: no flight, see lightning()).
-// Each is drawn along +x and rotated to the flight direction.
+// 'arrow', 'fireball-small' (the Demon: a fireball, no trail), 'fireburst' (the Phoenix: one burst
+// with a short ember trail), 'fireball' (large, ember trail; no enemy uses it now), 'blob' (the
+// Spider's spit), 'lightning' (the Ghost: no flight, see lightning()), 'flamethrower' (the Dragon:
+// a stream, see flamethrower()). Each is drawn along +x and rotated to the flight direction.
 function drawShot(g, style) {
   const len = TILE * 0.45;
   if (style === 'fireball' || style === 'fireball-small') {
-    const r = TILE * (style === 'fireball' ? 0.3 : 0.17);
+    const r = TILE * (style === 'fireball' ? 0.3 : 0.24); // the Demon's: 40% up on 0.17 (owner 2026-11-12)
     g.beginFill(0xff4500, 0.35); g.drawEllipse(-r * 0.35, 0, r * 1.55, r * 1.15); g.endFill(); // glow, trailing
     g.beginFill(0xff7a00, 0.9); g.drawEllipse(-r * 0.15, 0, r * 1.15, r * 0.9); g.endFill();
     g.beginFill(0xffc23a, 1); g.drawCircle(r * 0.1, 0, r * 0.62); g.endFill();
     g.beginFill(0xfff4b8, 1); g.drawCircle(r * 0.22, 0, r * 0.3); g.endFill();    // white-hot core
-    return { ember: r * 0.45, msPerTile: FX.FIREBALL_MS_PER_TILE };
+    // the Demon's ball leaves no trail (owner 2026-11-12); the big one keeps its embers
+    return { ember: style === 'fireball' ? r * 0.45 : 0, flicker: true, impact: style === 'fireball-small' ? 0.85 : 0, msPerTile: FX.FIREBALL_MS_PER_TILE };
+  }
+  if (style === 'fireburst') {
+    // the Phoenix (owner 2026-11-12): one bright burst, a flare of tongues round a hot core, with
+    // a stretched-out tail of flame and embers behind it
+    const r = TILE * 0.22;
+    g.beginFill(0xff3a00, 0.22); g.drawEllipse(-r * 1.9, 0, r * 2.6, r * 0.75); g.endFill();  // the drawn-out tail
+    g.beginFill(0xff7a00, 0.35); g.drawEllipse(-r * 1.2, 0, r * 1.8, r * 0.5); g.endFill();
+    g.beginFill(0xff5a1a, 0.3); g.drawCircle(0, 0, r * 1.5); g.endFill();          // the bloom
+    for (let i = 0; i < 7; i++) {                                                  // flame tongues, swept back
+      const a = Math.PI + (i - 3) * 0.26; const l = r * (1.6 + (i % 2) * 0.6 + (i === 3 ? 1.2 : 0)); // the middle one longest
+      g.beginFill(i % 2 ? 0xff8a1a : 0xffb02e, 0.85);
+      g.moveTo(Math.cos(a + 1.1) * r * 0.55, Math.sin(a + 1.1) * r * 0.55);
+      g.lineTo(Math.cos(a) * l, Math.sin(a) * l);
+      g.lineTo(Math.cos(a - 1.1) * r * 0.55, Math.sin(a - 1.1) * r * 0.55);
+      g.closePath(); g.endFill();
+    }
+    g.beginFill(0xffc23a, 1); g.drawCircle(0, 0, r * 0.7); g.endFill();
+    g.beginFill(0xfff4b8, 1); g.drawCircle(r * 0.12, 0, r * 0.36); g.endFill();     // white-hot core
+    return { ember: r * 0.4, emberMs: FX.EMBER_MS * 0.9, flicker: true, impact: 1.25, msPerTile: FX.FIREBALL_MS_PER_TILE };
   }
   if (style === 'blob') {
     const r = TILE * 0.13;
@@ -415,8 +455,8 @@ function drawShot(g, style) {
   return { ember: 0, msPerTile: FX.PROJECTILE_MS_PER_TILE };
 }
 
-/** A fading ember left behind a fireball. */
-function ember(x, y, r) {
+/** A fading ember left behind a fireball; `life` ms (a short trail dies sooner). */
+function ember(x, y, r, life = FX.EMBER_MS) {
   const e = new Graphics();
   e.beginFill(Math.random() < 0.5 ? 0xff8a1a : 0xffc23a, 1); e.drawCircle(0, 0, r * (0.6 + Math.random() * 0.6)); e.endFill();
   e.x = x + (Math.random() - 0.5) * r; e.y = y + (Math.random() - 0.5) * r;
@@ -424,7 +464,7 @@ function ember(x, y, r) {
   const start = Date.now();
   run({
     update(now) {
-      const p = Math.min(1, (now - start) / FX.EMBER_MS);
+      const p = Math.min(1, (now - start) / life);
       e.alpha = 1 - p; e.scale.set(1 - 0.6 * p); e.y -= 0.25;
       if (p >= 1) { fxContainer.removeChild(e); e.destroy(); return false; }
       return true;
@@ -434,13 +474,15 @@ function ember(x, y, r) {
 
 /**
  * A ranged shot flies from tile (fromX, fromY) to (toX, toY), then `onArrive` runs (the hit or
- * miss feedback). `style` picks the look (drawShot). Without the renderer, onArrive runs at once.
+ * miss feedback). `style` picks the look (drawShot). `hit` false (a miss): the shot just vanishes on
+ * arrival, with no strike effect on the target (owner 2026-11-12). Without the renderer, onArrive runs at once.
  */
-export function projectile(fromX, fromY, toX, toY, onArrive, style = 'arrow') {
+export function projectile(fromX, fromY, toX, toY, onArrive, style = 'arrow', hit = true) {
   if (!ready()) { if (onArrive) onArrive(); return; }
   const x0 = (fromX + 0.5) * TILE; const y0 = (fromY + 0.5) * TILE;
   const x1 = (toX + 0.5) * TILE; const y1 = (toY + 0.5) * TILE;
-  if (style === 'lightning') { lightning(x0, y0, x1, y1, onArrive); return; }
+  if (style === 'lightning') { lightning(x0, y0, x1, y1, onArrive, hit); return; }
+  if (style === 'flamethrower') { flamethrower(x0, y0, x1, y1, onArrive, hit); return; }
   const dist = Math.hypot(x1 - x0, y1 - y0) / TILE;
   const g = new Graphics();
   const look = drawShot(g, style);
@@ -455,14 +497,52 @@ export function projectile(fromX, fromY, toX, toY, onArrive, style = 'arrow') {
     update(now) {
       const p = Math.min(1, (now - start) / duration);
       g.x = x0 + (x1 - x0) * p; g.y = y0 + (y1 - y0) * p;
-      if (look.ember && now - lastEmber >= FX.EMBER_EVERY_MS) { lastEmber = now; ember(g.x, g.y, look.ember); }
-      if (look.ember) g.scale.set(1 + 0.08 * Math.sin(now / 40)); // a flicker
+      if (look.ember && now - lastEmber >= FX.EMBER_EVERY_MS) { lastEmber = now; ember(g.x, g.y, look.ember, look.emberMs); }
+      if (look.flicker) g.scale.set(1 + 0.08 * Math.sin(now / 40)); // a flicker
       if (p >= 1 && !done) {
         done = true;
         fxContainer.removeChild(g); g.destroy();
+        if (look.impact && hit) fireImpact(x1, y1, look.impact);
         if (onArrive) { try { onArrive(); } catch (e) { console.error('projectile onArrive failed', e); } }
         return false;
       }
+      return true;
+    },
+  });
+}
+
+// A fireball striking (owner 2026-11-12): a white-hot flash, a fire bloom that swells and fades, a
+// shock ring running outward and a spray of sparks, all on the target. `size` scales it (the
+// Demon 0.85, the Phoenix 1.25).
+function fireImpact(x, y, size) {
+  const g = new Graphics();
+  g.blendMode = BLEND_MODES.ADD;
+  g.x = x; g.y = y;
+  fxContainer.addChild(g);
+  const R0 = TILE * 0.45 * size;
+  const sparks = Array.from({ length: Math.round(9 * size) }, () => ({
+    a: Math.random() * Math.PI * 2, v: 0.7 + Math.random() * 0.8, r: 1.5 + Math.random() * 2,
+    c: Math.random() < 0.5 ? 0xffc23a : 0xff7a1a,
+  }));
+  const start = Date.now();
+  run({
+    update(now) {
+      const p = Math.min(1, (now - start) / FX.IMPACT_MS);
+      const out = easeOut(p);
+      g.clear();
+      const fade = 1 - p;
+      g.beginFill(0xff3a00, 0.3 * fade); g.drawCircle(0, 0, R0 * (0.6 + 0.7 * out)); g.endFill();   // the bloom
+      g.beginFill(0xff7a00, 0.55 * fade); g.drawCircle(0, 0, R0 * (0.45 + 0.4 * out)); g.endFill();
+      g.beginFill(0xffd04a, 0.8 * fade); g.drawCircle(0, 0, R0 * (0.3 + 0.15 * out)); g.endFill();
+      if (p < 0.3) { g.beginFill(0xffffff, 0.9 * (1 - p / 0.3)); g.drawCircle(0, 0, R0 * 0.35); g.endFill(); } // the flash
+      g.lineStyle(Math.max(1, 3 * size * fade), 0xffb02e, 0.7 * fade);                         // the shock ring
+      g.drawCircle(0, 0, R0 * (0.5 + 1.1 * out));
+      g.lineStyle(0);
+      for (const sp of sparks) {
+        const d = R0 * (0.3 + 1.5 * sp.v * out);
+        g.beginFill(sp.c, fade); g.drawCircle(Math.cos(sp.a) * d, Math.sin(sp.a) * d + TILE * 0.25 * p * p, sp.r * (1 - 0.5 * p)); g.endFill(); // they fall a little
+      }
+      if (p >= 1) { fxContainer.removeChild(g); g.destroy(); return false; }
       return true;
     },
   });
@@ -485,7 +565,7 @@ function boltPath(x0, y0, x1, y1, jag) {
   return pts;
 }
 
-function drawBolt(g, x0, y0, x1, y1) {
+function drawBolt(g, x0, y0, x1, y1, hit = true) {
   g.clear();
   const main = boltPath(x0, y0, x1, y1, TILE * 0.22);
   const stroke = (pts, w, color, a) => {
@@ -508,25 +588,129 @@ function drawBolt(g, x0, y0, x1, y1) {
     stroke(fork, 1.5, 0xffffff, 0.95);
   }
   g.lineStyle(0);
-  for (const [x, y, r] of [[x0, y0, 0.28], [x1, y1, 0.42]]) { // a flash where it leaves and where it strikes
+  const flashes = hit ? [[x0, y0, 0.28], [x1, y1, 0.42]] : [[x0, y0, 0.28]]; // a miss: no strike flash on the target
+  for (const [x, y, r] of flashes) { // a flash where it leaves and where it strikes
     g.beginFill(0xdfeaff, 0.35); g.drawCircle(x, y, TILE * r); g.endFill();
     g.beginFill(0xffffff, 0.9); g.drawCircle(x, y, TILE * r * 0.4); g.endFill();
   }
 }
 
-function lightning(x0, y0, x1, y1, onArrive) {
+function lightning(x0, y0, x1, y1, onArrive, hit = true) {
   const g = new Graphics();
   g.blendMode = BLEND_MODES.ADD;
   fxContainer.addChild(g);
-  drawBolt(g, x0, y0, x1, y1);
+  drawBolt(g, x0, y0, x1, y1, hit);
   if (onArrive) { try { onArrive(); } catch (e) { console.error('projectile onArrive failed', e); } }
   const start = Date.now();
   let lastJag = start;
   run({
     update(now) {
       const p = Math.min(1, (now - start) / FX.LIGHTNING_MS);
-      if (now - lastJag >= 55 && p < 0.7) { lastJag = now; drawBolt(g, x0, y0, x1, y1); } // the flicker
+      if (now - lastJag >= 55 && p < 0.7) { lastJag = now; drawBolt(g, x0, y0, x1, y1, hit); } // the flicker
       g.alpha = p < 0.35 ? (Math.random() < 0.25 ? 0.55 : 1) : 1 - (p - 0.35) / 0.65;
+      if (p >= 1) { fxContainer.removeChild(g); g.destroy(); return false; }
+      return true;
+    },
+  });
+}
+
+// The Dragon's breath (owner 2026-11-12): a stream of fire. Its head runs out of the mouth to the
+// target while the mouth keeps pouring; the hit lands when the head arrives (a splash there; a miss has none); the mouth then stops
+// and the stream's tail runs on to the target too, so the last of the fire finishes its travel.
+// Drawn each frame as overlapping flame puffs along tail..head that swell, wobble and flicker.
+function flamethrower(x0, y0, x1, y1, onArrive, hit = true) {
+  const g = new Graphics();
+  g.blendMode = BLEND_MODES.ADD;
+  fxContainer.addChild(g);
+  const len = Math.hypot(x1 - x0, y1 - y0) || 1;
+  const ux = (x1 - x0) / len; const uy = (y1 - y0) / len;
+  const nx = -uy; const ny = ux;
+  const travel = Math.max(FX.PROJECTILE_MIN_MS, (len / TILE) * FX.FLAME_MS_PER_TILE);
+  const total = travel + FX.FLAME_POUR_MS + travel; // head out, pour, tail out
+  const start = Date.now();
+  let arrived = false;
+  let lastSpark = 0;
+  const puffs = Math.max(6, Math.round(len / (TILE * 0.16)));
+  const seeds = Array.from({ length: puffs + 1 }, () => Math.random() * Math.PI * 2);
+  run({
+    update(now) {
+      const e = now - start;
+      const head = Math.min(1, e / travel);                                      // 0..1 along the line
+      const tail = Math.max(0, Math.min(1, (e - travel - FX.FLAME_POUR_MS) / travel));
+      if (head >= 1 && !arrived) {
+        arrived = true;
+        if (hit) fireImpact(x1, y1, 1.9); // the strike: a big burst (owner 2026-11-12: much more dramatic)
+        if (onArrive) { try { onArrive(); } catch (err) { console.error('projectile onArrive failed', err); } }
+      }
+      // while the fire pours onto the target, sparks of fire fly off it, back and up out of the stream
+      if (arrived && hit && tail < 0.7 && now - lastSpark >= FX.FLAME_SPARK_EVERY_MS) {
+        lastSpark = now;
+        for (let k = 0; k < 2; k++) {
+          const back = Math.atan2(-uy, -ux);                          // splashing back the way the fire came
+          const a = Math.random() < 0.7 ? back + (Math.random() - 0.5) * 2.4 : Math.random() * Math.PI * 2;
+          fireSpark(x1, y1, a);
+        }
+      }
+      g.clear();
+      if (tail >= 1) { fxContainer.removeChild(g); g.destroy(); return false; }
+      for (let i = 0; i <= puffs; i++) {
+        const t = i / puffs;
+        if (t < tail || t > head) continue;
+        const d = t * len;
+        const wob = Math.sin(now / 45 + seeds[i]) * TILE * 0.05 * (0.4 + t);    // it ripples, more far out
+        const x = x0 + ux * d + nx * wob; const y = y0 + uy * d + ny * wob;
+        const grow = 0.35 + 0.65 * Math.min(1, t * 2.2);                         // narrow at the mouth, then a plume
+        const flick = 0.85 + 0.3 * Math.sin(now / 30 + seeds[i] * 3);
+        const r = TILE * 0.2 * grow * flick;
+        const near = Math.min(1, (head - t) * len / (TILE * 0.4));               // the leading edge thins out
+        g.beginFill(0xff3a00, 0.22 * near); g.drawCircle(x, y, r * 1.6); g.endFill();
+        g.beginFill(0xff7a00, 0.45 * near); g.drawCircle(x, y, r); g.endFill();
+        g.beginFill(0xffd04a, 0.55 * near); g.drawCircle(x, y, r * 0.5); g.endFill();
+      }
+      if (tail === 0) { // the mouth still pours: a hot flare there
+        g.beginFill(0xfff4b8, 0.8); g.drawCircle(x0, y0, TILE * (0.08 + 0.02 * Math.sin(now / 25))); g.endFill();
+      }
+      if (head >= 1 && hit) { // the target burns while the fire pours on, fading out with the tail (none on a miss)
+        const a = 1 - tail;
+        const pulse = 0.9 + 0.18 * Math.sin(now / 35);
+        g.beginFill(0xff3a00, 0.3 * a); g.drawCircle(x1, y1, TILE * 0.7 * pulse); g.endFill();
+        g.beginFill(0xff7a00, 0.45 * a); g.drawCircle(x1, y1, TILE * 0.45 * pulse); g.endFill();
+        for (let k = 0; k < 5; k++) {                                // flames licking up off the target
+          const ph = now / 90 + k * 1.3;
+          const fx = x1 + (k - 2) * TILE * 0.13 + Math.sin(ph) * TILE * 0.04;
+          const fh = TILE * (0.35 + 0.25 * (0.5 + 0.5 * Math.sin(ph * 1.7))) * a;
+          g.beginFill(k % 2 ? 0xff8a1a : 0xffb02e, 0.6 * a);
+          g.moveTo(fx - TILE * 0.08, y1); g.lineTo(fx, y1 - fh); g.lineTo(fx + TILE * 0.08, y1); g.closePath(); g.endFill();
+        }
+        g.beginFill(0xffd04a, 0.65 * a); g.drawCircle(x1, y1, TILE * 0.24 * pulse); g.endFill();
+        g.beginFill(0xfff4b8, 0.7 * a); g.drawCircle(x1, y1, TILE * 0.1); g.endFill();
+      }
+      return e < total + 50;
+    },
+  });
+}
+
+/** One spark of fire flung from (x, y) at angle `a`: a short bright streak that flies, falls and fades. */
+function fireSpark(x, y, a) {
+  const g = new Graphics();
+  g.blendMode = BLEND_MODES.ADD;
+  fxContainer.addChild(g);
+  const speed = TILE * (2.2 + Math.random() * 2.8) / 1000;           // px per ms
+  let vx = Math.cos(a) * speed; let vy = Math.sin(a) * speed - TILE * 0.0012; // a kick upward
+  let px = x; let py = y;
+  const life = 380 + Math.random() * 380;
+  const w = 1.5 + Math.random() * 1.8;
+  const color = Math.random() < 0.5 ? 0xffd04a : (Math.random() < 0.5 ? 0xff8a1a : 0xfff4b8);
+  const start = Date.now(); let last = start;
+  run({
+    update(now) {
+      const dt = Math.min(40, now - last); last = now;
+      const p = Math.min(1, (now - start) / life);
+      vy += TILE * 0.000012 * dt;                                       // it falls
+      px += vx * dt; py += vy * dt;
+      g.clear();
+      g.lineStyle(w * (1 - 0.5 * p), color, 1 - p);
+      g.moveTo(px - vx * 22, py - vy * 22); g.lineTo(px, py);              // a streak along its flight
       if (p >= 1) { fxContainer.removeChild(g); g.destroy(); return false; }
       return true;
     },

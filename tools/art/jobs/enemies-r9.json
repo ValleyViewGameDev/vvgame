@@ -1,0 +1,27 @@
+{
+  "name": "enemies-r9",
+  "note": "Owner 2026-11-12: the Bear needs a swipe (arm rig, docs/arm-rig-plan.md) and its raised forepaws overlap its chest too much to cut; redraw the SAME bear with its forelegs hanging free at its sides like the Zombie's arms. One candidate.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "bear-arms-down": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-enemy-bear.png",
+        "../../game-client/public/assets/resources/npc-enemy-zombie.png",
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "SAME BEAR, NEW POSE, the most important instruction: the FIRST attached image is this game's APPROVED Bear (on a transparent background). Redraw that SAME bear: the same face, the same roaring open mouth and teeth, the same angry eyes and brows, the same small round ears, the same warm-brown shaggy fur and lighter tan muzzle and chest patch, the same size and build, the same big hind paws planted wide, the same rendering. Change ONLY its two FORELEGS. RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture, no background). STYLE REFERENCE, the most important image: the attached farm man on magenta is an APPROVED character of this game. The new creature must look drawn by the same hand on the same day, for the same storybook: the same chunky doll proportion (a big head, large expressive eyes, a short thick body, small feet), the same soft rendering; never realistic, never anatomical, never gory. THIS IS AN ENEMY the player fights: menacing in a storybook way (a scowl, bared teeth, a glare), but still charming and readable, something a child would call a monster and not be frightened by; no blood, no wounds. VIEW, the rule for every enemy (unlike this game's farm animals, which are drawn side-on): FRONT-FACING, like the player characters: upright and facing the viewer, the body square-ish to the viewer with a FAINT three-quarter turn, the head and the eyes turned a little toward the viewer's RIGHT, standing on ONE flat ground line, left and right sides roughly symmetrical, nothing trailing far outside the body's silhouette. POSE OF THE FORELEGS: both forelegs HANG DOWN at its sides, relaxed but ready, held a little OUT from the body, like the attached ZOMBIE's arms: a clear gap of background shows between each foreleg and the body all the way from the armpit down to the paw, so the whole foreleg (shoulder, upper leg, elbow, lower leg, paw) is seen and NOTHING of it overlaps the chest or the belly. Elbows only slightly bent. The big forepaws hang at about hip height, turned toward the viewer, the claws out and clearly seen. The shoulders stay broad and the outline of each foreleg is unbroken. SUBJECT: the great brown BEAR reared up on its hind legs, facing the viewer, roaring. Keep it at the game's scale: it is seen about 45 pixels wide on the board, so big plain shapes, a strong silhouette, flat areas of colour, no fine detail, no small accessories. COLOUR: bright and saturated; never pink, never magenta, never purple anywhere on it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid, a 1 x 1 box outlined in the middle (one board tile) and a dashed half-height box directly above it (the headroom); the reference character stands in that box with its head in the headroom. ONE FIGURE ONLY, nothing else in the picture: no building, no props on the ground, no scene. Draw it standing in the box with its hind paws on the box's bottom edge: about a head TALLER than the reference character and nearly twice as broad, its head in the headroom. A soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no frame, no text."
+    }
+  }
+}

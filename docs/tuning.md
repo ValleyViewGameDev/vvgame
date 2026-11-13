@@ -719,7 +719,10 @@ the Legendary Crossbow one, and Titania's Bow none (it is the rarest find; revis
 too easy).
 
 **Enemy shot looks** (`projectile`, ECONOMY column, CombatFX.drawShot): `arrow` (default),
-`fireball` (Dragon: large, ember trail, a little slower so it reads), `fireball-small` (Demon),
+`fireball-small` (Demon: a fireball, no trail), `fireburst` (Phoenix: one flaring burst with a
+stretched flame-and-ember trail; both burst on the target, CombatFX.fireImpact), `flamethrower` (Dragon: a stream pours from the mouth to the target, the hit lands when
+it arrives, then the pouring stops and the tail runs on to the target; `FLAME_MS_PER_TILE`,
+`FLAME_POUR_MS`), `fireball` (large, ember trail; unused since 2026-11-12), `lightning` (Ghost),
 `blob` (Spider: an elongated black spit, no point), `none` (melee at any reach).
 
 **The leap** (`leapcooldown` seconds, ECONOMY column; today the Ogre at 5): an enemy chasing a

@@ -50,6 +50,7 @@ import { facePlayerToward, getPlayerTile } from '../../PlayerMovement';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
+import { rigFor, cutRig, syncArmRig } from './ArmRig';
 import { WALK } from './walking';
 import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
 import { skillsBySource as buildSkillsBySource, useBuildingOffers } from '../../Utils/buildingStatus';
@@ -63,10 +64,11 @@ const HOVER = { tiles: 0.12, periodMs: 2200 };
 const FLAP = { periodMs: 420, idleSlow: 2 }; // one wing beat while a winged enemy flies to its next tile; idle it beats this many times slower // a floating enemy's idle bob: how high (of a tile) and how slow
 
 // Building overlays (✅, clock, ?) sit centred at the top of the footprint, over the art
-// (owner 2026-11-10): twice the old size, except crafting stations and pets (the old size)
+// (owner 2026-11-10): twice the old size, except crafting stations, pets and the Mailbox (the old size)
 const BUILDING_OVERLAY = 0.8;  // of a tile
 const SMALL_OVERLAY = 0.4;
 const SMALL_OVERLAY_CATEGORIES = new Set(['crafting', 'pet']);
+const SMALL_OVERLAY_TYPES = new Set(['Mailbox']); // a 'station' that still wears the small ✅ (owner 2026-11-12)
 const PET_OVERLAY_GAP = 0.04; // tiles of air between a Zoo animal's head and its timer / check
 
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
@@ -548,7 +550,7 @@ const PixiRenderer = ({
     if (seed === undefined) { displayObj.breath = 0; displayObj.walking = false; return; }
     const animation = npcAnimations.current[npcId];
     const moving = !!animation && animation.duration !== 0;
-    displayObj.breath = moving ? 0 : breathLevel(now, seed); // a walking figure has its bob instead
+    displayObj.breath = moving || kind === 'attack' ? 0 : breathLevel(now, seed); // a walking figure has its bob instead; an enemy (a `walks` one) never breathes
     displayObj.walkCycleMs = WALK.npcCycleMs;                // an NPC strolls (walking.js)
     if (moving) displayObj.walkSideways = Math.abs((animation.targetPos?.x ?? 0) - (animation.startPos?.x ?? 0)) > 0.01; // left or right: stride and arm swing; up or down: the feet only step
     displayObj.walking = moving;                             // ... and its legs step while it does
@@ -1283,7 +1285,12 @@ const PixiRenderer = ({
         // the figure's blink frame (resources.json blinkFile: the same art with the eyes closed)
         const blinkFile = filename ? masterResources?.find((m) => m.type === npc.type)?.blinkFile : null;
         const blinkTexture = blinkFile && !emojiSized ? await loadSVGTexture(blinkFile) : null;
-        return { npc, texture, filename, emojiSized, blinkTexture };
+        // a rigged drawing (rigs.json; docs/arm-rig-plan.md) draws its body with the arms cut away;
+        // the arms are an ArmRig on the sprite, attached below
+        const rig = !emojiSized ? rigFor(filename) : null;
+        const rigCut = rig && texture ? cutRig(appRef.current?.renderer, texture, rig) : null;
+        if (rigCut) texture = rigCut.body;
+        return { npc, texture, filename, emojiSized, blinkTexture, rig: rigCut ? rig : null, rigCut };
       });
 
       const loadedNPCs = await Promise.all(npcTexturePromises);
@@ -1293,7 +1300,7 @@ const PixiRenderer = ({
       if (!npcContainerRef.current) return;
 
       // Phase 2: Update or create display objects for each NPC
-      for (const { npc, texture, filename, emojiSized, blinkTexture } of loadedNPCs) {
+      for (const { npc, texture, filename, emojiSized, blinkTexture, rig, rigCut } of loadedNPCs) {
         // SVG portraits fill the tile; emoji frames match the old Text size (0.8 tile); a row's
         // `artScale` (resources.json, e.g. the Great Bear's 1.5) draws a bigger beast on the same tile
         const artScale = Number(npc.artScale) > 0 ? Number(npc.artScale) : 1;
@@ -1304,8 +1311,11 @@ const PixiRenderer = ({
         const artSpan = !emojiSized && Number(npc.artSpan) > 0 ? Number(npc.artSpan) : 0;
         const anchorY = artSpan ? 1 - 0.5 / artSpan : 0.5;
         setHeadlineSpan(npc.id, artSpan); // the headline glyphs (Zzz, ??) ride above the figure's head
-        // a standing figure breathes; enemies do not (CombatFX owns their scale: hit pops, the death beat)
-        if (artSpan && npc.action !== 'attack') { if (!breathersRef.current.has(npc.id)) breathersRef.current.set(npc.id, breathSeed(npc.id)); }
+        // a standing figure breathes; enemies do not (CombatFX owns their scale: hit pops, the death beat).
+        // An enemy with `walks` on its row (the Zombie; owner 2026-11-12) steps its legs while it moves,
+        // the player's walk (walking.js), but still never breathes or taps (applyBreath)
+        const walks = !!(npc.walks ?? masterResources?.find((m) => m.type === npc.type)?.walks);
+        if (artSpan && (npc.action !== 'attack' || walks)) { if (!breathersRef.current.has(npc.id)) breathersRef.current.set(npc.id, breathSeed(npc.id)); }
         else breathersRef.current.delete(npc.id);
         // A multi-tile NPC (resources.json sizeX x sizeY: a 2 x 2 Phoenix; Utils/npcFootprint.js). Its
         // `position` is the footprint's lower-left tile. Painted art (artSpan) stands on the footprint's
@@ -1426,7 +1436,7 @@ const PixiRenderer = ({
         if (hover > 0 && 'breath' in displayObj) {
           displayObj.hoverCut = hover;
           if (!hoverersRef.current.has(npc.id)) hoverersRef.current.set(npc.id, { seed: breathSeed(`${npc.id}:hover`), amp: 0 });
-        } else { hoverersRef.current.delete(npc.id); displayObj.hoverLift = 0; }
+        } else { hoverersRef.current.delete(npc.id); displayObj.hoverLift = 0; displayObj.hoverCut = 0; }
         const roots = String(npc.wingRoots ?? masterResources?.find((m) => m.type === npc.type)?.wingRoots ?? '').split(',').map(Number);
         if ((roots.length === 2 || roots.length === 3) && roots.every((u) => u > 0 && u < 1) && 'breath' in displayObj) {
           displayObj.wingRoots = roots;
@@ -1434,6 +1444,7 @@ const PixiRenderer = ({
         } else { flappersRef.current.delete(npc.id); displayObj.wingRoots = null; displayObj.wingFold = 0; }
         applyBreath(npc.id, displayObj, performance.now());
         // blinking: the ticker swaps between the open art and the blink frame (breathing.js isBlinking)
+        if ('breath' in displayObj) syncArmRig(displayObj, rig, rigCut, { attackClip: npc.attackClip ?? masterResources?.find((m) => m.type === npc.type)?.attackClip });
         displayObj.__openTex = newDisplayType === 'sprite' ? texture : null;
         displayObj.__blinkTex = newDisplayType === 'sprite' ? blinkTexture || null : null;
         if (displayObj.__blinkTex) { if (!blinkersRef.current.has(npc.id)) blinkersRef.current.set(npc.id, breathSeed(`${npc.id}:blink`)); }
@@ -1620,7 +1631,7 @@ const PixiRenderer = ({
         // Centred at the top of the footprint (anchored at its lower-left tile, growing up), inside it
         // At settlement zoom, apply grid offset
         const { w: fpW, h: fpH } = footprintOf(resource);
-        const overlaySize = TILE_SIZE * (SMALL_OVERLAY_CATEGORIES.has(resource.category) ? SMALL_OVERLAY : BUILDING_OVERLAY);
+        const overlaySize = TILE_SIZE * (SMALL_OVERLAY_CATEGORIES.has(resource.category) || SMALL_OVERLAY_TYPES.has(resource.type) ? SMALL_OVERLAY : BUILDING_OVERLAY);
         const x = gridOffsetX + (resource.x + fpW / 2) * TILE_SIZE - overlaySize / 2;
         let y = gridOffsetY + (resource.y - fpH + 1) * TILE_SIZE + 2;
         // A Zoo animal (owner 2026-11-11): inside the tile the timer / check covered its face, so it

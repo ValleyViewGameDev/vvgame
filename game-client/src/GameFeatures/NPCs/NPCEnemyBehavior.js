@@ -384,6 +384,20 @@ function attackIntervalMs(npc) {
   return s > 0 ? s * 1000 : npc.stepMs;
 }
 
+// An attacking enemy always faces the player (owner 2026-11-12): on each swing (and again when the
+// blow or shot leaves, in case the player crossed over during the wind-up) its facing turns toward
+// the player's side of its body. The renderer flips the art from `facing` as it does for a step
+// (and `noFlip` art still never flips). Only a change re-renders; facing is not saved.
+function faceTarget(npc, gridId, targetPosition) {
+  if (!targetPosition) return;
+  const dx = targetPosition.x - npcCentre(npc).x;
+  if (Math.abs(dx) < 0.5) return; // straight above or below: keep the way it faces
+  const want = dx > 0 ? 1 : -1;
+  if (npc.facing === want) return;
+  npc.facing = want;
+  NPCsInGridManager.syncReact(npc.gridId || gridId);
+}
+
 function performAttack(gridId, TILE_SIZE) {
   if (this.swingPending) return;
   const now = Date.now();
@@ -393,7 +407,8 @@ function performAttack(gridId, TILE_SIZE) {
   }
   this.nextAttackAt = now + attackIntervalMs(this);
   this.swingPending = true;
-  CombatFX.enemyWindup(this.id);
+  faceTarget(this, gridId, this.targetPC?.position);
+  const hitMs = CombatFX.enemyWindup(this.id, this.targetPC?.position, this) || CombatFX.FX.WINDUP_MS; // a rigged enemy's clip says when its blow lands
   CombatFX.engageEnemy(this.id, this.hp, this.maxhp);
   setTimeout(() => {
     this.swingPending = false;
@@ -403,6 +418,7 @@ function performAttack(gridId, TILE_SIZE) {
     const live = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0];
     if (!live || live.playerId !== target.playerId) return;
     if (npcReach(this, live.position) > this.attackrange || !canHitTarget(this, live.position)) return;
+    faceTarget(this, gridId, live.position);
 
     const attackRoll = Math.floor(Math.random() * 20) + 1;
     const isAHit = attackRoll + (this.attackbonus || 0) >= (live.armorclass || 0);
@@ -414,7 +430,7 @@ function performAttack(gridId, TILE_SIZE) {
       const newHP = Math.max(0, pc.hp - damage);
       CombatFX.playerHit();
       const body = npcCentre(this);
-      createImpactEffect(pc.position.x, pc.position.y, body.x, body.y);
+      createImpactEffect(pc.position.x, pc.position.y, body.x, body.y, this.projectile); // the Spider's hit splashes black
       CombatFX.text(pc.position.x, pc.position.y, `-${damage}`, 'player', pcHead(pc.position));
       soundManager.playSFX('take_damage');
       playersInGridManager.updatePC(gridId, pc.playerId, { hp: newHP, lastUpdated: Date.now() });
@@ -428,9 +444,9 @@ function performAttack(gridId, TILE_SIZE) {
       // it leaves the enemy's `shotFrom` (the Demon's mouth) and flies at the player's chest (shotPoints.js)
       const from = npcShotOrigin(this);
       const to = pcChest(live.position);
-      CombatFX.projectile(from.x, from.y, to.x, to.y, land, shot);
+      CombatFX.projectile(from.x, from.y, to.x, to.y, land, shot, isAHit); // a miss: no strike effect
     } else land();
-  }, CombatFX.FX.WINDUP_MS);
+  }, hitMs);
 }
 
 

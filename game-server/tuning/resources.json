@@ -6842,7 +6842,8 @@
     "totalnestedtime": 28800,
     "effort": 480,
     "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓",
-    "filename": "doober-pelt.svg"
+    "filename": "doober-pelt.svg",
+    "artSpan": 1.19
   },
   {
     "type": "Bear Skin",
@@ -6876,7 +6877,8 @@
     "totalnestedtime": 172800,
     "effort": 2880,
     "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓",
-    "filename": "doober-bear-skin.svg"
+    "filename": "doober-bear-skin.svg",
+    "artSpan": 1.11
   },
   {
     "type": "Bones",
@@ -9907,10 +9909,12 @@
     "crafttime": 86400,
     "totalnestedtime": 345600,
     "filename": "npc-figure-fairy.svg",
-    "artSpan": 1.2,
+    "artSpan": 1.385,
     "iconFile": "npc-head-fairy.svg",
     "blinkFile": "npc-figure-fairy-blink.svg",
-    "breathTop": 0.5
+    "breathTop": 0.375,
+    "hover": 0.85,
+    "wingRoots": "0.372,0.654"
   },
   {
     "type": "Kent",
@@ -11156,7 +11160,8 @@
     "attackinterval": 1,
     "filename": "npc-enemy-coyote.svg",
     "iconFile": "npc-head-coyote.svg",
-    "artSpan": 1.2
+    "artSpan": 1.2,
+    "attackClip": "lurch"
   },
   {
     "type": "Bear",
@@ -11195,7 +11200,9 @@
     "filename": "npc-enemy-bear.svg",
     "iconFile": "npc-head-bear.svg",
     "artSpan": 1.9,
-    "noFlip": true
+    "noFlip": true,
+    "walks": true,
+    "attackClip": "swipe"
   },
   {
     "type": "Great Bear",
@@ -11312,7 +11319,9 @@
     "attackinterval": 2.2,
     "filename": "npc-enemy-zombie.svg",
     "iconFile": "npc-head-zombie.svg",
-    "artSpan": 1.8
+    "artSpan": 1.8,
+    "walks": true,
+    "attackClip": "claw"
   },
   {
     "type": "Ghost",
@@ -11395,7 +11404,8 @@
     "attackinterval": 2.4,
     "filename": "npc-enemy-ogre.svg",
     "iconFile": "npc-head-ogre.svg",
-    "artSpan": 2.7
+    "artSpan": 2.7,
+    "walks": true
   },
   {
     "type": "Demon",
@@ -11437,7 +11447,6 @@
     "projectile": "fireball-small",
     "shotFrom": "0.5,0.38",
     "attackinterval": 1.8,
-    "noFlip": true,
     "filename": "npc-enemy-demon.svg",
     "iconFile": "npc-head-demon.svg",
     "artSpan": 2.8
@@ -11534,7 +11543,7 @@
     "sizeX": 3,
     "sizeY": 3,
     "category": "npc",
-    "artFacing": "right",
+    "artFacing": "left",
     "movespeed": 1.2,
     "action": "attack",
     "output": "Scroll",
@@ -11562,7 +11571,7 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "projectile": "fireball",
+    "projectile": "flamethrower",
     "attackinterval": 2.5,
     "filename": "npc-enemy-dragon.svg",
     "iconFile": "npc-head-dragon.svg",
@@ -11591,6 +11600,8 @@
     "damage": 96,
     "attackbonus": 27,
     "attackrange": 5,
+    "projectile": "fireburst",
+    "shotFrom": "0.516,0.29",
     "validong": true,
     "validond": true,
     "validons": true,
@@ -11606,7 +11617,6 @@
     "validonv": true,
     "validonu": true,
     "attackinterval": 2,
-    "noFlip": true,
     "filename": "npc-enemy-phoenix.svg",
     "iconFile": "npc-head-phoenix.svg",
     "artSpan": 2.9

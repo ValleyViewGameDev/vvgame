@@ -223,7 +223,7 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
     if (ranged) {
         // the arrow leaves the player's chest and lands on the enemy's (shotPoints.js)
         const a = pcChest(player.position); const b = npcChest(freshNPC);
-        CombatFX.projectile(a.x, a.y, b.x, b.y, land);
+        CombatFX.projectile(a.x, a.y, b.x, b.y, land, 'arrow', hit);
     }
     else land();
     return true;

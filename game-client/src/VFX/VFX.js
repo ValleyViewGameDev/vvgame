@@ -581,7 +581,15 @@ export const createRipenEffect = (x, y, fromFile, toFile, fromBox = 1, toBox = 1
     }, duration);
 };
 
-export const createImpactEffect = (x, y, fromX = null, fromY = null) => {
+// The chips' colours: bright by default; a shot's look can bring its own (the Spider's spit
+// splashes black bits, to match its blob; owner 2026-11-12).
+const IMPACT_COLORS = {
+    default: ['#ffd166', '#fff3c4', '#ffffff'],
+    blob: ['#111111', '#2a2a2a', '#000000'],
+};
+
+export const createImpactEffect = (x, y, fromX = null, fromY = null, look = 'default') => {
+    const colors = IMPACT_COLORS[look] || IMPACT_COLORS.default;
     const worldContainer = document.querySelector('.pixi-world-container');
     if (!worldContainer) return;
     const t = PixiCamera.getTileSize();
@@ -595,7 +603,7 @@ export const createImpactEffect = (x, y, fromX = null, fromY = null) => {
             : away + (Math.random() - 0.5) * 1.7;
         const dist = t * (0.6 + Math.random() * 0.45);
         spawnChunk(worldContainer, cx, cy, {
-            size: t * (0.13 + Math.random() * 0.09), color: i % 3 === 0 ? '#ffd166' : (i % 2 ? '#fff3c4' : '#ffffff'),
+            size: t * (0.13 + Math.random() * 0.09), color: i % 3 === 0 ? colors[0] : (i % 2 ? colors[1] : colors[2]),
             endX: Math.cos(angle) * dist, endY: Math.sin(angle) * dist + t * 0.1, duration: 360 + Math.random() * 100, delay: Math.random() * 20,
         });
     }

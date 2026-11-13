@@ -1,0 +1,197 @@
+{
+  "_note": "Arm rigs (docs/arm-rig-plan.md), keyed by art file. All points are fractions of the art square (0,0 top-left, 1,1 bottom-right). Per arm, named by the side of the IMAGE it is on (L = x < 0.5), not the character's own left: `upper` (the whole shoulder from the collar down to the elbow row, never past it: only its round elbow cap crosses the joint, or a bent elbow carries a chunk of forearm with it; owner 2026-11-12: the shoulder must move with the arm) and `fore` (from above the elbow to the fingertips) are the pieces' outlines (the forearm reaches up past the elbow, under the upper arm, which is drawn over it); `shoulder`, `elbow`, `grip` the joints; `cap` the radius (of the square's width) of the round disc both pieces carry at the elbow so a bend keeps the arm's full width (`shoulderCap`, a radius, adds one at the shoulder to the upper arm); `under` the part of the body the upper arm hides, painted in from the body's side (toward the image's centre) once the arm is cut away; `fill` how: smeared from the nearest solid pixel (default, plain cloth) or `clone`, a copy of the body `cloneStep` away ([du, dv], default a little further in; the Bear copies the flank from below), so fur keeps its texture; `blend` the half-widths of the shoulder and elbow weight ramps; `bulge` how much wider (1 = twice) the upper arm swells near the shoulder when the arm is level, fading out `bulgeReach` down the arm. Measured by hand on gridded crops 2026-11-12.",
+  "npc-enemy-zombie.svg": {
+    "arms": {
+      "L": {
+        "upper": [[0.425, 0.302], [0.37, 0.312], [0.33, 0.33], [0.29, 0.36], [0.272, 0.4], [0.262, 0.455], [0.366, 0.455], [0.37, 0.425], [0.395, 0.39], [0.415, 0.35], [0.43, 0.32]],
+        "fore": [[0.252, 0.44], [0.366, 0.44], [0.378, 0.49], [0.378, 0.58], [0.345, 0.598], [0.342, 0.648], [0.218, 0.648], [0.222, 0.53], [0.24, 0.48]],
+        "shoulder": [0.365, 0.352],
+        "elbow": [0.31, 0.455],
+        "cap": 0.045,
+        "grip": [0.3, 0.57],
+        "under": [[0.445, 0.318], [0.41, 0.328], [0.385, 0.345], [0.368, 0.375], [0.365, 0.4], [0.37, 0.475], [0.4, 0.475], [0.445, 0.4]]
+      },
+      "R": {
+        "upper": [[0.575, 0.302], [0.63, 0.312], [0.67, 0.33], [0.71, 0.36], [0.728, 0.4], [0.738, 0.455], [0.634, 0.455], [0.63, 0.425], [0.605, 0.39], [0.585, 0.35], [0.57, 0.32]],
+        "fore": [[0.64, 0.44], [0.745, 0.44], [0.755, 0.5], [0.778, 0.56], [0.778, 0.648], [0.655, 0.648], [0.655, 0.6], [0.613, 0.585], [0.613, 0.52], [0.632, 0.48]],
+        "shoulder": [0.635, 0.352],
+        "elbow": [0.69, 0.455],
+        "cap": 0.045,
+        "grip": [0.7, 0.57],
+        "under": [[0.555, 0.318], [0.59, 0.328], [0.615, 0.345], [0.632, 0.375], [0.635, 0.4], [0.63, 0.475], [0.6, 0.475], [0.555, 0.4]]
+      }
+    }
+  },
+  "npc-enemy-bear.svg": {
+    "arms": {
+      "L": {
+        "upper": [[0.312, 0.25], [0.27, 0.235], [0.22, 0.26], [0.16, 0.315], [0.105, 0.4], [0.09, 0.43], [0.296, 0.43], [0.3, 0.4], [0.31, 0.33]],
+        "fore": [[0.065, 0.49], [0.297, 0.49], [0.292, 0.53], [0.276, 0.565], [0.266, 0.6], [0.256, 0.65], [0.244, 0.7], [0.226, 0.75], [0.2, 0.79], [0.03, 0.8], [0.02, 0.66], [0.03, 0.56], [0.045, 0.51]],
+        "shoulder": [0.25, 0.26],
+        "elbow": [0.185, 0.46],
+        "cap": 0.105,
+        "shoulderCap": 0.08,
+        "blend": [0.1, 0.04],
+        "bulge": 1.4,
+        "bulgeReach": 0.24,
+        "grip": [0.13, 0.7],
+        "under": [[0.345, 0.25], [0.3, 0.258], [0.281, 0.29], [0.272, 0.34], [0.268, 0.4], [0.272, 0.46], [0.282, 0.52], [0.297, 0.555], [0.345, 0.565]],
+        "fill": "clone",
+        "cloneStep": [0, 0.08]
+      },
+      "R": {
+        "upper": [[0.688, 0.25], [0.73, 0.235], [0.78, 0.26], [0.84, 0.315], [0.895, 0.4], [0.91, 0.43], [0.704, 0.43], [0.7, 0.4], [0.69, 0.33]],
+        "fore": [[0.935, 0.49], [0.703, 0.49], [0.708, 0.53], [0.724, 0.565], [0.734, 0.6], [0.744, 0.65], [0.756, 0.7], [0.774, 0.75], [0.8, 0.79], [0.97, 0.8], [0.98, 0.66], [0.97, 0.56], [0.955, 0.51]],
+        "shoulder": [0.75, 0.26],
+        "elbow": [0.815, 0.46],
+        "cap": 0.105,
+        "shoulderCap": 0.08,
+        "blend": [0.1, 0.04],
+        "bulge": 1.4,
+        "bulgeReach": 0.24,
+        "grip": [0.87, 0.7],
+        "under": [[0.655, 0.25], [0.7, 0.258], [0.719, 0.29], [0.728, 0.34], [0.732, 0.4], [0.728, 0.46], [0.718, 0.52], [0.703, 0.555], [0.655, 0.565]],
+        "fill": "clone",
+        "cloneStep": [0, 0.08]
+      }
+    }
+  },
+  "npc-enemy-spider.svg": {
+    "exclude": [[0.5, 0.53, 0.203, 0.155], [0.5, 0.735, 0.142, 0.115]],
+    "gait": {
+      "periodMs": 380,
+      "limbs": {
+        "legL1": [0, 0.16, 0.18],
+        "legR1": [0.5, -0.16, -0.18],
+        "legL2": [0.5, 0.16, 0.18],
+        "legR2": [0, -0.16, -0.18],
+        "legL3": [0, 0.16, 0.18],
+        "legR3": [0.5, -0.16, -0.18]
+      }
+    },
+    "idle": {
+      "everyMs": [900, 2200],
+      "ms": 460,
+      "limbs": {
+        "fangL": 0.65,
+        "fangR": -0.65
+      }
+    },
+    "arms": {
+      "legL1": {
+        "path": [[0.31, 0.55], [0.225, 0.51], [0.11, 0.585], [0.06, 0.69], [0.012, 0.8]],
+        "reach": 0.07,
+        "shoulder": [0.31, 0.55],
+        "elbow": [0.225, 0.51],
+        "grip": [0.012, 0.8],
+        "blend": [0.03, 0.03]
+      },
+      "legL2": {
+        "path": [[0.33, 0.62], [0.244, 0.605], [0.166, 0.7], [0.127, 0.79], [0.098, 0.86], [0.093, 0.93]],
+        "reach": 0.07,
+        "shoulder": [0.33, 0.62],
+        "elbow": [0.244, 0.605],
+        "grip": [0.093, 0.93],
+        "blend": [0.03, 0.03]
+      },
+      "legL3": {
+        "path": [[0.345, 0.69], [0.283, 0.71], [0.244, 0.81], [0.244, 0.88], [0.26, 0.975]],
+        "reach": 0.07,
+        "shoulder": [0.345, 0.69],
+        "elbow": [0.283, 0.71],
+        "grip": [0.26, 0.975],
+        "blend": [0.03, 0.03]
+      },
+      "legR1": {
+        "path": [[0.69, 0.55], [0.78, 0.505], [0.88, 0.585], [0.94, 0.69], [0.985, 0.81]],
+        "reach": 0.07,
+        "shoulder": [0.69, 0.55],
+        "elbow": [0.78, 0.505],
+        "grip": [0.985, 0.81],
+        "blend": [0.03, 0.03]
+      },
+      "legR2": {
+        "path": [[0.67, 0.62], [0.76, 0.61], [0.83, 0.71], [0.86, 0.79], [0.88, 0.86], [0.895, 0.935]],
+        "reach": 0.07,
+        "shoulder": [0.67, 0.62],
+        "elbow": [0.76, 0.61],
+        "grip": [0.895, 0.935],
+        "blend": [0.03, 0.03]
+      },
+      "legR3": {
+        "path": [[0.655, 0.69], [0.718, 0.71], [0.732, 0.79], [0.728, 0.88], [0.713, 0.975]],
+        "reach": 0.07,
+        "shoulder": [0.655, 0.69],
+        "elbow": [0.718, 0.71],
+        "grip": [0.713, 0.975],
+        "blend": [0.03, 0.03]
+      },
+      "fangL": {
+        "outline": [[0.403, 0.815], [0.452, 0.815], [0.468, 0.86], [0.47, 0.905], [0.458, 0.925], [0.438, 0.915], [0.41, 0.87]],
+        "shoulder": [0.428, 0.83],
+        "grip": [0.455, 0.91],
+        "blend": [0.02, 0.02],
+        "noExclude": true,
+        "under": [[0.4, 0.81], [0.46, 0.81], [0.465, 0.85], [0.4, 0.85]],
+        "fill": "clone",
+        "cloneStep": [0, -0.04]
+      },
+      "fangR": {
+        "outline": [[0.597, 0.815], [0.548, 0.815], [0.532, 0.86], [0.53, 0.905], [0.542, 0.925], [0.562, 0.915], [0.59, 0.87]],
+        "shoulder": [0.572, 0.83],
+        "grip": [0.545, 0.91],
+        "blend": [0.02, 0.02],
+        "noExclude": true,
+        "under": [[0.6, 0.81], [0.54, 0.81], [0.535, 0.85], [0.6, 0.85]],
+        "fill": "clone",
+        "cloneStep": [0, -0.04]
+      }
+    }
+  },
+  "npc-enemy-coyote.svg": {
+    "exclude": [[0.45, 0.33, 0.26, 0.2], [0.69, 0.53, 0.235, 0.27], [0.08, 0.62, 0.11, 0.2]],
+    "gait": {
+      "periodMs": 620,
+      "limbs": {
+        "legFL": [0, 0.16, 0.16],
+        "legBR": [0, -0.16, -0.16],
+        "legFR": [0.5, -0.16, -0.16],
+        "legBL": [0.5, 0.16, 0.16]
+      }
+    },
+    "arms": {
+      "legBL": {
+        "path": [[0.25, 0.58], [0.24, 0.7], [0.215, 0.8], [0.21, 0.89], [0.215, 0.925]],
+        "reach": 0.09,
+        "shoulder": [0.25, 0.58],
+        "elbow": [0.24, 0.7],
+        "grip": [0.215, 0.925],
+        "blend": [0.04, 0.03]
+      },
+      "legFL": {
+        "path": [[0.42, 0.56], [0.415, 0.72], [0.41, 0.85], [0.41, 0.95], [0.41, 0.985]],
+        "reach": 0.09,
+        "shoulder": [0.42, 0.56],
+        "elbow": [0.415, 0.72],
+        "grip": [0.41, 0.985],
+        "blend": [0.04, 0.03]
+      },
+      "legFR": {
+        "path": [[0.55, 0.76], [0.575, 0.81], [0.605, 0.87], [0.612, 0.895]],
+        "reach": 0.09,
+        "shoulder": [0.55, 0.76],
+        "elbow": [0.575, 0.81],
+        "grip": [0.612, 0.895],
+        "blend": [0.04, 0.03]
+      },
+      "legBR": {
+        "path": [[0.86, 0.76], [0.88, 0.85], [0.92, 0.93], [0.935, 0.965]],
+        "reach": 0.09,
+        "shoulder": [0.86, 0.76],
+        "elbow": [0.88, 0.85],
+        "grip": [0.935, 0.965],
+        "blend": [0.04, 0.03]
+      }
+    }
+  }
+}

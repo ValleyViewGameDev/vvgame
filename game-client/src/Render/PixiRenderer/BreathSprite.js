@@ -163,8 +163,9 @@ export default class BreathSprite extends Sprite {
   _tapNow() {
     const now = performance.now();
     // walking, turning, not a figure (never told whether it walks) or not being drawn: the wait starts over
-    // `noIdleTap` (the renderer sets it on enemies and farm animals; owner 2026-11-12): never taps
-    if (this.noIdleTap || this._walkOn || this._walkAmp > 0 || this._turnT0 || now - this._toldAt > 500 || now - this._seenAt > 400) { this._stoodAt = now; return null; }
+    // `noIdleTap` (the renderer sets it on enemies and farm animals; owner 2026-11-12): never taps;
+    // nor does a floating figure (`hoverCut`, the Fairy): it has no ground to tap
+    if (this.noIdleTap || this.hoverCut > 0 || this._walkOn || this._walkAmp > 0 || this._turnT0 || now - this._toldAt > 500 || now - this._seenAt > 400) { this._stoodAt = now; return null; }
     if (!this._stoodAt) this._stoodAt = now;
     const tap = tapAt(now, this._stoodAt, this._tapSeed);
     return tap && shapeOf(this._texture)?.legs.split ? tap : null;
@@ -178,13 +179,16 @@ export default class BreathSprite extends Sprite {
     const crouch = Math.max(0, Math.min(1, this.crouch || 0));
     const hoverLift = this.hoverLift || 0;
     const wingFold = this.wingRoots ? Math.max(0, Math.min(1, this.wingFold || 0)) : 0;
-    if (!this._breath && turning < 0 && !walk && !tap && !crouch && !hoverLift && !wingFold) {
+    const lean = this.lean || 0; // fraction of the square: how far the top of the drawing shifts sideways (+ = local right), the feet planted
+    const leanY = this.leanY || 0; // ... and down (+) or up (-): a lurch toward a target straight below or above
+    if (!this._breath && turning < 0 && !walk && !tap && !crouch && !hoverLift && !wingFold && !lean && !leanY) {
       // a plain sprite again: hand the quad back (uvs are re-read by Sprite when _textureID differs)
       if (this.vertexData !== this._quadVerts) { this.vertexData = this._quadVerts; this.indices = QUAD_INDICES; this._textureID = -1; this._transformID = -1; }
+      this._pt = null; // undeformed: pointAt reads the plain square
       super.calculateVertices();
       return;
     }
-    const moving = turning >= 0 || !!walk || !!tap || !!crouch || !!hoverLift || !!wingFold; // these move every frame: never cached
+    const moving = turning >= 0 || !!walk || !!tap || !!crouch || !!hoverLift || !!wingFold || !!lean || !!leanY; // these move every frame: never cached
     if (!moving && this.vertexData === this._meshVerts && this._transformID === this.transform._worldID && this._textureID === texture._updateID) return;
     this._transformID = moving ? -1 : this.transform._worldID;
     this._textureID = texture._updateID;
@@ -204,7 +208,7 @@ export default class BreathSprite extends Sprite {
     // the figure's shape (walking.js): its legs, and its arms from its shoulder line down
     const shape = shapeOf(texture);
     const legs = shape ? shape.legs : DEFAULT_LEGS;
-    const arms = walk && headBand ? armsOf(shape, headV) : NO_ARMS; // arms only matter while it walks
+    const arms = walk && headBand && !this.wingRoots ? armsOf(shape, headV) : NO_ARMS; // arms only matter while it walks; a winged figure's cuts are its wing roots (the Fairy)
     const hinge = Math.min(vEnd - 0.03, Math.max(legs.hinge, (headBand ? headV : vStart) + 0.05)); // where the walk begins to move the drawing
     const partV = Math.min(vEnd - 0.02, Math.max(legs.top, hinge));                                // where the two legs part (the hinge itself for shoes and hems)
     const feetV = Math.max(partV + 0.01, Math.min(legs.feet, vEnd));
@@ -252,6 +256,8 @@ export default class BreathSprite extends Sprite {
     if (tap) for (let r = 0; r < bands; r++) if (Math.abs(R[r] - ankle) < 1e-5 && R[r + 1] - R[r] < HAIR * 2) { cutBand = r; break; }
     this.vertexData = this._meshVerts; this.uvs = this._meshUvs; this.indices = indicesFor(bands, cutBand);
 
+    // what pointAt needs to place an attached part (ArmRig) where this frame's deformation put its joint
+    this._pt = { L, headV, step, hinge, feetV, turning, crouch, crouchDrop, waistV, hoverLift, hoverCut, hoverLocal, lean, vStart };
     const uv = texture._uvs; // x0,y0 TL  x1,y1 TR  x2,y2 BR  x3,y3 BL (a rotated frame included)
     const V = this._meshVerts, U = this._meshUvs;
     const liftMean = step ? (step.lift[0] + step.lift[1]) / 2 : 0, swingMean = step ? (step.swing[0] + step.swing[1]) / 2 : 0;
@@ -327,6 +333,10 @@ export default class BreathSprite extends Sprite {
           x = hingeX + dx * tapCos + dy * tapSin;
           y = hingeY - dx * tapSin + dy * tapCos;
         }
+        // the lean (an attack's whole-body lean toward its target, the Bear's swipe): the feet stay, each row
+        // above them shifts sideways in proportion to its height, so the outline leans like a pushed trapezoid
+        if (lean) x += lean * orig.height * Math.max(0, feetV - v) / Math.max(0.01, feetV - vStart);
+        if (leanY) y += leanY * orig.height * Math.max(0, feetV - v) / Math.max(0.01, feetV - vStart);
         x = centreX + x * f;
         const o = (r * COLS + k) * 2, tu = (x0 - left) / (right - left);
         V[o] = a * x + c * y + tx; V[o + 1] = d * y + b * x + ty;
@@ -336,6 +346,35 @@ export default class BreathSprite extends Sprite {
         } else { U[o] = ulx + (urx - ulx) * tu; U[o + 1] = uly + (ury - uly) * tu; }
       }
     }
+  }
+
+  /**
+   * Where a point of the drawing (u, v: fractions of its square) is drawn in this sprite's local units
+   * after the last frame's breath, walk bob, crouch, hover and turn: an ArmRig's shoulder follows the
+   * body with it. Rows above the walk's hinge only bob; a joint is always there.
+   */
+  pointAt(u, v) {
+    const orig = this._texture.orig, a = this._anchor;
+    const origLeft = -a._x * orig.width, origTop = -a._y * orig.height, centreX = origLeft + orig.width / 2;
+    const P = this._pt;
+    if (!P) return { x: origLeft + u * orig.width, y: origTop + v * orig.height, f: 1 };
+    let [x] = breathDeform(origLeft + u * orig.width - centreX, v, P.L, P.headV);
+    let y = origTop + breathDeform(0, v, P.L, P.headV)[1] * orig.height;
+    if (P.step) y -= P.step.bob * (1 - (v <= P.hinge ? 0 : Math.min(1, (v - P.hinge) / (P.feetV - P.hinge)))) * orig.height;
+    if (P.crouch) y += P.crouchDrop * (1 - (v <= P.waistV ? 0 : Math.min(1, (v - P.waistV) / (P.feetV - P.waistV))));
+    if (P.hoverLift && v <= P.hoverCut + 1e-6) y -= P.hoverLocal;
+    const lean = this.lean || 0; // the CURRENT lean (an ArmRig sets it before this frame is drawn), so a part placed by it never lags the body
+    if (lean) x += lean * orig.height * Math.max(0, P.feetV - v) / Math.max(0.01, P.feetV - P.vStart);
+    const leanY = this.leanY || 0;
+    if (leanY) y += leanY * orig.height * Math.max(0, P.feetV - v) / Math.max(0.01, P.feetV - P.vStart);
+    const f = P.turning >= 0 ? turnAt(P.turning, this._turnFrom, v, P.headV) : 1;
+    return { x: centreX + x * f, y, f };
+  }
+
+  /** An attached ArmRig is placed before the children's transforms are updated. */
+  updateTransform() {
+    if (this.armRig) this.armRig.sync(this);
+    super.updateTransform();
   }
 
   // Bounds from the full, undeformed square (Sprite reads the first 8 floats of vertexData as a quad,

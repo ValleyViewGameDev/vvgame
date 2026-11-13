@@ -24,6 +24,9 @@ const AVATAR_PX = 512;
 const AVATAR_SPAN = 1.8;
 // the boat the player turns into afloat: 1.8x the 0.9-tile state art, centred on the tile (owner 2026-11-12)
 const BOAT_SPAN = 1.62;
+// the tent the player turns into while camping (owner 2026-11-12): fills the tile and spills a little
+// over it, standing on the tile's bottom edge so the spill goes up (item-tent art fills its square)
+const TENT_SPAN = 1.4;
 // Afloat, the saved avatar sits IN the boat (owner 2026-11-12): the avatar cut off at its waist,
 // drawn at its usual size over the boat with the waist on the boat's near rim, so the rim reads
 // as the boat's front edge. Both are fractions of their picture's square, measured on the art
@@ -549,16 +552,19 @@ const PixiRendererPCs = ({
       sprite.texture = texture;
       // a figure (the saved avatar or a figure icon) stands on the tile: its square's bottom edge is the tile's bottom edge
       const span = avatarTex ? AVATAR_SPAN : (!getStateArt(pc) && iconToSpanMap.get(normalizeEmoji(displayIcon)));
-      const flatSize = !avatarTex && pc.isinboat && getStateArt(pc) ? BOAT_SPAN : 0.9; // non-figure art, drawn centred
+      const stateArt = !avatarTex ? getStateArt(pc) : null;
+      const isTent = stateArt === 'resources:item-tent.svg';
+      const flatSize = isTent ? TENT_SPAN : (stateArt && pc.isinboat ? BOAT_SPAN : 0.9); // non-figure art, drawn centred
+      const flatDrop = isTent ? -((TENT_SPAN - 1) * TILE_SIZE) / 2 : 0; // the tent stands on the tile's bottom edge
       sprite.width = TILE_SIZE * (span || flatSize);
       sprite.height = TILE_SIZE * (span || flatSize);
       sprite.x = xPos;
       // a figure is anchored at its FEET (the square's bottom-centre on the tile's bottom edge), so the
       // idle breath (breathing.js) stretches it up from the ground; a bust or emoji stays centred
       if (span) { sprite.anchor.set(0.5, 1); sprite.y = yPos + TILE_SIZE / 2; }
-      else { sprite.anchor.set(0.5, 0.5); sprite.y = yPos; }
+      else { sprite.anchor.set(0.5, 0.5); sprite.y = yPos + flatDrop; }
       const artTop = opaqueTopFraction(app?.renderer, texture);
-      liveHeadTop = span ? 1 - span * (1 - artTop) : 0.5 - flatSize / 2 + flatSize * artTop;
+      liveHeadTop = span ? 1 - span * (1 - artTop) : 0.5 - flatSize / 2 + flatSize * artTop + flatDrop / TILE_SIZE;
       sprite.__artTop = artTop; // CombatFX centres the cooldown ring on the drawn figure, not its feet
       sprite.__breathes = !!span; // only a figure breathes (the ticker below sets sprite.breath)
       if (!span) sprite.breath = 0;
