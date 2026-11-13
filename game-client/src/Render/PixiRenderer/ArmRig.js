@@ -461,12 +461,13 @@ export class ArmRig {
       const shoulderLean = lean ? lean * h * Math.max(0, feetV - a.S[1] / h) / span : 0; // already in p.x, and in the mesh's shoulder point
       const shoulderLeanY = leanY ? leanY * h * Math.max(0, feetV - a.S[1] / h) / span : 0;
       a.mesh.position.set(p.x - p.f * ow * (a.S[0] + shoulderLean - ax), p.y - oh * (a.S[1] + shoulderLeanY - ay));
-      if (a.held) this.placeHeld(a, ts, te, tw, lean, leanY, h, feetV, span, ax, ay, st ? k : 1);
+      if (a.held) this.placeHeld(a, ts, te, tw, lean, leanY, h, feetV, span, ax, ay, !!clip || !st || this._stanceTo === 1);
     }
   }
 
   /** How far into its stance the arm is, 0..1 (eased over STANCE_MS toward the last `setStance`). */
   stanceAmount(now) {
+    if (this.play) { this._stanceAt = now; return smooth01(this._stanceAmt); } // a clip is whole poses: the ease waits for it (a killing blow finishes its cut, THEN the arm comes down)
     if (this._stanceAmt !== this._stanceTo) {
       const step = (now - this._stanceAt) / STANCE_MS; this._stanceAt = now;
       this._stanceAmt = this._stanceTo > this._stanceAmt ? Math.min(this._stanceTo, this._stanceAmt + step) : Math.max(this._stanceTo, this._stanceAmt - step);
@@ -507,7 +508,12 @@ export class ArmRig {
     a.pose = null; // placed on the next sync
   }
 
-  /** Each frame: the held weapon and the fist at the hand, turned with the forearm. `show`: 0..1, the stance's ease. */
+  /**
+   * Each frame: the held weapon and the fist at the hand, turned with the forearm. `show`: the weapon
+   * is out (the stance is on, or a clip is still playing). The switch is ONE step, never a fade: the
+   * weapon and the fist go and the arm's own drawn hand is back in the same frame, and the other way
+   * round (owner 2026-11-13: a fade left a moment with no hand at all).
+   */
   placeHeld(a, ts, te, tw, lean, leanY, h, feetV, span, ax, ay, show) {
     let [x, y] = a.G;
     const turn = (px, py, ang) => { if (!ang) return; const c = Math.cos(ang), s = Math.sin(ang), dx = x - px, dy = y - py; x = px + dx * c - dy * s; y = py + dx * s + dy * c; };
@@ -519,8 +525,10 @@ export class ArmRig {
     if (leanY) y += leanY * h * above;
     const fore = a.foreAngle + ts + te + tw; // the forearm now, clockwise from straight down
     const { weapon, fist, angle } = a.held;
-    weapon.position.set(x - ax, y - ay); weapon.rotation = fore + angle; weapon.alpha = show;
-    if (fist) { fist.position.set(x - ax, y - ay); fist.rotation = fore; fist.alpha = show; }
+    weapon.position.set(x - ax, y - ay); weapon.rotation = fore + angle; weapon.visible = show;
+    if (fist) { fist.position.set(x - ax, y - ay); fist.rotation = fore; fist.visible = show; }
+    const tex = show && a.part.texNoHand ? a.part.texNoHand : a.part.tex;
+    if (a.mesh.texture !== tex) a.mesh.texture = tex;
   }
 
   /**
