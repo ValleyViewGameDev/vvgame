@@ -47,18 +47,6 @@
   {
     "step": 5,
     "trigger": "HomesteadVisit",
-    "doinker": true,
-    "doinkerType": "resource",
-    "doinkerTarget": "Mailbox",
-    "notificationKey": 7063,
-    "notificationIcon": "📬",
-    "addQuests": [],
-    "notificationSprite": "mailbox.svg",
-    "scrim": true
-  },
-  {
-    "step": 6,
-    "trigger": "CollectedMail",
     "showModal": true,
     "modalType": "icon",
     "bodyKey": 7064,
@@ -66,7 +54,7 @@
     "addQuests": []
   },
   {
-    "step": 7,
+    "step": 6,
     "trigger": "ChoseAvatar",
     "doinker": true,
     "doinkerType": "resource",
@@ -78,7 +66,7 @@
     "notificationSprite": "doober-wheat.svg"
   },
   {
-    "step": 8,
+    "step": 7,
     "trigger": "CollectedWheat",
     "doinker": true,
     "doinkerType": "resource",
@@ -89,7 +77,7 @@
     "addQuests": []
   },
   {
-    "step": 9,
+    "step": 8,
     "trigger": "ClickedKent",
     "dismissNotification": true,
     "showModal": false,
@@ -103,7 +91,7 @@
     "addQuests": []
   },
   {
-    "step": 10,
+    "step": 9,
     "trigger": "SoldToKent",
     "showModal": false,
     "continue": false,
@@ -121,7 +109,7 @@
     ]
   },
   {
-    "step": 11,
+    "step": 10,
     "trigger": "OpenedFarmingPanel",
     "showModal": false,
     "continue": false,
@@ -132,7 +120,7 @@
     "addQuests": []
   },
   {
-    "step": 12,
+    "step": 11,
     "trigger": "ClickedWheatPlotCard",
     "showModal": false,
     "continue": false,
@@ -150,7 +138,7 @@
     "addQuests": []
   },
   {
-    "step": 13,
+    "step": 12,
     "trigger": "PlantedFirstCrop",
     "showModal": false,
     "continue": false,
@@ -163,7 +151,7 @@
     "scrim": true
   },
   {
-    "step": 14,
+    "step": 13,
     "trigger": "ClickedShepherd",
     "showModal": false,
     "continue": false,
@@ -178,7 +166,7 @@
     "addQuests": []
   },
   {
-    "step": 15,
+    "step": 14,
     "trigger": "CollectedQuest",
     "showModal": false,
     "closePanels": true,
@@ -192,7 +180,7 @@
     "notificationSprite": "signpost-town.svg"
   },
   {
-    "step": 16,
+    "step": 15,
     "trigger": "FirstTownVisit",
     "doinker": true,
     "doinkerType": "resource",
@@ -202,7 +190,7 @@
     "addQuests": []
   },
   {
-    "step": 17,
+    "step": 16,
     "trigger": "AcquiredTownKey",
     "doinker": true,
     "doinkerType": "resource",
@@ -218,7 +206,7 @@
     "notificationSprite": "item-town-key.svg"
   },
   {
-    "step": 18,
+    "step": 17,
     "trigger": "ClickedAgricultureCenter",
     "showModal": false,
     "doinker": true,
@@ -227,7 +215,7 @@
     "addQuests": []
   },
   {
-    "step": 19,
+    "step": 18,
     "trigger": "AcquiredGrower",
     "showModal": true,
     "modalSprite": "npc-head-elbow.svg",
@@ -243,7 +231,7 @@
     "notificationSprite": "doober-scroll.svg"
   },
   {
-    "step": 20,
+    "step": 19,
     "trigger": "OpenedQuestPanel",
     "showModal": false,
     "doinker": true,
@@ -254,7 +242,7 @@
     "addQuests": []
   },
   {
-    "step": 21,
+    "step": 20,
     "trigger": "HomesteadVisit",
     "showModal": false,
     "continue": false,

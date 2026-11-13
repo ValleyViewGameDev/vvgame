@@ -23,7 +23,7 @@ const { setMarketingConsent, isMarketingEligible } = require('../utils/crmAudien
 const { signSession } = require('../utils/session');
 const { forgetDeveloperStatus } = require('../utils/serviceMode');
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const WELCOME_MESSAGE_ID = 1; // tuning/messages.json: the day-0 gift (Money, Gems, Wood, seeds)
+const WELCOME_MESSAGE_ID = 1; // tuning/messages.json: the day-0 gift (25 Gems; the starting goods are in starterAccount.json)
 
 // --- Per-network signup cap (anti-abuse, ported from House) -----------------------------
 // Passwordless, email-less accounts are free to spin up, so NEW accounts per IP are capped
@@ -232,7 +232,7 @@ async function createPlayerAccount({ username, silent, hashedPassword, ipHash, i
   if (!silent) sendNewUserEmail(newPlayer);
 
   // Day-0 gift: the welcome mailbox message, sent here so every registration path gets it
-  // (the FTUE's mailbox beat collects it)
+  // (left for the player to find: the FTUE no longer walks them to the Mailbox, 2026-11-13)
   try { await sendMailboxMessage(String(newPlayer._id), WELCOME_MESSAGE_ID, [], io); }
   catch (mailErr) { console.error('❌ welcome mailbox message failed:', mailErr?.message || mailErr); }
   return newPlayer;

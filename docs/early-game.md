@@ -83,9 +83,12 @@ carry the player through them:
 ### FTUE (session 1, L1 to L3)
 
 Teaches the core loop: plant, harvest, sell to Kent (generate resources, turn them into
-money), then Town and a first skill (Grower). Today: 21 steps in `FTUEsteps.json`, from the
-forest edge at the Town gate (the opening grid; its code name is still `ftue-cave`) and Constable Elbow to the Home Deed, the Mailbox, 3 Wheat, Kent, planting, the Shepherd's
-To Do list, the Town Key and the Agriculture Center.
+money), then Town and a first skill (Grower). Today: 20 steps in `FTUEsteps.json`, from the
+forest edge at the Town gate (the opening grid; its code name is still `ftue-cave`) and Constable Elbow to the Home Deed, the avatar picker, 3 Wheat, Kent, planting, the Shepherd's
+To Do list, the Town Key and the Agriculture Center. No Mailbox beat (owner 2026-11-13): the
+starting goods (Money, Wood, 12 each of Wheat, Carrot and Corn) are in the starter account
+(`tuning/starterAccount.json`) and the welcome message (`messages.json` id 1) holds only 25 Gems,
+left for the player to find.
 
 Two separate goals:
 - **Fun to play with (the toy).** Every core action answers the input at once with board

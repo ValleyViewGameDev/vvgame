@@ -2846,13 +2846,6 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           openPanel('TradeStall'); 
           break;
         case 'Mailbox':
-          // FTUE: an empty box at the collect-mail beat has nothing to collect, so pass that beat
-          // without showing the empty box (only moves when the next step waits on CollectedMail)
-          if (currentPlayer?.firsttimeuser && !currentPlayer?.messages?.length) {
-            const before = currentPlayer.ftuestep || 0;
-            const after = await tryAdvanceFTUEByTrigger('CollectedMail', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-            if (after > before) break;
-          }
           openModal('Mailbox');
           break;
         case 'Warehouse':
