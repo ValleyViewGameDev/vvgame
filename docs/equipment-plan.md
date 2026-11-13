@@ -40,8 +40,16 @@ The owner asked to see the sword in the game before any more planning. What is i
   list (any `action: attack`). While a sword is equipped AND an enemy is there, `PixiRendererPCs.js`
   draws the avatar as its body with the near arm cut away plus an `ArmRig` holding the sword in the
   guard (`heldWeapon.js`); when the last enemy dies the arm eases down and the plain drawing returns.
-- **The cut:** the `slash` clip (`armClips.js`), played by `CombatFX.playerSwing()` alongside the
-  lunge in `Combat.js`. The player also turns to face the enemy struck.
+- **The attack is one animation, arm and body (owner 2026-11-13):** a weapon category's clip
+  (`armClips.js`) holds both halves, the arm's keys and a `body` track that steps the whole figure
+  along the line to the target in time with the arm. The sword's `slash`: a small step back (0.08
+  tile) as the blade is raised, forward 0.3 tile into the cut, then home with the guard. Every
+  category gets its own clip, so its own swing and its own body move. `CombatFX.playerAttack()`
+  plays both from `Combat.js`; the old lunge (forward at once, then back) is kept only for an attack
+  with nothing in the hand. The player also turns to face the enemy struck.
+- **The blow lands on the cut:** with a weapon in the hand the damage, the hit effect and the kill
+  wait for the clip's `hit` (the slash: 235 ms), as a ranged shot already waits for its arrow.
+  Bare-handed attacks still land on the tap.
 - **The fist:** the drawn hand is open, so the arm is cut without it and a small fist in the hand's
   own colours is drawn round the grip (`ArmRig.handParts`).
 
@@ -200,9 +208,9 @@ Families, chosen by the weapon's `swing`, all on that pattern:
   use the slash.
 - **chop** (axes, hammers): the same raise, higher and slower, the body leaning in.
 
-A player's hit resolves on the tap (the combat rule), so each clip is short (under 300 ms) with the
-blow early. The body's short step toward the target (`playerLunge`) stays and plays with the clip
-for reach; unarmed is the lunge alone.
+As built (see "The prototype"): the blow lands at the clip's `hit`, not on the tap, and the body's
+move is a `body` track in the same clip, so each category's swing and body move are authored
+together. Unarmed is the plain lunge alone and lands on the tap.
 
 ### 3.5 Which arm, mirrored
 
@@ -255,6 +263,6 @@ Still open:
 - The look and its layers: `game-client/src/Avatar/avatarLook.js` (`equipFor`, `hand` in `Z_ORDER`),
   `avatarCompositor.js`; the board figure: `Render/PixiRenderer/PixiRendererPCs.js`.
 - Combat: `GameFeatures/Combat/Combat.js`, `combatGear.js`, `Render/PixiRenderer/CombatFX.js`
-  (`playerLunge`).
+  (`playerAttack`: the swing and the body's move together).
 - Weapon rows: `game-server/tuning/resources.json` (category `power`, source Warrior's Den).
 - Checking without the game: `node tools/art/rigshot.js` (`--pose s,e,w` holds a stance).

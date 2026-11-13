@@ -14,6 +14,9 @@
  * 'in' (starts slow, arrives fast: a strike), 'out' (leaves fast, settles). `hit` is when the blow
  * lands (ms from the start): the attack's damage waits for it. An optional `lean` track ({ t, l, ease })
  * leans the whole body toward the target (BreathSprite.lean: the top shifts l of the square, the feet stay).
+ * An optional `body` track ({ t, d, ease }) MOVES the whole figure along the line to its target: d tiles
+ * toward it (+) or away from it (-). It is the body's half of a weapon's attack, written beside the arm's
+ * half so the two stay in step (the player's avatar: CombatFX.playerAttack; owner 2026-11-13).
  */
 export const ARM_CLIPS = {
   // the Zombie: the arm rises high with the claw cocked in over its head, then rakes down and
@@ -87,9 +90,17 @@ export const ARM_CLIPS = {
   // a WHOLE pose and the clip starts and ends in the guard (heldWeapon.GUARD). The sword is rigid at a
   // right angle to the forearm, so the forearm alone aims it. Raise: the elbow folds and the shoulder
   // turns the arm part of the way forward, the blade rising and tipping a little back. Cut: the elbow
-  // straightens as the arm comes down in front, the blade coming over to level. Then back to the guard
+  // straightens as the arm comes down in front, the blade coming over to level. Then back to the guard.
+  // The body goes WITH the sword: a small step back as the blade is raised, forward into the cut, then home
   slash: {
     hit: 235,
+    body: [
+      { t: 0, d: 0 },
+      { t: 155, d: -0.08, ease: 'out' },
+      { t: 230, d: 0.3, ease: 'in' },
+      { t: 300, d: 0.27 },
+      { t: 520, d: 0 },
+    ],
     lead: [
       { t: 0, s: 0.15, e: -1.25 },
       { t: 95, s: -0.4, e: -1.35, ease: 'out' },
@@ -150,4 +161,4 @@ export function valueAt(keys, t, field = 'l') {
 }
 
 /** How long a clip runs (ms): its last key. */
-export const clipLength = (clip) => Math.max(...['lead', 'off', 'lean'].map((k) => (clip[k]?.length ? clip[k][clip[k].length - 1].t : 0)));
+export const clipLength = (clip) => Math.max(...['lead', 'off', 'lean', 'body'].map((k) => (clip[k]?.length ? clip[k][clip[k].length - 1].t : 0)));

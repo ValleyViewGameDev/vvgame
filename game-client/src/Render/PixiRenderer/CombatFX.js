@@ -20,6 +20,7 @@ import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import { holdResourceRender } from '../../VFX/VFX';
 import { npcCells } from '../../Utils/npcFootprint';
+import { ARM_CLIPS, valueAt, clipLength } from './armClips';
 
 const FX = {
   DAMAGE_RISE_MS: 900,       // damage number lifetime
@@ -144,10 +145,12 @@ function run(effect) { effects.push(effect); startTicker(); }
 // Pivot is in local (texture) px, so divide the world offset by the object's scale.
 // `sx`/`sy` are the object's RESTING scale: pass them explicitly during a scale pop, otherwise
 // the offset is recomputed from the popped scale every frame and the sprite appears to grow
-// from a corner instead of its centre.
+// from a corner instead of its centre. They are sizes, without the facing flip: the SIGN of
+// scale.x is read live here, because a mirrored sprite (a figure facing left) moves the other way
+// for the same pivot shift, and without it a left-facing figure lunged and was knocked backwards.
 function setPivotOffset(obj, dxWorld, dyWorld, sx, sy) {
   if (!obj || obj.destroyed) return;
-  const bsx = sx || obj.scale?.x || 1;
+  const bsx = (Math.abs(sx || obj.scale?.x || 1) || 1) * (obj.scale?.x < 0 ? -1 : 1);
   const bsy = sy || obj.scale?.y || 1;
   const baseX = obj.__fxBasePivotX ?? (obj.__fxBasePivotX = obj.pivot.x);
   const baseY = obj.__fxBasePivotY ?? (obj.__fxBasePivotY = obj.pivot.y);
@@ -320,38 +323,43 @@ function dropHpBar(npcId) {
 
 // ---------------------------------------------------------------- player reactions
 
-/** Lunge the player's sprite toward (toX, toY) and back. */
-export function playerLunge(fromX, fromY, toX, toY) {
+/**
+ * The player's attack on the board: the weapon's swing and the body's move, as ONE animation.
+ *
+ * A weapon out in the hand (heldWeapon.js) has an attack clip (armClips.js) that holds both halves:
+ * the arm's keys and a `body` track, the whole figure stepping along the line to the target in time
+ * with the arm (the sword's `slash`: back a little as the blade is raised, forward into the cut,
+ * home). Each weapon category has its own clip, so its own swing and its own body move. With no
+ * weapon out (bare hands, a bow, a weapon with no category yet) the body makes the plain lunge.
+ *
+ * Returns when the blow lands, ms from now (the clip's `hit`; 0 for the plain lunge, which strikes at once).
+ */
+export function playerAttack(fromX, fromY, toX, toY) {
   const obj = getPcDisplay();
-  if (!ready() || !obj || obj.destroyed) return;
+  if (!ready() || !obj || obj.destroyed) return 0;
+  const clip = obj.armRig?.attackClip ? ARM_CLIPS[obj.armRig.attackClip] : null;
+  if (clip) obj.armRig.playAttack(1);
   const len = Math.hypot(toX - fromX, toY - fromY) || 1;
-  const dx = ((toX - fromX) / len) * FX.LUNGE_TILES * TILE;
-  const dy = ((toY - fromY) / len) * FX.LUNGE_TILES * TILE;
+  const ux = (toX - fromX) / len, uy = (toY - fromY) / len;
+  const body = clip?.body || null;
+  const total = body ? clipLength(clip) : FX.LUNGE_MS * 2.3;
   const start = Date.now();
-  const total = FX.LUNGE_MS * 2.3;
+  const mine = (obj.__attackMove = (obj.__attackMove || 0) + 1); // a new attack takes the body over from one still finishing
   run({
     update(now) {
-      if (obj.destroyed) return false;
+      if (obj.destroyed || obj.__attackMove !== mine) return false;
       const e = now - start;
-      let k;
-      if (e < FX.LUNGE_MS) k = easeOut(e / FX.LUNGE_MS);
-      else k = 1 - easeOut(Math.min(1, (e - FX.LUNGE_MS) / (FX.LUNGE_MS * 1.3)));
+      let d; // tiles toward the target
+      if (body) d = valueAt(body, e, 'd');
+      else if (e < FX.LUNGE_MS) d = FX.LUNGE_TILES * easeOut(e / FX.LUNGE_MS);
+      else d = FX.LUNGE_TILES * (1 - easeOut(Math.min(1, (e - FX.LUNGE_MS) / (FX.LUNGE_MS * 1.3))));
       const r = rest(obj);
-      setPivotOffset(obj, dx * k, dy * k, r.x, r.y);
       if (e >= total) { setPivotOffset(obj, 0, 0, r.x, r.y); return false; }
+      setPivotOffset(obj, ux * d * TILE, uy * d * TILE, r.x, r.y);
       return true;
     },
   });
-}
-
-/**
- * The player's weapon swing: the avatar's arm rig plays its attack clip (the sword's `slash`,
- * heldWeapon.js), alongside the lunge. Nothing when no weapon is out. Returns the clip's hit (ms) or null.
- */
-export function playerSwing() {
-  const obj = getPcDisplay();
-  if (!ready() || !obj || obj.destroyed || !obj.armRig) return null;
-  return obj.armRig.playAttack(1);
+  return clip?.hit || 0;
 }
 
 // ---------------------------------------------------------------- the drop
@@ -865,5 +873,5 @@ function tickHpBars(now) {
   }
 }
 
-const CombatFX = { attach, detach, registerPC, text, hitEnemy, enemyWindup, enemyLeapCharge, enemyLeapArc, killEnemy, playerLunge, playerSwing, playerHit, showCooldown, engageEnemy, projectile, dropBounce, FX };
+const CombatFX = { attach, detach, registerPC, text, hitEnemy, enemyWindup, enemyLeapCharge, enemyLeapArc, killEnemy, playerAttack, playerHit, showCooldown, engageEnemy, projectile, dropBounce, FX };
 export default CombatFX;

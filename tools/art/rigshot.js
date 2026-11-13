@@ -57,7 +57,7 @@ fs.writeFileSync(path.join(dir, 'harness.js'), `
 import * as PIXI from './pixi.mjs';
 import BreathSprite from './BreathSprite.js';
 import { rigFor, cutRig, syncArmRig } from './ArmRig.js';
-import { ARM_CLIPS } from './armClips.js';
+import { ARM_CLIPS, valueAt } from './armClips.js';
 import { armFigure, heldFor } from './heldWeapon.js';
 const P = ${JSON.stringify(params)};
 if (P.pose) { const [s, e, w] = P.pose; ARM_CLIPS.__pose = { lead: [{ t: 0, s, e, w: w || 0 }, { t: 1e7, s, e, w: w || 0 }] }; } // a held stance, this tool only
@@ -101,10 +101,13 @@ if (P.view === 'cut') {
   app.renderer.render(app.stage); fake += 2000; app.renderer.render(app.stage); app.renderer.render(app.stage); // the stance eased in
   if (P.walk) { sprite.walking = true; sprite.walkSideways = true; sprite.walkCycleMs = 900; }
   const t0 = fake;
+  const mark = new PIXI.Graphics(); mark.beginFill(0x000000, 0.28); mark.drawEllipse(CW / 2, CH - 8, S * 0.11, S * 0.022); mark.endFill(); // where the figure stands, so its step shows
   if (P.clip) sprite.armRig.playClip(P.clip, P.lead, P.lean);
   if (P.away) sprite.armRig.setStance(null, false); // what the board does when the weapon is unequipped or the last enemy dies
   for (const t of P.times) {
     fake = t0 + t;
+    const body = P.clip && ARM_CLIPS[P.clip].body; // the body's half of the attack (CombatFX.playerAttack moves the figure by it): the target is to the image's right
+    if (body) { sprite.x = CW / 2 + (P.mirror ? -1 : 1) * valueAt(body, t, 'd') * (S / P.span); if (!mark.parent) app.stage.addChildAt(mark, 0); }
     app.renderer.render(app.stage); app.renderer.render(app.stage); // twice: an attached part reads the body's last drawn frame
     snap((P.away ? 'put away' : P.clip || 'rest') + ' ' + t + ' ms' + (P.away ? (sprite.armRig.atRest ? ': at rest' : ': easing') : '') + (P.mirror ? ' (mirrored)' : ''));
   }

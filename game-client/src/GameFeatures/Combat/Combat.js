@@ -196,8 +196,9 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
     CombatFX.showCooldown(attackReadyAt, cooldown);
     const near = npcNearestCell(freshNPC, player.position);   // the lunge goes at the nearest part of the body
     facePlayerToward(near.x);                                  // turn to the enemy struck (a Space / F swing made no turn)
-    CombatFX.playerLunge(player.position.x, player.position.y, near.x, near.y);
-    CombatFX.playerSwing();                                    // the weapon in the hand cuts with it (docs/equipment-plan.md)
+    // the swing and the body's move, one animation per weapon category (CombatFX.playerAttack); a
+    // weapon in the hand strikes part way through its swing, so the blow below waits for that moment
+    const hitAt = CombatFX.playerAttack(player.position.x, player.position.y, near.x, near.y);
     CombatFX.engageEnemy(freshNPC.id, freshNPC.hp, freshNPC.maxhp);
 
     // The roll is decided now; the feedback lands when the blow does (at once for melee,
@@ -228,6 +229,7 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
         const a = pcChest(player.position); const b = npcChest(freshNPC);
         CombatFX.projectile(a.x, a.y, b.x, b.y, land, 'arrow', hit);
     }
+    else if (hitAt) setTimeout(land, hitAt);
     else land();
     return true;
 }

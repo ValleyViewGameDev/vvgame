@@ -142,8 +142,8 @@ faces is the far arm and too thin when lifted (rejected by the owner), the NEAR 
 works, so the sword goes in the near hand, crossing the body, and the swing comes over and across
 it (the plan's §2). A few weapon drawings per category with tints and lengths; no two-handed
 animation yet. The plan's P1 is a prototype outside the game (one sword, one outfit a body, a fist
-piece, the guard and a slash) for the owner to approve. The player's lunge
-(`CombatFX.playerLunge`) plays with the weapon's swing there, so the old "review the combat
+piece, the guard and a slash) for the owner to approve. The player's body move is part
+of each weapon category's attack clip (`CombatFX.playerAttack`), so the old "review the combat
 animations" item (BL-27) has no player half left. The feed exists: `equipFor` / `lookFor` in
 `game-client/src/Avatar/avatarLook.js` read `settings.equippedWeapon` and the rows' `avatarHand`.
 
