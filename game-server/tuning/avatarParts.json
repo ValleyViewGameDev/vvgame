@@ -6,7 +6,7 @@
     "tier": "free",
     "file": "face-f-01.png",
     "tint": "skinTone",
-    "file2": "eyeballs-f-01.png",
+    "file2": "eyeballs-f-01.png", "file3": "brows-f-01.png", "tint3": "hairColor",
     "eyes": "eyes-f-01",
     "body": "female",
     "notes": "the approved farm woman (characters-r2) as a base body, bases-r1 female-3; the face part is the figure above the rig's headCut (tools/art/parts.js face); file2 = the eyeballs lifted out of the face, drawn untinted over it (tools/art/eyeballs.js)"
@@ -18,7 +18,7 @@
     "tier": "free",
     "file": "face-m-01.png",
     "tint": "skinTone",
-    "file2": "eyeballs-m-01.png",
+    "file2": "eyeballs-m-01.png", "file3": "brows-m-01.png", "tint3": "hairColor",
     "eyes": "eyes-m-01",
     "body": "male",
     "notes": "the approved farm man (characters-r3) as a base body, bases-r1 male-2; the face part is the figure above the rig's headCut (tools/art/parts.js face); file2 = the eyeballs lifted out of the face, drawn untinted over it (tools/art/eyeballs.js)",

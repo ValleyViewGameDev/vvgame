@@ -652,6 +652,15 @@ short and left the lower third of each iris in its painted blue or brown, which 
 once the eyeball stopped taking the skin tone. A new face needs one run of this tool after
 `parts.js face`.
 
+**The eyebrows follow Hair Color (owner 2026-11-13).** The brows were painted into the face too,
+so they took the skin tone and stayed brown under any hair colour. `tools/art/brows.js` lifts
+the two brows (the two largest masses of darker pixels above the eyeballs) into a grey layer,
+`skin/brows-<f|m>-01.png`, the face row's `file3` with `tint3: hairColor`, which `lookFor` draws
+over the face in both the open and the blink frames; it paints skin back into the face where
+the brows were (interpolated down each column), so a light hair colour leaves no dark ghost.
+The brow's grey is lifted so its median sits at 185: a little darker than the hair parts, as
+brows are. A new face needs one run of this tool after `eyeballs.js`.
+
 **Change Avatar is the editor, for everyone (owner 2026-11-10).** `AvatarModal` is no longer a
 developer preview: the Player panel's Change Avatar button and the FTUE's avatar step (step 6,
 `modalType: icon`, with its intro line) open it, and the icon chooser is gone

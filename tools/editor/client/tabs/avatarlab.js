@@ -151,7 +151,7 @@ export function avatarLabTab() {
   }
 
   function inCatalogue(folder, file) {
-    return data.catalogue.some((r) => ['file', 'fileMale', 'file2', 'backFile', 'underHat', 'blinkFile'].some((w) => r[w] === file && look.partFolder(r.slot, w) === folder));
+    return data.catalogue.some((r) => ['file', 'fileMale', 'file2', 'file3', 'backFile', 'underHat', 'blinkFile'].some((w) => r[w] === file && look.partFolder(r.slot, w) === folder));
   }
 
   function thumb(src, label, known) {

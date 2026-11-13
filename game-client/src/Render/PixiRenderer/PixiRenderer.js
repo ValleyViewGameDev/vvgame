@@ -61,6 +61,7 @@ import { getMasterXPLevels } from '../../Utils/TuningManager';
 // hugs the animal's art (owner 2026-11-10); quest/trade NPC overlays are unchanged
 const FARM_ANIMAL_OVERLAY_DROP = 0.15;
 const HOVER = { tiles: 0.12, periodMs: 2200 };
+const PANT = { periodMs: 620 }; // heavy breathing (a row's `pant`, the Coyote): one breath this long; BreathSprite PANT sets how far
 const FLAP = { periodMs: 420, idleSlow: 2 }; // one wing beat while a winged enemy flies to its next tile; idle it beats this many times slower // a floating enemy's idle bob: how high (of a tile) and how slow
 
 // Building overlays (✅, clock, ?) sit centred at the top of the footprint, over the art
@@ -540,6 +541,10 @@ const PixiRenderer = ({
   // half that speed while it hovers in place. id -> { phase, last } (BreathSprite.wingFold): the phase
   // runs on, so the change of speed never makes the wings jump.
   const flappersRef = useRef(new Map());
+  // Heavy breathing (owner 2026-11-13): `pant` on its row (the Coyote: its amplitude, 1 = BreathSprite
+  // PANT) squashes and stretches the standing enemy with its feet planted, quick and hard like a dog
+  // panting. id -> { seed, amp, scale }: amp eases to 1 while it stands, to 0 while it moves.
+  const pantersRef = useRef(new Map());
   const applyBreath = useCallback((npcId, displayObj, now) => {
     if (!displayObj || !('breath' in displayObj)) return;
     // the idle foot tap is for people: never an enemy or a farm animal (owner 2026-11-12). Set on
@@ -1437,6 +1442,12 @@ const PixiRenderer = ({
           displayObj.hoverCut = hover;
           if (!hoverersRef.current.has(npc.id)) hoverersRef.current.set(npc.id, { seed: breathSeed(`${npc.id}:hover`), amp: 0 });
         } else { hoverersRef.current.delete(npc.id); displayObj.hoverLift = 0; displayObj.hoverCut = 0; }
+        const pant = Number(npc.pant ?? masterResources?.find((m) => m.type === npc.type)?.pant) || 0;
+        if (pant > 0 && 'breath' in displayObj) {
+          const p = pantersRef.current.get(npc.id);
+          if (p) p.scale = pant; else pantersRef.current.set(npc.id, { seed: breathSeed(`${npc.id}:pant`), amp: 0, scale: pant });
+          displayObj.pantFeet = Number(npc.pantFeet ?? masterResources?.find((m) => m.type === npc.type)?.pantFeet) || 0; // the row the pant is pinned at (all four paws)
+        } else { pantersRef.current.delete(npc.id); if ('breath' in displayObj) { displayObj.pant = 0; displayObj.pantFeet = 0; } }
         const roots = String(npc.wingRoots ?? masterResources?.find((m) => m.type === npc.type)?.wingRoots ?? '').split(',').map(Number);
         if ((roots.length === 2 || roots.length === 3) && roots.every((u) => u > 0 && u < 1) && 'breath' in displayObj) {
           displayObj.wingRoots = roots;
@@ -1485,7 +1496,7 @@ const PixiRenderer = ({
     const ticker = appRef.current?.ticker;
     if (!ticker || breathTickerRef.current || !breathingAllowed()) return undefined;
     const onBreath = () => {
-      if (!breathersRef.current.size && !blinkersRef.current.size && !hoverersRef.current.size && !flappersRef.current.size) return;
+      if (!breathersRef.current.size && !blinkersRef.current.size && !hoverersRef.current.size && !flappersRef.current.size && !pantersRef.current.size) return;
       const now = performance.now();
       for (const [npcId, f] of flappersRef.current) {
         const displayObj = npcDisplayObjects.current[npcId];
@@ -1506,6 +1517,15 @@ const PixiRenderer = ({
         h.amp = moving ? Math.max(0, h.amp - 0.06) : Math.min(1, h.amp + 0.02); // settles in over ~1 s, out quickly
         const phase = (now / HOVER.periodMs + (h.seed % 1000) / 1000) * Math.PI * 2;
         displayObj.hoverLift = h.amp * HOVER.tiles * TILE_SIZE * (0.5 + 0.5 * Math.sin(phase));
+      }
+      for (const [npcId, h] of pantersRef.current) {
+        const displayObj = npcDisplayObjects.current[npcId];
+        if (!displayObj || displayObj.destroyed) { pantersRef.current.delete(npcId); continue; }
+        const animation = npcAnimations.current[npcId];
+        const moving = !!animation && animation.duration !== 0;
+        h.amp = moving ? Math.max(0, h.amp - 0.15) : Math.min(1, h.amp + 0.04); // stops at once when it runs, settles back in when it stops
+        const s = Math.sin((now / PANT.periodMs + (h.seed % 1000) / 1000) * Math.PI * 2);
+        displayObj.pant = h.amp * h.scale * Math.sign(s) * Math.pow(Math.abs(s), 0.6); // a sharpened wave: quick, hard breaths
       }
       for (const npcId of breathersRef.current.keys()) {
         const displayObj = npcDisplayObjects.current[npcId];

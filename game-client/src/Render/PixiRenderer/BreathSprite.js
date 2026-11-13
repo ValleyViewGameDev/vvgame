@@ -37,6 +37,12 @@ import { WALK, TAP, DEFAULT_LEGS, NO_ARMS, shapeOf, armsOf, armCutAt, walkLegs, 
  * Two more, set by the renderers (owner 2026-11-12):
  *   sprite.crouch = 0..1;      // the legs squash from the hip line down, the feet stay on the ground and
  *                              // the upper body sinks with them unbent (the Ogre gathering for a leap, CombatFX)
+ *   sprite.pant = -1..1;       // heavy breathing, squash and stretch with the feet planted (the Coyote's idle;
+ *                              // owner 2026-11-13): + stretches every row up from the feet and narrows it,
+ *                              // - squashes it down and widens it; the feet row never moves (PANT)
+ *   sprite.pantFeet = v;       // where the pant is pinned (fraction of the square): every row under it stays
+ *                              // still, so all four paws of a beast stand firm, the far pair drawn higher than
+ *                              // the near pair (the Coyote 0.83); 0 = its feet row
  *   sprite.hoverLift = px;     // a floating enemy's idle bob (world px up): every row above `hoverCut` (the
  *                              // fraction of the square where the gap over its painted ground shadow is; 1 = the
  *                              // whole art) rises, the shadow under it stays; the band across the gap stretches,
@@ -61,9 +67,20 @@ const ROW_STEP = 0.045;  // no two rows further apart than this (of the square):
 const ARM_TAIL = 0.03;   // under a hand's end the strip eases back into the body over this much of the square
 const QUAD_INDICES = new Uint16Array([0, 1, 2, 0, 2, 3]);
 const WING = { fold: 0.55, lift: 0.03, peakV: 0.25, ramp: 0.05 }; // the flap: how far a wing folds in; how much its tips rise
+const PANT = { stretch: 0.07, squash: 0.045 }; // at pant 1: how much taller (of the height over the feet) and how much narrower (at the top; nothing at the feet)
 const CROUCH = { waist: 0.6, depth: 0.3, bow: 0.06 }; // where the bend starts (of the figure, top to feet); how much of what is under it squashes; how far the legs bow out
 const HAIR = 0.0005;     // the tapping foot's own top row sits this far under the ankle row: the same line, drawn twice
 const LAP = 0.008;       // ... and the standing leg is drawn this much further down, under the foot's top, so no crack shows between them
+/**
+ * The pant's squash and stretch of one point (x about the centre line, y local): it scales away from
+ * the feet row by PANT.stretch x pant and narrows by PANT.squash x pant in proportion to its height
+ * over the feet, so the feet stay planted and their width stays; nothing under the feet moves.
+ */
+function panted(x, y, v, pant, feetY, feetV, vStart) {
+  const h = Math.max(0, Math.min(1, (feetV - v) / Math.max(0.01, feetV - vStart)));
+  if (!h) return [x, y];
+  return [x * (1 - PANT.squash * pant * h), feetY - (feetY - y) * (1 + PANT.stretch * pant)];
+}
 const indexCache = new Map(); // "bands|cut" -> indices
 /**
  * The triangles of a mesh of `bands` row bands. `cut` is the band between the ankle row and the
@@ -181,14 +198,16 @@ export default class BreathSprite extends Sprite {
     const wingFold = this.wingRoots ? Math.max(0, Math.min(1, this.wingFold || 0)) : 0;
     const lean = this.lean || 0; // fraction of the square: how far the top of the drawing shifts sideways (+ = local right), the feet planted
     const leanY = this.leanY || 0; // ... and down (+) or up (-): a lurch toward a target straight below or above
-    if (!this._breath && turning < 0 && !walk && !tap && !crouch && !hoverLift && !wingFold && !lean && !leanY) {
+    const pant = Math.max(-1, Math.min(1, this.pant || 0));
+    const pantAt = this.pantFeet > 0 && this.pantFeet < 1 ? this.pantFeet : 0; // the pant's pin row, if the art names one
+    if (!this._breath && turning < 0 && !walk && !tap && !crouch && !hoverLift && !wingFold && !lean && !leanY && !pant) {
       // a plain sprite again: hand the quad back (uvs are re-read by Sprite when _textureID differs)
       if (this.vertexData !== this._quadVerts) { this.vertexData = this._quadVerts; this.indices = QUAD_INDICES; this._textureID = -1; this._transformID = -1; }
       this._pt = null; // undeformed: pointAt reads the plain square
       super.calculateVertices();
       return;
     }
-    const moving = turning >= 0 || !!walk || !!tap || !!crouch || !!hoverLift || !!wingFold || !!lean || !!leanY; // these move every frame: never cached
+    const moving = turning >= 0 || !!walk || !!tap || !!crouch || !!hoverLift || !!wingFold || !!lean || !!leanY || !!pant; // these move every frame: never cached
     if (!moving && this.vertexData === this._meshVerts && this._transformID === this.transform._worldID && this._textureID === texture._updateID) return;
     this._transformID = moving ? -1 : this.transform._worldID;
     this._textureID = texture._updateID;
@@ -212,6 +231,7 @@ export default class BreathSprite extends Sprite {
     const hinge = Math.min(vEnd - 0.03, Math.max(legs.hinge, (headBand ? headV : vStart) + 0.05)); // where the walk begins to move the drawing
     const partV = Math.min(vEnd - 0.02, Math.max(legs.top, hinge));                                // where the two legs part (the hinge itself for shoes and hems)
     const feetV = Math.max(partV + 0.01, Math.min(legs.feet, vEnd));
+    const pantV = pantAt || feetV; // where the pant is pinned: rows under it never move
     const gapX = Math.min(right - 2, Math.max(left + 2, origLeft + legs.gapU * orig.width));       // local x of the column the legs part at
     const step = walk ? walkLegs(walk.phase, walk.amp, legs, walk.side) : null;
 
@@ -235,6 +255,7 @@ export default class BreathSprite extends Sprite {
     if (wingEnd) lines.push(wingEnd, wingEnd + WING.ramp);
     const crouchDrop = crouch * CROUCH.depth * (feetV - waistV) * orig.height; // how far the waist sinks
     if (crouch) lines.push(waistV);
+    if (pant && pantV < vEnd) lines.push(pantV); // a mesh row on the pin, so no band straddles it
     let hingeX = 0, hingeY = 0, tapSin = 0, tapCos = 1;
     if (tapLift) {
       // the hinge: the back of the ankle (where the back of that leg meets the top of the foot); the toe is the foot's far end on the ground
@@ -257,7 +278,7 @@ export default class BreathSprite extends Sprite {
     this.vertexData = this._meshVerts; this.uvs = this._meshUvs; this.indices = indicesFor(bands, cutBand);
 
     // what pointAt needs to place an attached part (ArmRig) where this frame's deformation put its joint
-    this._pt = { L, headV, step, hinge, feetV, turning, crouch, crouchDrop, waistV, hoverLift, hoverCut, hoverLocal, lean, vStart };
+    this._pt = { L, headV, step, hinge, feetV, turning, crouch, crouchDrop, waistV, hoverLift, hoverCut, hoverLocal, lean, vStart, pant, pantV };
     const uv = texture._uvs; // x0,y0 TL  x1,y1 TR  x2,y2 BR  x3,y3 BL (a rotated frame included)
     const V = this._meshVerts, U = this._meshUvs;
     const liftMean = step ? (step.lift[0] + step.lift[1]) / 2 : 0, swingMean = step ? (step.swing[0] + step.swing[1]) / 2 : 0;
@@ -337,6 +358,7 @@ export default class BreathSprite extends Sprite {
         // above them shifts sideways in proportion to its height, so the outline leans like a pushed trapezoid
         if (lean) x += lean * orig.height * Math.max(0, feetV - v) / Math.max(0.01, feetV - vStart);
         if (leanY) y += leanY * orig.height * Math.max(0, feetV - v) / Math.max(0.01, feetV - vStart);
+        if (pant) [x, y] = panted(x, y, v, pant, origTop + pantV * orig.height, pantV, vStart);
         x = centreX + x * f;
         const o = (r * COLS + k) * 2, tu = (x0 - left) / (right - left);
         V[o] = a * x + c * y + tx; V[o + 1] = d * y + b * x + ty;
@@ -367,6 +389,7 @@ export default class BreathSprite extends Sprite {
     if (lean) x += lean * orig.height * Math.max(0, P.feetV - v) / Math.max(0.01, P.feetV - P.vStart);
     const leanY = this.leanY || 0;
     if (leanY) y += leanY * orig.height * Math.max(0, P.feetV - v) / Math.max(0.01, P.feetV - P.vStart);
+    if (P.pant) [x, y] = panted(x, y, v, P.pant, origTop + P.pantV * orig.height, P.pantV, P.vStart);
     const f = P.turning >= 0 ? turnAt(P.turning, this._turnFrom, v, P.headV) : 1;
     return { x: centreX + x * f, y, f };
   }

@@ -11161,7 +11161,9 @@
     "filename": "npc-enemy-coyote.svg",
     "iconFile": "npc-head-coyote.svg",
     "artSpan": 1.2,
-    "attackClip": "lurch"
+    "attackClip": "lurch",
+    "pant": 0.7,
+    "pantFeet": 0.83
   },
   {
     "type": "Bear",
