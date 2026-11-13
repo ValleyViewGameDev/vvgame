@@ -132,13 +132,15 @@ Added 2026-11-10. Not a launch blocker (owner: "a big task ... come back to that
 **What.** The equipped weapon drawn in the avatar's hand, held up in an en garde stance and swung
 when the player attacks, then armour and helmets as overlays (armour rows are outfit rows, helmets
 are hats: `docs/avatar-plan.md` v2 D4). **Why.** The gear a player earns should show on the
-figure. **Where it stands.** The Ogre's club proved the arm (three joints, the weapon on the
-wrist: docs/arm-rig-plan.md §0a), and a probe showed the avatars' existing arms can be cut and
-posed without redrawing the outfits (the plan's §2). The plan's P1 is a prototype outside the
-game (one sword, one outfit a body, a fist piece, the guard and a slash) for the owner to approve;
-two-handed weapons start as a one-hand carry (its §5). The player's lunge (`CombatFX.playerLunge`)
-is replaced by the weapon's swing there, so the old "review the combat animations" item (BL-27)
-has no player half left. The feed exists: `equipFor` / `lookFor` in
+figure. **Where it stands.** The Ogre's club proved the arm (three joints, the weapon on the wrist:
+docs/arm-rig-plan.md §0a). Two probes on the avatar's existing art: the arm on the side the figure
+faces is the far arm and too thin when lifted (rejected by the owner), the NEAR arm is whole and
+works, so the sword goes in the near hand, crossing the body, and the swing comes over and across
+it (the plan's §2). A few weapon drawings per category with tints and lengths; no two-handed
+animation yet. The plan's P1 is a prototype outside the game (one sword, one outfit a body, a fist
+piece, the guard and a slash) for the owner to approve. The player's lunge
+(`CombatFX.playerLunge`) plays with the weapon's swing there, so the old "review the combat
+animations" item (BL-27) has no player half left. The feed exists: `equipFor` / `lookFor` in
 `game-client/src/Avatar/avatarLook.js` read `settings.equippedWeapon` and the rows' `avatarHand`.
 
 ### BL-24: Optimize Sprite Sheets (LAUNCH BLOCKER)
