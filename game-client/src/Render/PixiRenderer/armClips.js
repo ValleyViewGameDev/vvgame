@@ -116,41 +116,34 @@ export const ARM_CLIPS = {
       { t: 520, s: 0.28, e: -1.3 },
     ],
   },
-  // the avatar's TWO-HANDED SLASH (great swords). It is keyed by the WEAPON, not by an arm (`weapon`,
-  // ArmRig.weaponPose): each key is where the FRONT hand is, from its own shoulder in lengths of that arm
-  // (x toward the target, y down), and where the blade points (a: 0 straight up, + toward the target).
-  // The rear hand is a grip's width down the blade's line from it, and BOTH arms are solved onto the
-  // sword. Keyed from the front shoulder because the far arm is the one with no room: its hand must stay
-  // where its elbow can hang, and where that is differs between the bodies (the female's far shoulder
-  // sits much nearer the middle; keyed by the rear arm's angles her far elbow thrashed, owner 2026-11-13).
-  // The blade is free in the hands here, not held at a right angle to the forearm: that is what lets the
-  // cut END at full stretch, both arms and the blade reaching out at the target. From the guard, hands
-  // at the belly and the blade leaning forward, the sword is lifted upright before the chest (it crosses
-  // the face for a moment), the hilt is drawn in past the chest as the blade comes over, and the sword is
-  // driven out level as far as the arms reach, then drawn back the same way. `fold` on a key turns the far
-  // arm over from there on (-1: its elbow hangs under the outstretched arm instead of lifting above it); it
-  // is set where the hand passes its own shoulder, the one place the arm can turn over unseen. `lead` is
-  // only the one-armed fallback for a figure whose rig has no far arm
+  // the avatar's TWO-HANDED SLASH (great swords). It is keyed by the FRONT ARM (`weapon`,
+  // ArmRig.weaponPose), which does as little as an arm can: its upper arm all but still (`u`, a small
+  // swing toward the target), its forearm doing the work (`f`: where it points from hanging straight
+  // down, - in across the body), and `a` the way the blade points (0 straight up, + toward the target).
+  // The rear hand is a grip's width back along the blade and the near arm is solved to hold it there. So
+  // the far arm never thrashes or winds itself over, on any body (owner 2026-11-13). The blade is free
+  // in the hands here, not held at a right angle to the forearm. From the guard, hands at the belly and
+  // the blade leaning forward, the forearm lifts the hilt to the collarbone, the blade upright, and
+  // sweeps it down and out to level at the belt, the upper arm following a little. `lead` is only the
+  // one-armed fallback for a figure whose rig has no far arm
   slash2: {
     hit: 295,
     body: [
       { t: 0, d: 0 },
       { t: 195, d: -0.1, ease: 'out' },
-      { t: 295, d: 0.4, ease: 'in' },
-      { t: 370, d: 0.36 },
+      { t: 295, d: 0.46, ease: 'in' },
+      { t: 370, d: 0.42 },
       { t: 640, d: 0 },
     ],
     weapon: [
-      { t: 0, x: -0.46, y: 0.5, a: 0.7, fold: 1 }, // the guard: the front hand where its elbow hangs straight down, in against the body
-      { t: 120, x: -0.36, y: 0.22, a: 0.3, ease: 'out' },
-      { t: 195, x: -0.42, y: 0.05, a: -0.1 },
-      { t: 225, x: -0.42, y: 0.04, a: -0.12 },
-      { t: 258, x: -0.04, y: 0.13, a: 0.75, ease: 'in', fold: -1 }, // the hilt drawn in past the chest: the far arm turns over here
-      { t: 295, x: 0.6, y: 0.5, a: 1.5 },
-      { t: 335, x: 0.6, y: 0.52, a: 1.55, ease: 'out' },
-      { t: 430, x: 0.6, y: 0.52, a: 1.55 },
-      { t: 540, x: -0.04, y: 0.15, a: 0.9, fold: 1 }, // drawn back to the chest, and the arm turned back
-      { t: 640, x: -0.46, y: 0.5, a: 0.7 },
+      { t: 0, f: -1.44, u: 0, a: 0.7 },
+      { t: 120, f: -1.95, u: 0.04, a: 0.3, ease: 'out' },
+      { t: 195, f: -2.45, u: 0.08, a: -0.1 },
+      { t: 225, f: -2.48, u: 0.08, a: -0.12 },
+      { t: 295, f: -0.75, u: 0.25, a: 1.5, ease: 'in' },
+      { t: 335, f: -0.7, u: 0.25, a: 1.55, ease: 'out' },
+      { t: 430, f: -0.7, u: 0.25, a: 1.55 },
+      { t: 640, f: -1.44, u: 0, a: 0.7 },
     ],
     lead: [
       { t: 0, s: 0.15, e: -1.02 },
@@ -235,19 +228,18 @@ export const ARM_CLIPS = {
   // down forward to level at the belt. Slower and heavier than the slash: the body rocks back under the lift and steps in hard
   chop2: {
     hit: 385,
-    // keyed by the WEAPON, as slash2 is (ArmRig.weaponPose): where the front hand is from its own shoulder,
-    // in lengths of that arm, and where the head points. The guard holds the front hand where its elbow
-    // hangs straight down against the body, on every body (owner 2026-11-13: tucked in, not sticking out)
+    // keyed by the FRONT ARM, as slash2 is (ArmRig.weaponPose): its forearm does the work (`f`), its upper
+    // arm barely moves (`u`), and `a` is the way the head points. At rest the forearm lies in across the
+    // belly, so the far elbow hangs straight down against the body
     weapon: [
-      { t: 0, x: -0.46, y: 0.5, a: 0.95, fold: 1 },
-      { t: 170, x: -0.32, y: 0.18, a: 0.35, ease: 'out' },
-      { t: 260, x: -0.1, y: -0.22, a: 0 },
-      { t: 300, x: -0.1, y: -0.23, a: -0.03 },
-      { t: 345, x: -0.42, y: 0.42, a: 0.7, ease: 'in' },
-      { t: 385, x: -0.24, y: 0.92, a: 1.45 },
-      { t: 430, x: -0.22, y: 0.9, a: 1.55, ease: 'out' },
-      { t: 560, x: -0.22, y: 0.9, a: 1.55 },
-      { t: 800, x: -0.46, y: 0.5, a: 0.95 },
+      { t: 0, f: -1.44, u: 0, a: 0.95 },
+      { t: 170, f: -1.95, u: 0.05, a: 0.6, ease: 'out' },
+      { t: 260, f: -2.6, u: 0.1, a: 0.25 }, // the head stays forward of upright: clear of the face
+      { t: 300, f: -2.62, u: 0.1, a: 0.22 },
+      { t: 385, f: -0.75, u: 0.25, a: 1.45, ease: 'in' },
+      { t: 430, f: -0.7, u: 0.25, a: 1.55, ease: 'out' },
+      { t: 560, f: -0.7, u: 0.25, a: 1.55 },
+      { t: 800, f: -1.44, u: 0, a: 0.95 },
     ],
     body: [
       { t: 0, d: 0 },

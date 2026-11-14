@@ -335,7 +335,6 @@ export function cutRig(renderer, texture, rig) {
 // The runtime: the arm sprites on a BreathSprite, and the clip player
 // ---------------------------------------------------------------------------------------------
 const SECOND_REACH = 0.86;    // a two-handed weapon's second hand: how far of its arm's full length it may be stretched
-const FIRST_REACH = 0.96;     // a weapon-keyed pose: how far of its length the FIRST arm may be stretched (the near arm: it may go nearly straight)
 const SECOND_MIN_HOLD = 0.22; // ... and how near the first hand it may come, tiles along the weapon
 const SECOND_KEEP = 0.8;      // ... what a px of the elbow moving since the last frame costs: it holds its fold unless the other is clearly better
 const SECOND_EASE_MS = 35;    // ... and how quickly its joints follow the answer
@@ -361,8 +360,8 @@ function handPoint(a, ts, te, tw = 0) {
  * that is from where the elbow hangs in the drawing) }. Out of reach, the arm straightens toward the
  * point; too near, it folds as far as it can. Two bones reach a point two ways, mirror images; an elbow
  * mirror images: `bend` says which (1: the forearm turns clockwise on the upper arm, the far arm's usual
- * way; -1: the other, the near arm's). A weapon-keyed clip names the fold itself (weaponPose); the older
- * two-handed clips weigh both each frame (secondPose).
+ * way; -1: the other, the near arm's). A weapon-keyed clip solves only the near arm, its own way
+ * (weaponPose); the polearm's far arm weighs both each frame (secondPose).
  */
 function reachFor(b, tx, ty, bend) {
   const [Sx, Sy] = b.S, [Ex, Ey] = b.E, [Gx, Gy] = b.G;
@@ -376,8 +375,6 @@ function reachFor(b, tx, ty, bend) {
   return { ts, te: wrap(Math.atan2(hy - ey, hx - ex) - a2 - ts), ex, ey, away: Math.hypot(ex - Ex, ey - Ey) };
 }
 const bendOf = (side) => (side === 'R' ? 1 : -1);
-/** The last `fold` set by a key at or before t (a weapon-keyed clip, ArmRig.weaponPose): 1 until one says otherwise. */
-const foldAt = (keys, t) => { let f = 1; for (const k of keys) { if (k.t > t) break; if (k.fold) f = k.fold; } return f; };
 
 export class ArmRig {
   constructor(sprite, rig, cut, { attackClip } = {}) {
@@ -536,7 +533,7 @@ export class ArmRig {
   secondPose(clip, t, now, auto) {
     const H = this.second, a = H && this.arms[H.holder], b = H && this.arms[H.side];
     if (!a || !b || !a.held) return null;
-    const keyed = clip ? (clip.weapon ? { ...keyAt(clip.weapon, t, ['x', 'y', 'a']), fold: foldAt(clip.weapon, t) } : null) : (this.stance && this.stance.weapon) || null;
+    const keyed = clip ? (clip.weapon ? keyAt(clip.weapon, t, ['f', 'u', 'a']) : null) : (this.stance && this.stance.weapon) || null;
     if (keyed) return this.weaponPose(H, a, b, keyed, clip, t, now);
     const p = this.poseOf(H.holder, a, clip, t, now, auto), g = handPoint(a, p.ts, p.te, p.tw);
     let d = (clip && clip.second ? valueAt(clip.second, t, 'd') : H.dist) * H.pxPerTile;
@@ -582,29 +579,24 @@ export class ArmRig {
   }
 
   /**
-   * A two-handed weapon keyed by ITSELF (a clip's `weapon` track, a guard's `weapon`): `key` is where the
-   * second (front) hand is, from its own shoulder in lengths of that arm (x toward the image's right, the
-   * way the figure faces; y down), and the way the weapon points (a: 0 straight up, + to the right). The
-   * first hand is the hold's length back along the weapon, both arms are solved onto it, and the weapon
-   * is turned in the first hand to point as keyed. Asked to reach further than the arms can (the end of a
-   * cut is keyed past reach on purpose), the hands come back until both arms can hold on: each body
-   * stretches as far as its own arms go. Returns the second arm's pose, with the first arm's as `lead`.
+   * A two-handed weapon keyed by its FRONT ARM (a clip's `weapon` track, a guard's `weapon`). The far
+   * arm is the thin one, half behind the chest, and it reads well only when it does very little (owner
+   * 2026-11-13: "the upper bicep doesn't move all that much; most of the movement should be the lower
+   * arm"). So that arm is not solved at all: the key SETS it. `f` is where its forearm points, from
+   * hanging straight down (- in across the body, + out toward the target); `u` is how far its upper arm
+   * swings from where it is drawn (+ toward the target; kept small); `a` is the way the weapon points
+   * (0 straight up, + toward the target). The weapon lies in that hand, the first (near) hand is the
+   * hold's length back along it, and the near arm, the whole one in front, is the one solved to reach.
+   * Returns the second arm's pose, with the first arm's as `lead`.
    */
   weaponPose(H, a, b, key, clip, t, now) {
-    const len = (m) => Math.hypot(m.E[0] - m.S[0], m.E[1] - m.S[1]) + Math.hypot(m.G[0] - m.E[0], m.G[1] - m.E[1]);
-    const Lf = len(b), Ln = len(a), d = (clip && clip.second ? valueAt(clip.second, t, 'd') : H.dist) * H.pxPerTile;
-    const ux = Math.sin(key.a), uy = -Math.cos(key.a);
-    let fx = b.S[0] + key.x * Lf, fy = b.S[1] + key.y * Lf;
-    const fd = Math.hypot(fx - b.S[0], fy - b.S[1]), fmax = SECOND_REACH * Lf;
-    if (fd > fmax) { fx = b.S[0] + ((fx - b.S[0]) * fmax) / fd; fy = b.S[1] + ((fy - b.S[1]) * fmax) / fd; }
-    for (let i = 0; i < 40 && Math.hypot(fx - ux * d - a.S[0], fy - uy * d - a.S[1]) > FIRST_REACH * Ln; i++) fx -= 0.02 * Lf;
-    // the second arm's fold is the clip's to choose (`fold` on a key, from that key on; 1 its usual way): with the hand
-    // out past its own shoulder the usual fold lifts the elbow in the air, the other lets it hang. The clip turns the
-    // arm over where the hand passes close by the shoulder, the arm folded shut, where the two folds are one pose
-    const far = this.followTo(H, 'last', b, fx, fy, now, bendOf(H.side) * (key.fold || 1)), near = this.followTo(H, 'lastFirst', a, fx - ux * d, fy - uy * d, now, bendOf(H.holder));
-    const amt = this.stanceAmount(now), fore = handPoint(a, near.ts, near.te).fore;
-    const turn = Math.atan2(Math.sin(key.a - fore - a.held.angle), Math.cos(key.a - fore - a.held.angle));
-    return { side: H.side, ts: far.ts * amt, te: far.te * amt, tw: 0, st: null, tx: fx, ty: fy, amt, turn: turn * amt,
+    const d = (clip && clip.second ? valueAt(clip.second, t, 'd') : H.dist) * H.pxPerTile, amt = this.stanceAmount(now);
+    const wrap = (v) => Math.atan2(Math.sin(v), Math.cos(v));
+    const fts = -key.u, fte = wrap(Math.PI / 2 - key.f - Math.atan2(b.G[1] - b.E[1], b.G[0] - b.E[0]) + key.u); // screen turns: + is clockwise
+    const F = handPoint(b, fts, fte), ux = Math.sin(key.a), uy = -Math.cos(key.a);
+    const near = this.followTo(H, 'lastFirst', a, F.x - ux * d, F.y - uy * d, now, bendOf(H.holder));
+    const fore = handPoint(a, near.ts, near.te).fore, turn = wrap(key.a - fore - a.held.angle);
+    return { side: H.side, ts: fts * amt, te: fte * amt, tw: 0, st: null, tx: F.x, ty: F.y, amt, turn: turn * amt,
       lead: { ts: near.ts * amt, te: near.te * amt, tw: 0, st: this.stance } };
   }
 
