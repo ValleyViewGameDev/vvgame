@@ -12874,7 +12874,8 @@
     "hands": 2,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
-    "gemcost": 50
+    "gemcost": 50,
+    "weaponClass": "bow"
   },
   {
     "type": "Fortitude",

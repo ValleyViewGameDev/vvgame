@@ -276,6 +276,34 @@ export const ARM_CLIPS = {
       { t: 800, d: 0.28 },
     ],
   },
+  // the avatar's BOW SHOT (owner 2026-11-14; ArmRig.setBow / bowPose). Not arm keys: the `bow` block.
+  //   hand: where the bow hand is, from the far shoulder in lengths of that arm. It does not move.
+  //   draw: the draw hand's reach from the near shoulder, in lengths of that arm, [ms, reach] ...
+  //   pull: ... nudged `toPull` of the way toward this, one length of string for every body ([ms, tiles
+  //         behind the bow hand]): a short-armed figure then draws a few px further and its arm folds as it did
+  //   loose: the arrow leaves (the clip's `hit`: the projectile is launched then); nock: a new arrow is
+  //         in the hand; take: the string is taken up again between these two moments
+  // At rest the figure stands at the first key: ready, the string half drawn (the near hand cannot reach
+  // a resting string out past the far shoulder). The body gives a little as the arrow goes
+  shoot: {
+    hit: 260,
+    total: 600,
+    body: [
+      { t: 0, d: 0 },
+      { t: 260, d: 0 },
+      { t: 300, d: -0.04, ease: 'out' },
+      { t: 440, d: 0 },
+    ],
+    bow: {
+      hand: [0.62, 0.3],
+      draw: [[0, 0.8], [200, 0.31], [260, 0.31], [300, 0.24], [380, 0.28], [520, 0.8], [600, 0.8]],
+      pull: [[0, 0.41], [200, 0.68], [260, 0.68], [300, 0.72], [380, 0.7], [520, 0.41], [600, 0.41]],
+      toPull: 0.25,
+      loose: 260,
+      nock: 380,
+      take: [470, 520],
+    },
+  },
   // the Coyote: no arm, the whole body lurches at the target (feet planted) and springs back; in the
   // same column it lurches straight down or up at it (`leanVertical`)
   lurch: {
@@ -340,4 +368,4 @@ export function keyAt(keys, t, fields) {
 }
 
 /** How long a clip runs (ms): its last key. */
-export const clipLength = (clip) => Math.max(...['lead', 'off', 'lean', 'body', 'second', 'slide', 'weapon'].map((k) => (clip[k]?.length ? clip[k][clip[k].length - 1].t : 0)));
+export const clipLength = (clip) => Math.max(clip.total || 0, ...['lead', 'off', 'lean', 'body', 'second', 'slide', 'weapon'].map((k) => (clip[k]?.length ? clip[k][clip[k].length - 1].t : 0)));

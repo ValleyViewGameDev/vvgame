@@ -10,7 +10,8 @@
  * A weapon's resources.json row names its CATEGORY as `weaponClass` (WEAPON_CLASSES below). The
  * category owns the look and the motion: the drawing in the hand, how it sits in the hand, the guard
  * and the attack clip. Every weapon of a category shares them; a row may name its own drawing of the
- * same shape as `heldArt`. A weapon with no category (a bow) shows nothing in the hand.
+ * same shape as `heldArt`. A weapon with no category shows nothing in the hand. The `bow` category is
+ * the exception to all of this: it has no picture, the rig draws the bow itself (ArmRig.setBow).
  *
  * Every drawing is upright, point or head up, at ONE scale (PX_PER_TILE canvas px to a board tile),
  * on its category's canvas (`size`) with the middle of where the hand holds it at `grip`. Files live
@@ -58,6 +59,8 @@ export const WEAPON_CLASSES = {
   greatsword: { art: 'weapon-great-sword.png', size: [192, 720], grip: [96, 650], angle: ACROSS, guard: GREAT_GUARD, clip: 'slash2', second: 0.23 },
   // a sword that thrusts: its own slender drawing, held along the forearm as the dagger and the spear are (owner 2026-11-13)
   rapier:  { art: 'weapon-rapier.png', size: [224, 608], grip: [112, 540], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
+  // a bow is not a picture in a hand: ArmRig draws it, held out in the FAR hand and drawn by the near one (setBow)
+  bow:     { bow: true, clip: 'shoot' },
   dagger:  { art: 'weapon-dagger.png', size: [128, 512], grip: [64, 448], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   spear:   { art: 'weapon-spear.png', size: [128, 768], grip: [64, 470], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   polearm: { art: 'weapon-halberd.png', size: [256, 896], grip: [128, 580], angle: ALONG, guard: POLE_GUARD, clip: 'thrust2', second: 0.5 },
@@ -89,6 +92,14 @@ export const avatarRig = (body, outfitId) => rigFor(`avatar:${outfitId}`) || rig
  * figure texture's width (px), `spanTiles`: how many tiles that square is on the board (the avatar: 1.8).
  */
 export function armFigure(armRig, held, weaponTex, cutW, spanTiles) {
+  if (held.bow) { // the bow: drawn by the rig, both arms its own
+    armRig.setHeld(HELD_ARM, null);
+    armRig.setBow({ clip: held.clip, pxPerTile: cutW / spanTiles });
+    armRig.attackClip = held.clip;
+    armRig.setStance({ side: HELD_ARM, bow: true }, true);
+    return;
+  }
+  armRig.setBow(null);
   armRig.setHeld(HELD_ARM, {
     tex: weaponTex, grip: held.grip, size: held.size,
     scale: (cutW / spanTiles) / PX_PER_TILE, // canvas px to the figure texture's px

@@ -242,9 +242,10 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
         resolveKill(live, gridId, currentPlayer, setCurrentPlayer, setResources, masterResources, masterTrophies);
     };
     if (ranged) {
-        // the arrow leaves the player's chest and lands on the enemy's (shotPoints.js)
-        const a = pcChest(player.position); const b = npcChest(freshNPC);
-        CombatFX.projectile(a.x, a.y, b.x, b.y, land, 'arrow', hit);
+        // the arrow leaves the player's chest and lands on the enemy's (shotPoints.js). With a bow drawn in the
+        // hands it leaves when the string is loosed (the clip's hit), not on the tap
+        const loose = () => { const a = pcChest(player.position); const b = npcChest(freshNPC); CombatFX.projectile(a.x, a.y, b.x, b.y, land, 'arrow', hit); };
+        if (hitAt) setTimeout(loose, hitAt); else loose();
     }
     else if (hitAt) setTimeout(land, hitAt);
     else land();

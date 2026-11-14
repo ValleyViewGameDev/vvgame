@@ -16,7 +16,7 @@
  * `sync`, which moves each arm with the body's deformation at its shoulder (BreathSprite.pointAt) and
  * poses it from the playing clip (armClips.js: shoulder and elbow angles).
  */
-import { Container, RenderTexture, SimpleMesh, Sprite, Texture } from 'pixi.js-legacy';
+import { Container, Graphics, RenderTexture, SimpleMesh, Sprite, Texture } from 'pixi.js-legacy';
 import RIGS from './rigs.json';
 import { ARM_CLIPS, poseAt, valueAt, keyAt, clipLength } from './armClips';
 
@@ -371,6 +371,42 @@ function reachFor(b, tx, ty, bend) {
 }
 const bendOf = (side) => (side === 'R' ? 1 : -1);
 
+// ---- the bow (docs/equipment-plan.md; owner 2026-11-14) ----
+const armLen = (m) => Math.hypot(m.E[0] - m.S[0], m.E[1] - m.S[1]) + Math.hypot(m.G[0] - m.E[0], m.G[1] - m.E[1]);
+/**
+ * Where on a forearm a FIST sits, as a share of elbow-to-grip: just past the wrist, lapping the end of
+ * the sleeve. The rig's grip is the middle of the DRAWN hand, further out, and a fist drawn there leaves
+ * a gap between it and the sleeve (owner 2026-11-14, on the bow hand).
+ */
+const fistAt = (m, w) => (m.W ? Math.min(1, (Math.hypot(m.W[0] - m.E[0], m.W[1] - m.E[1]) + 0.22 * (m.arm.fist || 0.07) * w) / Math.hypot(m.G[0] - m.E[0], m.G[1] - m.E[1])) : 1);
+/** The point `k` of the way from a limb's elbow to its grip, once its joints are turned (the arm image's px), and how its forearm lies. */
+function pointOn(a, ts, te, k) {
+  let x = a.E[0] + (a.G[0] - a.E[0]) * k, y = a.E[1] + (a.G[1] - a.E[1]) * k;
+  const turn = (px, py, ang) => { if (!ang) return; const c = Math.cos(ang), s = Math.sin(ang), dx = x - px, dy = y - py; x = px + dx * c - dy * s; y = py + dx * s + dy * c; };
+  turn(a.E[0], a.E[1], te); turn(a.S[0], a.S[1], ts);
+  return { x, y, fore: a.foreAngle + ts + te };
+}
+/** The joint turns that put that point of a limb on (tx, ty), never stretched past `cap` of its length; of the two folds the one with the LOWER elbow. */
+function reachLow(b, tx, ty, cap, k) {
+  const [Sx, Sy] = b.S, [Ex, Ey] = b.E, Gx = Ex + (b.G[0] - Ex) * k, Gy = Ey + (b.G[1] - Ey) * k;
+  const L1 = Math.hypot(Ex - Sx, Ey - Sy), L2 = Math.hypot(Gx - Ex, Gy - Ey), a1 = Math.atan2(Ey - Sy, Ex - Sx), a2 = Math.atan2(Gy - Ey, Gx - Ex);
+  const dx = tx - Sx, dy = ty - Sy, D = Math.max(Math.abs(L1 - L2) + 1, Math.min((L1 + L2) * cap, Math.hypot(dx, dy)));
+  const base = Math.atan2(dy, dx), A = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + D * D - L2 * L2) / (2 * L1 * D))));
+  const hx = Sx + D * Math.cos(base), hy = Sy + D * Math.sin(base), wrap = (v) => Math.atan2(Math.sin(v), Math.cos(v));
+  const fold = (bend) => { const t1 = base - bend * A, ex = Sx + L1 * Math.cos(t1), ey = Sy + L1 * Math.sin(t1), ts = wrap(t1 - a1); return { ts, te: wrap(Math.atan2(hy - ey, hx - ex) - a2 - ts), ey, hx, hy }; };
+  const one = fold(1), other = fold(-1);
+  return one.ey >= other.ey ? one : other;
+}
+/** A [t, value] key list at time t (ms), eased in and out between keys. */
+function seriesAt(keys, t) {
+  if (t <= keys[0][0]) return keys[0][1];
+  for (let i = 1; i < keys.length; i++) if (t <= keys[i][0]) { const a = keys[i - 1], b = keys[i], p = Math.max(0, Math.min(1, (t - a[0]) / Math.max(1, b[0] - a[0]))); return a[1] + (b[1] - a[1]) * p * p * (3 - 2 * p); }
+  return keys[keys.length - 1][1];
+}
+// the bow's own measures, in tiles: the string's distance from the grip at rest, the draw at which the limbs are bent right
+// over, half the bow's length, and the arrow's length (85% of the first prototype's, owner 2026-11-14)
+const BOW = { brace: 0.16, full: 0.76, half: 0.45, arrow: 0.68 };
+
 export class ArmRig {
   constructor(sprite, rig, cut, { attackClip } = {}) {
     this.rig = rig; this.cut = cut; this.attackClip = attackClip || null;
@@ -427,6 +463,7 @@ export class ArmRig {
     this.play = null; // { clip, start, lead }
     this.stance = null; // { side, s, e, w }: a pose HELD while no clip plays (the avatar's guard), eased in and out
     this.second = null; // a two-handed weapon's other hand (setHeld, secondPose)
+    this.bow = null; // a bow in the hands (setBow, bowPose)
     this._stanceAmt = 0; this._stanceTo = 0; this._stanceAt = 0;
     sprite.addChild(this.root);
     sprite.armRig = this;
@@ -452,10 +489,11 @@ export class ArmRig {
     const ax = sprite.anchor.x * w, ay = sprite.anchor.y * h; // the sprite's origin, in the arm image's pixels
     const auto = this.autoPose(sprite, now); // the gait while it moves, the idle wiggle while it stands (spider)
     const second = this.secondPose(clip, t, now); // a two-handed weapon's other hand, and the first hand's arm with it
+    const bow = this.bow ? this.bowPose(clip, t, now, ax, ay) : null; // a bow: both arms, and the bow drawn between them
     for (const side of this.names) {
       const a = this.arms[side];
       if (!a) continue;
-      const { ts, te, tw, st } = second && second.side === side ? second : second && second.lead && side === this.second.holder ? second.lead : this.poseOf(side, a, clip, t, now, auto);
+      const { ts, te, tw, st } = bow ? { ts: bow[side] ? bow[side].ts : 0, te: bow[side] ? bow[side].te : 0, tw: 0, st: null } : second && second.side === side ? second : second && second.lead && side === this.second.holder ? second.lead : this.poseOf(side, a, clip, t, now, auto);
       // the body's lean shears every row by its height (feet planted): each arm point gets its own row's
       // shift, so a hanging arm leans with the flank beside it instead of sliding off it as one block
       const P = sprite._pt, lean = P ? sprite.lean || 0 : 0, leanY = P ? sprite.leanY || 0 : 0; // this frame's lean (set above), not the last drawn frame's: no lag
@@ -568,6 +606,81 @@ export class ArmRig {
     }
     H[slot] = { at: now, ts, te, ex: pick.ex, ey: pick.ey };
     return H[slot];
+  }
+
+  /**
+   * A BOW in the hands (owner 2026-11-14), or null to put it away. Unlike the other weapons it is not a
+   * picture on a hand: it is drawn here each frame, so its limbs bend and its string follows the draw
+   * hand. `cfg`: { clip (its keys: armClips.js `bow`), pxPerTile }. The FAR arm holds it out and does not
+   * move; the near arm draws. Both arms are drawn without their open hands, a fist on each. Order: the
+   * far arm, then the bow, its string and the arrow, the bow hand's fist over the grip, then the near
+   * arm and its fist over everything.
+   */
+  setBow(cfg) {
+    if (this.bow) {
+      const B = this.bow;
+      for (const o of [B.fx, B.fist.far, B.fist.near]) if (o) { o.parent?.removeChild(o); o.destroy(); }
+      for (const m of [B.far, B.near]) { m.mesh.texture = m.part.tex; m.pose = null; }
+      this.bow = null;
+    }
+    const far = this.arms.R, near = this.arms.L;
+    if (!cfg || !far || !near || !far.part.fist || !near.part.fist) return;
+    const fx = new Graphics(), fist = { far: new Sprite(far.part.fist), near: new Sprite(near.part.fist) };
+    fist.far.anchor.set(0.5); fist.near.anchor.set(0.5);
+    far.mesh.addChild(fx, fist.far); near.mesh.addChild(fist.near);
+    this.root.setChildIndex(far.mesh, 0); this.root.setChildIndex(near.mesh, this.root.children.length - 1);
+    const w = this.cut.w;
+    this.bow = { far, near, fx, fist, clip: cfg.clip, T: cfg.pxPerTile, kFar: fistAt(far, w), kNear: fistAt(near, w), sig: '' };
+  }
+
+  /**
+   * Each frame with a bow out: both arms' joint turns ({ L, R }), and the bow drawn. The keys are the
+   * clip's `bow` (armClips.js): at rest it is the clip's first moment, the ready, half drawn. The bow
+   * hand is solved once onto its place and stays; the draw hand goes straight back along the arrow's
+   * line, level with the bow hand. The bow stands upright and still: only its limbs bend, by how far
+   * the string is drawn. Eased in and out with the guard, the bow travelling with the far hand.
+   */
+  bowPose(clip, t, now, ax, ay) {
+    const B = this.bow, { far, near, fx, T } = B, K = (clip && clip.bow) || (ARM_CLIPS[B.clip] && ARM_CLIPS[B.clip].bow);
+    if (!K) return null;
+    const tt = clip && clip.bow ? t : 0, amt = this.stanceAmount(now), show = !!clip || this._stanceTo === 1;
+    const fr = reachLow(far, far.S[0] + K.hand[0] * armLen(far), far.S[1] + K.hand[1] * armLen(far), 0.92, B.kFar);
+    // the draw hand: its reach from the near shoulder, nudged a little toward one length of string for every body
+    const byArm = near.S[0] + seriesAt(K.draw, tt) * armLen(near), byString = fr.hx - seriesAt(K.pull, tt) * T;
+    const nr = reachLow(near, byArm + (byString - byArm) * (K.toPull || 0), fr.hy, 0.985, B.kNear);
+    const out = { R: { ts: fr.ts * amt, te: fr.te * amt }, L: { ts: nr.ts * amt, te: nr.te * amt } };
+    for (const m of [far, near]) { const tex = show && m.part.texNoHand ? m.part.texNoHand : m.part.tex; if (m.mesh.texture !== tex) m.mesh.texture = tex; }
+    fx.visible = show; B.fist.far.visible = show; B.fist.near.visible = show;
+    const sig = `${tt}|${amt}|${show}`;
+    if (!show || sig === B.sig) return out; // nothing moved: the bow stands as drawn
+    B.sig = sig;
+    const bh = pointOn(far, out.R.ts, out.R.te, B.kFar), nh = pointOn(near, out.L.ts, out.L.te, B.kNear), Bh = [bh.x, bh.y], N = [nh.x, nh.y];
+    const held = tt < K.loose || tt >= K.take[1], arrow = tt < K.loose || tt >= K.nock;
+    const taking = !held && tt >= K.take[0] ? ((p) => p * p * (3 - 2 * p))((tt - K.take[0]) / (K.take[1] - K.take[0])) : 0; // the string taken up again
+    const brace = BOW.brace * T, dist = Math.hypot(Bh[0] - N[0], Bh[1] - N[1]) || 1;
+    const full = Math.max(0, Math.min(1, (dist - brace) / (BOW.full * T - brace))), pull = held ? full : full * taking;
+    const snap = !held && tt - K.loose < 45 ? -0.05 * T * (1 - (tt - K.loose) / 45) : 0; // the string over-runs forward as it is loosed
+    const back = brace + (0.25 * T - brace) * pull, half = BOW.half * T - 0.06 * T * pull;
+    const tip = (s) => [Bh[0] - back, Bh[1] - half * s], top = tip(1), bot = tip(-1);
+    const rest = [Bh[0] - (brace + snap), Bh[1]], nock = held ? N : [rest[0] + (N[0] - rest[0]) * taking, rest[1] + (N[1] - rest[1]) * taking];
+    const L = (q) => [q[0] - ax, q[1] - ay]; // the arm image's px to the mesh's own
+    const line = (width, color, pts) => { fx.lineStyle({ width, color, cap: 'round', join: 'round' }); fx.moveTo(...L(pts[0])); for (let i = 1; i < pts.length; i++) fx.lineTo(...L(pts[i])); };
+    fx.clear();
+    line(3.2, 0x4a3b2a, [top, nock, bot]); line(1.6, 0xf3ead6, [top, nock, bot]); // the string, behind the wood
+    for (const [width, color] of [[0.062 * T, 0x2b1a0d], [0.04 * T, 0x9a5b2b], [0.014 * T, 0xc98c4d]]) { // the limbs: outline, wood, a highlight
+      for (const s of [1, -1]) { fx.lineStyle({ width, color, cap: 'round', join: 'round' }); fx.moveTo(...L([Bh[0], Bh[1] - 0.07 * T * s])); fx.quadraticCurveTo(...L([Bh[0] + 0.05 * T, Bh[1] - half * 0.55 * s]), ...L(tip(s))); }
+    }
+    line(0.075 * T, 0x2b1a0d, [[Bh[0], Bh[1] - 0.075 * T], [Bh[0], Bh[1] + 0.075 * T]]); line(0.05 * T, 0x5a3a22, [[Bh[0], Bh[1] - 0.07 * T], [Bh[0], Bh[1] + 0.07 * T]]); // the grip
+    if (arrow) { // its nock in the draw hand, lying on the bow hand
+      const a0 = [N[0], N[1] - 0.045 * T], a1 = [a0[0] + BOW.arrow * T, a0[1]];
+      line(0.034 * T, 0x2b1a0d, [a0, a1]); line(0.018 * T, 0xc9a66b, [a0, a1]);
+      fx.lineStyle({ width: 1.2, color: 0x2b1a0d }); fx.beginFill(0xb9c2c9);
+      fx.drawPolygon([...L([a1[0] + 0.075 * T, a1[1]]), ...L([a1[0], a1[1] - 0.03 * T]), ...L([a1[0], a1[1] + 0.03 * T])]); fx.endFill();
+      for (const s of [1, -1]) { fx.lineStyle({ width: 1, color: 0x2b1a0d }); fx.beginFill(0xc4402f);
+        fx.drawPolygon([...L([a0[0] + 0.03 * T, a0[1]]), ...L([a0[0] + 0.13 * T, a0[1]]), ...L([a0[0] + 0.11 * T, a0[1] - 0.035 * T * s]), ...L([a0[0] + 0.03 * T, a0[1] - 0.035 * T * s])]); fx.endFill(); }
+    }
+    B.fist.far.position.set(...L(Bh)); B.fist.far.rotation = bh.fore; B.fist.near.position.set(...L(N)); B.fist.near.rotation = nh.fore;
+    return out;
   }
 
   /** The second hand's fist, drawn over the weapon where that arm's hand now is; its own drawn hand goes while the weapon is out. */

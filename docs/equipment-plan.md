@@ -97,6 +97,20 @@ The owner asked to see the sword in the game before any more planning. What is i
   in one hand, by the clip's `lead` keys.
   GIFs: two-handed-thrust.gif, two-handed-slash.gif, two-handed-chop.gif, rapier-thrust.gif
   (docs/art/equipment/).
+- **The bow (2026-11-14; the Short Bow only so far):** category `bow`, clip `shoot`. A bow is not a
+  picture in a hand: `ArmRig.setBow` / `bowPose` DRAW it each frame (limbs, string, arrow), so the
+  limbs bend and the string follows the draw hand. Staging, settled with the owner on a prototype in
+  chat: the bow is held out in the FAR hand, upright, and neither it nor that arm moves at all; the
+  NEAR arm draws straight back along a level arrow and comes forward again. At rest the figure stands
+  ready with the string half drawn (the near hand cannot reach a resting string out past the far
+  shoulder). The shot: draw to full by 200 ms, loose at 260 (the clip's `hit`: the game's arrow
+  projectile is launched then, not on the tap), a new arrow in the hand at 380, the string taken up
+  again by 520, ready at 600. The draw is keyed from the near shoulder and nudged a quarter of the way
+  toward one length of string for every body, so the short-armed female draws a few px further without
+  her arm folding differently. Both fists sit just past the wrist, lapping the sleeve (at the rig's
+  grip, the middle of the drawn hand, a fist left a gap). The bow and arrow are code-drawn placeholders
+  in the game's colours; a painted bow would not bend. The other eleven ranged weapons have no category
+  yet. docs/art/equipment/bow-shot.gif (half speed).
 - **Poses are absolute (2026-11-13):** the avatar's guards and clips say where the upper arm and
   the forearm POINT (clockwise from straight down), not how far to turn them from the outfit's own
   drawing (`ArmRig.poseOf`, an arm that `holds`). Outfits draw the hanging arm a little differently,
@@ -143,6 +157,7 @@ with the damage number, and how the other outfits' sleeves cut.
 following the Combat panel's slot, the per-outfit rigs, the turning fixes (both), and a tap on an
 out-of-reach enemy walking up and attacking. Approved from the offline GIFs, not yet seen in a fight:
 the two-handed thrust, slash and chop in their final form, and the rapier's thrust and drawing.
+The Short Bow's shot was approved on the chat prototype and is in the game for the owner to judge.
 Other players' figures show no weapon and need none: they are never seen in a fight (owner).
 
 **Decided, not a defect (owner 2026-11-13):** a fast attacker's next attack may start before the

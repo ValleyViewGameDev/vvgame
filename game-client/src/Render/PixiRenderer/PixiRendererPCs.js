@@ -590,7 +590,7 @@ const PixiRendererPCs = ({
         sprite.texture = cut.body; sprite.__openTex = cut.body; sprite.__blinkTex = blinkCut ? blinkCut.body : null;
         const arm = syncArmRig(sprite, rig, cut, { attackClip: heldWeapon ? heldWeapon.clip : sprite.armRig?.attackClip });
         if (armed) {
-          if (arm.__held !== heldWeapon) { armFigure(arm, heldWeapon, Texture.from(weaponSrc(heldWeapon.art)), cut.w, AVATAR_SPAN); arm.__held = heldWeapon; }
+          if (arm.__held !== heldWeapon) { armFigure(arm, heldWeapon, heldWeapon.art ? Texture.from(weaponSrc(heldWeapon.art)) : null, cut.w, AVATAR_SPAN); arm.__held = heldWeapon; }
           else arm.setStance(null, true);
         } else {
           arm.setStance(null, false); // put away: the arm eases down; the plain figure comes back when it has
