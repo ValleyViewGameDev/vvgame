@@ -608,8 +608,20 @@ export class ArmRig {
   weaponPose(H, a, b, key, clip, t, now) {
     const d = (clip && clip.second ? valueAt(clip.second, t, 'd') : H.dist) * H.pxPerTile, amt = this.stanceAmount(now);
     const wrap = (v) => Math.atan2(Math.sin(v), Math.cos(v));
-    const fts = -key.u, fte = wrap(Math.PI / 2 - key.f - Math.atan2(b.G[1] - b.E[1], b.G[0] - b.E[0]) + key.u); // screen turns: + is clockwise
-    const F = handPoint(b, fts, fte), ux = Math.sin(key.a), uy = -Math.cos(key.a);
+    const ux = Math.sin(key.a), uy = -Math.cos(key.a);
+    let fts, fte, F;
+    if (key.at) {
+      // a weapon that is only HELD, never swung (the crossbow), is placed on the BODY instead: `at` is where the first
+      // (near) hand is, in tiles from the middle of the two shoulders (+x toward the target, +y down), so every outfit,
+      // broad or narrow, holds it in the same place. The front hand is the hold's length along it and that arm is
+      // solved to reach, its elbow kept low. It stands still, so the far arm has nothing to flicker between
+      const T = H.pxPerTile, nx = (a.S[0] + b.S[0]) / 2 + key.at[0] * T, ny = (a.S[1] + b.S[1]) / 2 + key.at[1] * T;
+      const r = reachLow(b, nx + ux * d, ny + uy * d, 0.97, 1);
+      fts = r.ts; fte = r.te; F = { x: r.hx, y: r.hy };
+    } else {
+      fts = -key.u; fte = wrap(Math.PI / 2 - key.f - Math.atan2(b.G[1] - b.E[1], b.G[0] - b.E[0]) + key.u); // screen turns: + is clockwise
+      F = handPoint(b, fts, fte);
+    }
     const near = this.followTo(H, 'lastFirst', a, F.x - ux * d, F.y - uy * d, now, bendOf(H.holder));
     const fore = handPoint(a, near.ts, near.te).fore, turn = wrap(key.a - fore - a.held.angle);
     return { side: H.side, ts: fts * amt, te: fte * amt, tw: 0, st: null, tx: F.x, ty: F.y, amt, turn: turn * amt,

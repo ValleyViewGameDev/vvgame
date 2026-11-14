@@ -55,9 +55,11 @@ const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47, weapon: { f: -1.44, u: 0
  */
 // the crossbow: LEVEL in both hands at the chest, the near hand on the grip, the far hand under the fore-end. It never
 // leaves this hold: its shot is the body's recoil alone (armClips.js `bolt`)
-// Held close (owner 2026-11-13: "closer in to the body, with shoulders hinged further back ... modest"): the far
-// shoulder turned a little back (`u` under 0) and the hands well apart (`second`), so the near elbow goes back too
-const CROSSBOW_GUARD = { side: HELD_ARM, s: 0.43, e: -2.05, weapon: { f: 1.75, u: -0.1, a: Math.PI / 2 } };
+// Held close, and in the SAME place on every outfit (owner 2026-11-13: "closer in to the body, with shoulders hinged
+// further back", then, shown six outfits, the tucked hold of the narrow-shouldered ones for all): `at` puts the near
+// hand on the body, a hair behind the middle of the shoulders, and both arms are solved to it (ArmRig.weaponPose).
+// Keyed by the far arm, as the swung weapons are, a broad-shouldered outfit held it a fifth of a tile further out
+const CROSSBOW_GUARD = { side: HELD_ARM, s: 0.43, e: -2.05, weapon: { at: [-0.013, 0.165], a: Math.PI / 2 } };
 export const WEAPON_CLASSES = {
   sword:   { art: 'weapon-long-sword.png', size: [128, 512], grip: [64, 448], angle: ACROSS, guard: CUT_GUARD, clip: 'slash' },
   // the far hand sits just above the near one on the long grip and stays there: no `give`, it must not slide onto the blade

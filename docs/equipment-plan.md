@@ -124,9 +124,13 @@ The owner asked to see the sword in the game before any more planning. What is i
   the standard full-body recoil"):** category `crossbow` (Crossbow, Heavy Crossbow, Magic Crossbow,
   Legendary Crossbow), clip `bolt`. A painted prop like the melee weapons (`weapon-crossbow.png`), held in BOTH hands as the two-handed weapons are: the near hand on the
   leather grip, the far hand under the fore-end, the weapon keyed level (`a` a quarter turn) at the
-  chest and held close: the far shoulder turned a little back and the hands well apart, so the near
-  elbow goes back too (owner 2026-11-13, after a first hold that stuck out too far: "closer in to the
-  body, with shoulders hinged further back ... a modest adjustment"). The clip has a `body` track only: the bolt goes at 30 ms and the figure kicks back 0.07 of a
+  chest and held close, in the SAME place on every outfit: the guard's `weapon.at` puts the near
+  hand on the body (tiles from the middle of the two shoulders) and both arms are solved to reach
+  (`ArmRig.weaponPose`; the far arm's elbow kept low, its forearm behind the stock). Owner
+  2026-11-13: "closer in to the body, with shoulders hinged further back", then, shown the hold on
+  six outfits, he chose the tucked one the narrow-shouldered outfits had. Keyed by the far arm, as the
+  swung two-handed weapons are, the broad male outfits held it a fifth of a tile further out than the
+  female ones: a weapon that is only HELD is placed on the body, not by an arm. The clip has a `body` track only: the bolt goes at 30 ms and the figure kicks back 0.07 of a
   tile and settles (260 ms). A clip that keys neither arm nor weapon HOLDS the guard
   (`ArmRig.secondPose`), so both hands stay on it through the shot. The drawing (job `weapons-r6`) is a heavy,
   beefy crossbow drawn LEVEL from the side, the camera the avatar is drawn with, its bow strongly
