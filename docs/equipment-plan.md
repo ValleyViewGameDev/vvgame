@@ -215,9 +215,10 @@ takes over; nothing is to be done about it.
   - `glow` (or `glow:#rrggbb`): a breathing halo on the BLADE only (everything above the crossguard, found as the widest
     row of the drawing's lower part), with a crisp copy of the weapon drawn over it. On the Glowing Sword
     (`docs/art/equipment/glowing-sword.png`).
-  - `orb` (or `orb:#rrggbb`): a round, pulsing ball of light on the weapon's TIP (the head found from the drawing: the top
-    rows wider than the shaft), about 2.6 times the head's height across, white core in a pale arcane blue. On the Magic
-    Spear (owner 2026-11-14; `docs/art/equipment/magic-spear-orb.png`).
+  - `orb` (or `orb:#rrggbb`): a round, pulsing halo (corona) around the weapon's TIP (the head found from the drawing:
+    the top rows wider than the shaft), about 3.2 times the head's height across, in a pale arcane blue, with a crisp copy
+    of the weapon drawn over it so the head stays clearly visible (owner: "a corona/halo rather than a solid orb"). On the
+    Magic Spear (owner 2026-11-14; `docs/art/equipment/magic-spear-orb.png`).
   A new kind is one entry in `KINDS`. `rigshot --fx glow` (or `--fx orb`) shows one.
 
 ## 1. What exists today

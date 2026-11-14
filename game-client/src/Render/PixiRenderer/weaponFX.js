@@ -6,9 +6,9 @@
  *                   above the crossguard, found as the widest row in the lower part of the drawing,
  *                   so the hilt and the hand stay unlit (owner 2026-11-14)
  *   glow:#ffd27a    the same in a colour of its own
- *   orb             a round ball of light around the weapon's TIP (the Magic Spear, owner 2026-11-14):
+ *   orb             a round halo (corona) around the weapon's TIP, the head still clearly seen (the Magic Spear, owner 2026-11-14):
  *                   the head is found from the drawing (the top rows wider than the shaft), the orb
- *                   sits on its middle, a little bigger than the head, and breathes; orb:#hex for a colour
+ *                   is centred on it, about three times the head across, and breathes; orb:#hex for a colour
  *
  * An effect is built as a CHILD of the weapon's sprite (ArmRig.setHeld), so it inherits the weapon's
  * position, rotation, scale and visibility: it travels with the prop through the guard and every
@@ -106,7 +106,7 @@ function buildGlow(weapon, option) {
 // -------------------------------------------------------------------------------------------- orb
 const ORB = {
   colour: '#8fe3ff',   // an arcane pale blue
-  size: 2.6,           // the orb's diameter, as a multiple of the head's height
+  size: 3.2,           // the halo's diameter, as a multiple of the head's height
   alpha: [0.55, 0.95],
   scale: [0.9, 1.08],  // it swells a little as it brightens
   periodMs: 1400,
@@ -148,20 +148,17 @@ function orbTexture(colour) {
   const n = 128, c = document.createElement('canvas');
   c.width = c.height = n;
   const ctx = c.getContext('2d');
-  const g = ctx.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2);
-  g.addColorStop(0, 'rgba(255,255,255,1)');
-  g.addColorStop(0.18, 'rgba(255,255,255,0.9)');
-  g.addColorStop(0.35, colour);
-  g.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, n, n);
-  // the colour stop is opaque: fade it so only the core is solid
-  ctx.globalCompositeOperation = 'destination-in';
-  const f = ctx.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2);
-  f.addColorStop(0, 'rgba(0,0,0,1)');
-  f.addColorStop(0.45, 'rgba(0,0,0,0.6)');
-  f.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = f;
+  const hex = colour.replace('#', '');
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.length === 3 ? hex[i / 2] + hex[i / 2] : hex.slice(i, i + 2), 16) || 0);
+  const at = (alpha) => `rgba(${r},${g},${b},${alpha})`;
+  // a corona, not a ball: the colour only, densest next to the head and fading smoothly outwards (owner 2026-11-14:
+  // "a corona/halo rather than a solid orb ... see the blade"); the head itself is drawn again on top (buildOrb)
+  const grad = ctx.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2);
+  grad.addColorStop(0, at(0.75));
+  grad.addColorStop(0.3, at(0.55));
+  grad.addColorStop(0.65, at(0.2));
+  grad.addColorStop(1, at(0));
+  ctx.fillStyle = grad;
   ctx.fillRect(0, 0, n, n);
   const t = Texture.from(c);
   orbCache.set(colour, t);
@@ -173,7 +170,10 @@ function buildOrb(weapon, option) {
   const sprite = new Sprite(orbTexture(colour));
   sprite.anchor.set(0.5);
   sprite.blendMode = BLEND_MODES.ADD;
-  weapon.addChild(sprite); // over the head: the tip shines from inside the ball of light
+  // children draw over their parent: a crisp copy of the weapon goes on top so the head shows clearly inside its halo
+  const crisp = new Sprite(weapon.texture);
+  crisp.anchor.copyFrom(weapon.anchor);
+  weapon.addChild(sprite, crisp);
   const phase = Math.random();
   let ready = false, base = 1;
   const place = () => {
@@ -182,6 +182,8 @@ function buildOrb(weapon, option) {
     const tip = tipOf(tex);
     sprite.position.set(tip.x - weapon.anchor.x * tex.width, tip.y - weapon.anchor.y * tex.height);
     base = (tip.height * ORB.size) / 128;
+    crisp.texture = tex;
+    crisp.anchor.copyFrom(weapon.anchor);
     ready = true;
   };
   return {
@@ -191,7 +193,7 @@ function buildOrb(weapon, option) {
       sprite.alpha = ORB.alpha[0] + (ORB.alpha[1] - ORB.alpha[0]) * k;
       sprite.scale.set(base * (ORB.scale[0] + (ORB.scale[1] - ORB.scale[0]) * k));
     },
-    destroy() { sprite.parent?.removeChild(sprite); sprite.destroy(); },
+    destroy() { for (const o of [sprite, crisp]) { o.parent?.removeChild(o); o.destroy(); } },
   };
 }
 
