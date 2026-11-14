@@ -184,8 +184,7 @@ export const ARM_CLIPS = {
   // here; the front hand is solved onto the haft each frame (ArmRig.secondPose), `second` tiles up it.
   // From the guard, the weapon carried low across the body with its head forward and up, it is HOISTED
   // upright in front of the far shoulder (never back across the face), hangs a moment, and is brought
-  // down forward to level at the belt, the front hand sliding down the haft toward the rear one as it
-  // falls. Slower and heavier than the slash: the body rocks back under the lift and steps in hard
+  // down forward to level at the belt. Slower and heavier than the slash: the body rocks back under the lift and steps in hard
   chop2: {
     hit: 385,
     body: [
@@ -205,9 +204,14 @@ export const ARM_CLIPS = {
       { t: 560, s: -0.22, e: 0.16 },
       { t: 800, s: 0.1, e: -0.47 },
     ],
+    // the front hand's hold: it slides DOWN the haft as the weapon is hoisted, so that at the top it sits
+    // just above the rear hand and close in front of its own shoulder. Held high on an upright haft the
+    // far elbow had to wing out sideways; held low it folds down against the body (owner 2026-11-13)
     second: [
       { t: 0, d: 0.5 },
-      { t: 260, d: 0.44, ease: 'out' },
+      { t: 170, d: 0.34, ease: 'out' },
+      { t: 260, d: 0.22 },
+      { t: 300, d: 0.22 },
       { t: 385, d: 0.3, ease: 'in' },
       { t: 560, d: 0.3 },
       { t: 800, d: 0.5 },

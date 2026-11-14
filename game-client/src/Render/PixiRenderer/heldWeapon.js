@@ -38,7 +38,9 @@ const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47 };
  * The weapon categories. `art`: the drawing; `size` and `grip`: its canvas and where the hand holds
  * it (px); `angle`: how it sits in the hand, from the forearm; `guard`: the held pose; `clip`: the
  * attack (armClips.js); `second`: a TWO-HANDED hold, the other hand on the weapon this many tiles from
- * the first toward its point (ArmRig.secondPose; a figure whose rig has no far arm holds it in one).
+ * the first toward its point (ArmRig.secondPose; a figure whose rig has no far arm holds it in one);
+ * `give`: how far that hold may shift along the weapon, tiles either way, to keep the far elbow in
+ * against the body (the axe and hammer, whose haft passes close to the far shoulder).
  * The attacks: the sword's `slash`, the `thrust` (dagger, spear), the two-handed `thrust2` (polearm)
  * and the two-handed `chop2` (axe and hammer, which share it). A two-handed sword (`slash2`) is planned,
  * not built: docs/equipment-plan.md.
@@ -48,8 +50,8 @@ export const WEAPON_CLASSES = {
   dagger:  { art: 'weapon-dagger.png', size: [128, 512], grip: [64, 448], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   spear:   { art: 'weapon-spear.png', size: [128, 768], grip: [64, 470], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   polearm: { art: 'weapon-halberd.png', size: [256, 896], grip: [128, 580], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust2', second: 0.58 },
-  axe:     { art: 'weapon-great-axe.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop2', second: 0.5 },
-  hammer:  { art: 'weapon-war-hammer.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop2', second: 0.5 },
+  axe:     { art: 'weapon-great-axe.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop2', second: 0.5, give: 0.16 },
+  hammer:  { art: 'weapon-war-hammer.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop2', second: 0.5, give: 0.16 },
 };
 
 const heldCache = new Map();
@@ -82,7 +84,7 @@ export function armFigure(armRig, held, weaponTex, cutW, spanTiles) {
     angle: held.angle,
     pxPerTile: cutW / spanTiles, // the figure texture's px to a board tile: a clip's `slide` and `second` are in tiles
     // a two-handed weapon on a figure whose rig has the other arm: that hand holds it too, `second` tiles toward the point
-    second: held.second && armRig.arms.R && armRig.arms.R.part.fist ? { side: 'R', dist: held.second, pxPerTile: cutW / spanTiles } : null,
+    second: held.second && armRig.arms.R && armRig.arms.R.part.fist ? { side: 'R', dist: held.second, pxPerTile: cutW / spanTiles, give: held.give } : null,
   });
   armRig.attackClip = held.clip;
   armRig.setStance(held.guard, true);

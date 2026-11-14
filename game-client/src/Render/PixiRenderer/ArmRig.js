@@ -336,6 +336,7 @@ export function cutRig(renderer, texture, rig) {
 // ---------------------------------------------------------------------------------------------
 const SECOND_REACH = 0.86;    // a two-handed weapon's second hand: how far of its arm's full length it may be stretched
 const SECOND_MIN_HOLD = 0.22; // ... and how near the first hand it may come, tiles along the weapon
+const SECOND_STAY = 0.9;      // ... what a px of give in its hold (held.second.give) costs against a px of elbow out of place: it moves only when the elbow would really wing out
 const STANCE_MS = 220;             // a stance eases in or out over this long
 const MESH_STEP = 1 / 72;          // the arm mesh's grid spacing (of the square): fine enough for a smooth bend
 const BLEND = [0.05, 0.04];          // default half-widths (of the square) of the shoulder and elbow blend zones
@@ -354,21 +355,21 @@ function handPoint(a, ts, te, tw = 0) {
 /**
  * The joint turns [shoulder, elbow] that put a limb's hand on a point (the arm image's px): two bones,
  * solved by the cosine rule. Out of reach, the arm straightens toward it. Of the two ways the elbow
- * can fold, the one that leaves it LOWER, and then further out on the arm's own side (`out`: 1 the
- * image's right, -1 its left): an elbow hangs down and away from the chest, never up across it.
+ * can fold, the one that leaves it NEARER where it hangs in the drawing: tucked in against the body,
+ * never winged out sideways or lifted across the chest (owner 2026-11-13).
  */
-function reachFor(b, tx, ty, out = 1) {
+function reachFor(b, tx, ty) {
   const [Sx, Sy] = b.S, [Ex, Ey] = b.E, [Gx, Gy] = b.G;
   const L1 = Math.hypot(Ex - Sx, Ey - Sy), L2 = Math.hypot(Gx - Ex, Gy - Ey);
   const a1 = Math.atan2(Ey - Sy, Ex - Sx), a2 = Math.atan2(Gy - Ey, Gx - Ex);
   const dx = tx - Sx, dy = ty - Sy, D = Math.max(Math.abs(L1 - L2) + 1, Math.min(L1 + L2 - 0.5, Math.hypot(dx, dy)));
   const base = Math.atan2(dy, dx), A = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + D * D - L2 * L2) / (2 * L1 * D))));
   const hx = Sx + D * Math.cos(base), hy = Sy + D * Math.sin(base); // the hand: the point itself, or as near as the arm reaches
-  const fold = (bend) => { const t1 = base + bend * A, ex = Sx + L1 * Math.cos(t1), ey = Sy + L1 * Math.sin(t1); return { t1, ex, ey, score: ey + 0.3 * out * ex }; };
-  const up = fold(1), down = fold(-1), f = up.score >= down.score ? up : down;
+  const fold = (bend) => { const t1 = base + bend * A, ex = Sx + L1 * Math.cos(t1), ey = Sy + L1 * Math.sin(t1); return { t1, ex, ey, away: Math.hypot(ex - Ex, ey - Ey) }; };
+  const one = fold(1), other = fold(-1), f = one.away <= other.away ? one : other;
   const wrap = (v) => Math.atan2(Math.sin(v), Math.cos(v));
   const ts = wrap(f.t1 - a1);
-  return [ts, wrap(Math.atan2(hy - f.ey, hx - f.ex) - a2 - ts)];
+  return [ts, wrap(Math.atan2(hy - f.ey, hx - f.ex) - a2 - ts), f.away]; // ... and how far that leaves the elbow from where it hangs (px)
 }
 
 export class ArmRig {
@@ -521,7 +522,7 @@ export class ArmRig {
    * The SECOND hand of a two-handed weapon (owner 2026-11-13): the other arm holds the weapon too,
    * `dist` tiles along it from the first hand toward its point. Nothing is keyed for that arm: each
    * frame the weapon is where the first arm's pose puts it, the hold point on it is found, and the
-   * second arm's two joints are solved to put its hand there (reachFor). A clip may slide the hold
+   * second arm's two joints are solved to put its hand there (reachFor, the elbow kept in against the body). A clip may slide the hold
    * along the weapon with a `second` track ({ t, d }: tiles), as the front hand does on a thrust.
    * The arm eases to the weapon and back with the guard. Returns its pose, or null (no second hand).
    */
@@ -538,8 +539,18 @@ export class ArmRig {
     const R = SECOND_REACH * (Math.hypot(b.E[0] - b.S[0], b.E[1] - b.S[1]) + Math.hypot(b.G[0] - b.E[0], b.G[1] - b.E[1]));
     const qx = g.x - b.S[0], qy = g.y - b.S[1], along = -(qx * ux + qy * uy), off2 = qx * qx + qy * qy - along * along; // the weapon's line from that arm's shoulder
     const far = along + Math.sqrt(Math.max(0, R * R - off2)); // the last point of the line within reach
-    d = Math.max(SECOND_MIN_HOLD * H.pxPerTile, Math.min(d, far));
-    const [is, ie] = reachFor(b, g.x + ux * d, g.y + uy * d, H.side === 'R' ? 1 : -1);
+    const lo = SECOND_MIN_HOLD * H.pxPerTile, hold = (v) => Math.max(lo, Math.min(v, far));
+    // ... and the hold may give a little either way along the weapon to keep that arm's ELBOW in against
+    // the body (owner 2026-11-13). A hand held close to its own shoulder leaves the elbow nowhere to go
+    // but out sideways; a little further along the haft and it hangs down again. So nearby holds are
+    // tried and the one kept is the best trade of a tucked elbow against staying where the clip asked
+    let is = 0, ie = 0, best = Infinity;
+    const span = (H.give || 0) * H.pxPerTile, tries = span ? 8 : 0; // only a weapon that asks for it (`give`): the polearm's hold stays put
+    for (let i = -tries; i <= tries; i++) {
+      const at = hold(d + (tries ? (span * i) / tries : 0)), [s1, e1, away] = reachFor(b, g.x + ux * at, g.y + uy * at);
+      const cost = away + SECOND_STAY * Math.abs(at - d);
+      if (cost < best) { best = cost; is = s1; ie = e1; }
+    }
     const amt = this.stanceAmount(now);
     return { side: H.side, ts: is * amt, te: ie * amt, tw: 0, st: null };
   }
@@ -577,7 +588,7 @@ export class ArmRig {
    * Put a WEAPON in a limb's hand (docs/equipment-plan.md): its own sprite, fixed in the hand at
    * `angle` to the forearm (the avatar's sword: a right angle, rigid, no wrist), gripped at `grip`
    * (px in its texture), `scale` mesh px per texture px. The arm is drawn without its open hand and a
-   * fist is drawn over the handle. `held.second` ({ side, dist, pxPerTile }): the other arm holds it
+   * fist is drawn over the handle. `held.second` ({ side, dist, pxPerTile, give }): the other arm holds it
    * too, `dist` tiles toward its point (a two-handed weapon). `null` puts it away.
    */
   setHeld(side, held) {
@@ -608,7 +619,7 @@ export class ArmRig {
       let fist2 = null;
       if (b.part.fist) { fist2 = new Sprite(b.part.fist); fist2.anchor.set(0.5); a.mesh.addChild(fist2); }
       this.root.setChildIndex(b.mesh, 0);
-      this.second = { holder: side, side: held.second.side, dist: held.second.dist, pxPerTile: held.second.pxPerTile, fist: fist2 };
+      this.second = { holder: side, side: held.second.side, dist: held.second.dist, pxPerTile: held.second.pxPerTile, give: held.second.give || 0, fist: fist2 };
     }
   }
 
