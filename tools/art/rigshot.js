@@ -12,7 +12,7 @@
  *        [--clip swipe --times 0,130,260,400,520,780]   one frame per time (ms) of the clip
  *        [--pose 0.1,1.4,0 --lead R]       the lead arm HELD at shoulder, elbow, wrist angles (radians): try a stance before any clip exists
  *        [--held <weapon png> --span 1.8]  an avatar: the weapon in its hand and the guard raised (heldWeapon.js); --times 0 shows the guard
- *        [--fx glow]                       with --held: an effect on the weapon (heldWeapon `heldFx`, weaponFX.js), e.g. glow or glow:#ffd27a
+ *        [--fx glow]                       with --held: an effect on the weapon (heldWeapon `heldFx`, weaponFX.js), e.g. glow, glow:#ffd27a or orb
  *        [--class sword]                   the weapon's category (heldWeapon.WEAPON_CLASSES): its guard and its clip; `--class bow` / `longbow` need no --held (the rig draws the bow)
  *        [--turn]                          the figure turns round at 0 ms: one frame per time, each drawn ONCE as the board draws it (16 ms steps show a part that lags the body); mid-breath, as a figure on the board always is
  *        [--gap 3]                         with --turn: this many ms pass between placing the figure's parts and drawing it, as on a busy board (everything under the figure is drawn in between)

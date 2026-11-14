@@ -13397,7 +13397,8 @@
     "ingredient1qty": 1,
     "attackrange": 2,
     "weaponClass": "spear",
-    "heldArt": "weapons/magic-spear.png"
+    "heldArt": "weapons/magic-spear.png",
+    "heldFx": "orb"
   },
   {
     "type": "Titan",
