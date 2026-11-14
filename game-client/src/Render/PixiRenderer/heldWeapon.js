@@ -55,7 +55,9 @@ const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47, weapon: { f: -1.44, u: 0
  */
 // the crossbow: LEVEL in both hands at the chest, the near hand on the grip, the far hand under the fore-end. It never
 // leaves this hold: its shot is the body's recoil alone (armClips.js `bolt`)
-const CROSSBOW_GUARD = { side: HELD_ARM, s: 0.43, e: -2.05, weapon: { f: 1.75, u: 0.25, a: Math.PI / 2 } };
+// Held close (owner 2026-11-13: "closer in to the body, with shoulders hinged further back ... modest"): the far
+// shoulder turned a little back (`u` under 0) and the hands well apart (`second`), so the near elbow goes back too
+const CROSSBOW_GUARD = { side: HELD_ARM, s: 0.43, e: -2.05, weapon: { f: 1.75, u: -0.1, a: Math.PI / 2 } };
 export const WEAPON_CLASSES = {
   sword:   { art: 'weapon-long-sword.png', size: [128, 512], grip: [64, 448], angle: ACROSS, guard: CUT_GUARD, clip: 'slash' },
   // the far hand sits just above the near one on the long grip and stays there: no `give`, it must not slide onto the blade
@@ -67,9 +69,9 @@ export const WEAPON_CLASSES = {
   bow:     { bow: 'short', clip: 'shoot' },
   longbow: { bow: 'long', clip: 'shoot' },
   // drawn LEVEL from the side, as the avatar is seen, its bow foreshortened, and stored upright like every weapon
-  // (weaponfit --level): held level it is that drawing again. The near hand on the leather grip, the far hand between
-  // the fore-end's two steel bands
-  crossbow: { art: 'weapon-crossbow.png', size: [256, 512], grip: [128, 360], angle: ALONG, guard: CROSSBOW_GUARD, clip: 'bolt', second: 0.38 },
+  // (weaponfit --level): held level it is that drawing again. The near hand on the leather grip, the far hand on the
+  // fore-end's front steel band
+  crossbow: { art: 'weapon-crossbow.png', size: [256, 512], grip: [128, 360], angle: ALONG, guard: CROSSBOW_GUARD, clip: 'bolt', second: 0.45 },
   dagger:  { art: 'weapon-dagger.png', size: [128, 512], grip: [64, 448], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   spear:   { art: 'weapon-spear.png', size: [128, 768], grip: [64, 470], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   polearm: { art: 'weapon-halberd.png', size: [256, 896], grip: [128, 580], angle: ALONG, guard: POLE_GUARD, clip: 'thrust2', second: 0.5 },
