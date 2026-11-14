@@ -46,13 +46,15 @@ const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47, weapon: { f: -1.44, u: 0
  * `give`: how far that hold may shift along the weapon, tiles either way, to keep the far elbow in
  * against the body (the axe and hammer, whose haft passes close to the far shoulder).
  * The attacks, `<attack>` in one hand and `<attack>2` in two: the sword's `slash` and the great
- * sword's `slash2`; the `thrust` (dagger, spear) and the polearm's `thrust2`; the `chop2` of the axe and
+ * sword's `slash2`; the `thrust` (rapier, dagger, spear) and the polearm's `thrust2`; the `chop2` of the axe and
  * the hammer, which share it (there is no one-handed chop).
  */
 export const WEAPON_CLASSES = {
   sword:   { art: 'weapon-long-sword.png', size: [128, 512], grip: [64, 448], angle: ACROSS, guard: CUT_GUARD, clip: 'slash' },
   // the far hand sits just above the near one on the long grip and stays there: no `give`, it must not slide onto the blade
   greatsword: { art: 'weapon-great-sword.png', size: [192, 720], grip: [96, 650], angle: ACROSS, guard: GREAT_GUARD, clip: 'slash2', second: 0.23 },
+  // a sword that thrusts: the long sword's drawing, held along the forearm as the dagger and the spear are (owner 2026-11-13)
+  rapier:  { art: 'weapon-long-sword.png', size: [128, 512], grip: [64, 448], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   dagger:  { art: 'weapon-dagger.png', size: [128, 512], grip: [64, 448], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   spear:   { art: 'weapon-spear.png', size: [128, 768], grip: [64, 470], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   polearm: { art: 'weapon-halberd.png', size: [256, 896], grip: [128, 580], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust2', second: 0.58 },

@@ -13989,7 +13989,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Book",
     "ingredient4qty": 4,
-    "weaponClass": "sword"
+    "weaponClass": "rapier"
   },
   {
     "type": "Lead Casket",
@@ -14524,7 +14524,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 60,
-    "weaponClass": "sword"
+    "weaponClass": "rapier"
   },
   {
     "type": "Academe Tome",

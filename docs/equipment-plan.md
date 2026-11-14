@@ -26,7 +26,8 @@ The owner asked to see the sword in the game before any more planning. What is i
 
   | Category | Attack | Hands | In the hand | Weapons |
   |---|---|---|---|---|
-  | `sword` | `slash` | 1 | across the forearm | Short Sword, Long Sword, Sword of Song, Glowing Sword, Legendary Sword, Broadsword, Arming Sword, Falchion, Portia's Rapier, Courtier's Rapier, Bard's Blade, Messina Saber, Fen Hook (shown as **Fen Cutlass**) |
+  | `sword` | `slash` | 1 | across the forearm | Short Sword, Long Sword, Sword of Song, Glowing Sword, Legendary Sword, Broadsword, Arming Sword, Falchion, Bard's Blade, Messina Saber, Fen Hook (shown as **Fen Cutlass**) |
+  | `rapier` | `thrust` | 1 | along the forearm | Portia's Rapier, Courtier's Rapier (the long sword's drawing until a rapier is drawn) |
   | `dagger` | `thrust` | 1 | along the forearm | Knife, Mantuan Dagger |
   | `spear` | `thrust` | 1 (all four; Boar Spear and Lakeside Spear were 2) | along the forearm | Spear, Magic Spear, Boar Spear, Lakeside Spear |
   | `polearm` | `thrust2` | 2, held in both | along the forearm | Halberd, Magic Halberd, Morrow Glaive |
@@ -39,7 +40,7 @@ The owner asked to see the sword in the game before any more planning. What is i
   | Attack | One hand | Two hands |
   |---|---|---|
   | slash | `slash` (sword): built | `slash2` (great sword): built |
-  | thrust | `thrust` (dagger, spear): built | `thrust2` (polearm): built |
+  | thrust | `thrust` (rapier, dagger, spear): built | `thrust2` (polearm): built |
   | chop | none: every axe and hammer is two-handed | `chop2` (axe, hammer): built |
 
   **The two-handed sword (built 2026-11-13).** Category `greatsword`: its own longer drawing
@@ -79,7 +80,7 @@ The owner asked to see the sword in the game before any more planning. What is i
   One drawing a category, all at one scale (`heldWeapon.PX_PER_TILE`), cut to the category's canvas
   by `tools/art/weaponfit.js` from `tools/art/jobs/weapons-r2.json`. A row may name its own drawing
   as `heldArt` (none does yet). `hands` only decides the shield; which weapons are HELD in two hands is the category's
-  `second` (below). The two rapiers are swords for now.
+  `second` (below). The two rapiers thrust (category `rapier`, since 2026-11-13).
   **Fen Hook** keeps its code name in data and saves and is shown as Fen Cutlass through
   `stringLookup.DISPLAY_ALIASES`, so no save needed migrating. Bows, crossbows and Darts have no
   category and show nothing in the hand. The attacks at half speed: docs/art/equipment/categories.gif.
