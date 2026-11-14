@@ -58,6 +58,7 @@ import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
 import { skillsBySource as buildSkillsBySource, useBuildingOffers } from '../../Utils/buildingStatus';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import { getMasterXPLevels } from '../../Utils/TuningManager';
+import { attachViewCulling } from './viewCulling';
 
 // The farm animal's ready ✅ sits this many tiles lower than the humanoid head-top spot, so it
 // hugs the animal's art (owner 2026-11-10); quest/trade NPC overlays are unchanged
@@ -425,6 +426,7 @@ const PixiRenderer = ({
   const appRef = useRef(null);
   const worldContainerRef = useRef(null);  // Parent container for all game layers - zoom applied here
   const tileContainerRef = useRef(null);
+  const viewCullingRef = useRef(null);  // viewCulling.js: off-screen tiles and resources are not drawn
   const tileSpritePool = useRef([]);       // one Sprite per tile cell, reused across grids
   const resourceContainerRef = useRef(null);
   const npcContainerRef = useRef(null);
@@ -810,6 +812,13 @@ const PixiRenderer = ({
       // Story moments (StoryFX.js): the Quest for Hope's dove, mountain fade and gem rain
       StoryFX.attach({ app, worldContainer, TILE_SIZE, getResourceSprites: () => resourceSpritesRef.current });
 
+      // Off-screen tiles and resources are not drawn (viewCulling.js)
+      viewCullingRef.current = attachViewCulling({
+        app, worldContainer, tileSize: TILE_SIZE,
+        getTileSprites: () => tileSpritePool.current,
+        getResourceSprites: () => resourceSpritesRef.current,
+      });
+
       // Wire up AmbientVFXManager with PixiJS app and world container
       // Pass TILE_SIZE as the base tile size - this is the constant rendering size (e.g., 40)
       // that doesn't change with zoom, ensuring ambient effects render at correct world coordinates
@@ -873,6 +882,8 @@ const PixiRenderer = ({
         }
         CombatFX.detach();
         StoryFX.detach();
+        viewCullingRef.current?.detach();
+        viewCullingRef.current = null;
         appRef.current.destroy(true, { children: true, texture: true });
         appRef.current = null;
       }
@@ -986,6 +997,7 @@ const PixiRenderer = ({
 
     tileContainer.removeChildren();
     for (const group of byTexture.values()) for (const sprite of group) tileContainer.addChild(sprite);
+    viewCullingRef.current?.invalidate(); // the pooled sprites moved: re-check what is in view
 
     if (process.env.NODE_ENV !== 'production') {
       window.__tileStats = { sprites: i, textures: byTexture.size, ms: Math.round((performance.now() - t0) * 10) / 10 };
@@ -1577,6 +1589,21 @@ const PixiRenderer = ({
   const buildingOffers = useBuildingOffers({ resources: scene ? null : resources, currentPlayer, timers });
   const playerLevel = getDerivedLevel(currentPlayer, getMasterXPLevels() || []);
 
+  // Which resources carry a badge, and which. Asked of EVERY resource on the grid (2,000-2,800 in a
+  // valley), so it is memoised on what can change a badge, never on `npcs`: an NPC step re-runs
+  // the drawing effect below many times a second (owner 2026-11-13, valley framerate under 30)
+  const resourceOverlays = useMemo(() => {
+    if (!resources) return [];
+    const out = [];
+    const ctx = currentPlayer ? { level: playerLevel, skillsBySource: skillsBySourceMap, buildingOffers, inventory, backpack, masterResources } : null;
+    for (const resource of resources) {
+      if (!resource || resource.category === 'doober' || resource.category === 'source') continue;
+      const overlayInfo = getResourceOverlayStatus(resource, computedCraftingStatus, computedTradingStatus, badgeState, electionPhase, currentPlayer, ctx);
+      if (overlayInfo) out.push({ resource, overlayInfo });
+    }
+    return out;
+  }, [resources, computedCraftingStatus, computedTradingStatus, badgeState, electionPhase, currentPlayer, playerLevel, skillsBySourceMap, buildingOffers, inventory, backpack, masterResources]);
+
   // Render resource overlays (checkmarks, clocks, etc.)
   // Uses object pooling to prevent GPU memory exhaustion from creating/destroying sprites
   useEffect(() => {
@@ -1632,7 +1659,7 @@ const PixiRenderer = ({
     const renderOverlays = async () => {
       let overlaysUsed = 0;
 
-      for (const resource of resources) {
+      for (const { resource, overlayInfo } of resourceOverlays) {
         // Check if this render is still current (cancelled if new render started)
         if (thisRenderVersion !== overlayRenderVersionRef.current) {
           return;
@@ -1640,22 +1667,6 @@ const PixiRenderer = ({
 
         // Check if container is still valid (component may have unmounted during async)
         if (!overlayContainerRef.current) return;
-
-        // Skip doobers and sources for overlays
-        if (resource.category === 'doober' || resource.category === 'source') continue;
-
-        // Check if resource needs an overlay (use computed status values)
-        const overlayInfo = getResourceOverlayStatus(
-          resource,
-          computedCraftingStatus,
-          computedTradingStatus,
-          badgeState,
-          electionPhase,
-          currentPlayer,
-          currentPlayer ? { level: playerLevel, skillsBySource: skillsBySourceMap, buildingOffers, inventory, backpack, masterResources } : null
-        );
-
-        if (!overlayInfo) continue;
 
         const overlayType = overlayInfo.type;
         const svgFilename = OVERLAY_SVG_MAPPING[overlayType];
@@ -1793,7 +1804,7 @@ const PixiRenderer = ({
     };
 
     renderOverlays();
-  }, [resources, npcs, computedCraftingStatus, computedTradingStatus, badgeState, electionPhase, currentPlayer, gridOffsetX, gridOffsetY, headTick, buildingOffers, inventory, backpack, playerLevel, skillsBySourceMap, masterResources]); // TILE_SIZE removed - it's constant now; headTick: an NPC's head was measured
+  }, [resources, resourceOverlays, npcs, gridOffsetX, gridOffsetY, headTick, masterResources]); // TILE_SIZE removed - it's constant now; headTick: an NPC's head was measured
 
   // Handle click events - check NPCs and PCs before falling through to tile click
   // Latest props for callbacks that fire after a walk (the click closure would be stale by then)
