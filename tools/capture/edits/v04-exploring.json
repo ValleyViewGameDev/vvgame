@@ -33,10 +33,17 @@
       "speed": 1.25
     },
     {
-      "from": "golgotha_zoom",
-      "fromOffset": -1.2,
+      "from": "golgotha_end",
+      "fromOffset": 0.3,
       "to": "golgotha_end",
-      "speed": 1.25
+      "toOffset": 1.7
+    },
+    {
+      "from": "golgotha_end",
+      "fromOffset": 2.1,
+      "to": "end",
+      "toOffset": -0.5,
+      "speed": 1.1
     }
   ],
   "captions": [
@@ -62,12 +69,10 @@
     },
     {
       "segment": 5,
-      "text": "Golgotha.",
-      "end": 1.3
+      "text": "Golgotha."
     },
     {
-      "segment": 5,
-      "start": 1.4,
+      "segment": 6,
       "text": "How far will you go?"
     }
   ],

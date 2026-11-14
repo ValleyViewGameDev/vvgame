@@ -497,3 +497,18 @@ the player to a named place (`PLACE=Belmont node capture.js shot goto`); takes e
 player parked at Titania's Bower, away from enemies. Two things to know: arriving beside the
 Oracle opens her nine-page dialogue (keep her out of shot lists on a real account), and the
 teleport does not take the homestead's own coordinate (walk home by signpost instead).
+
+Hard lessons from re-recording V4 (2026-11-13):
+
+- **Hostile places cost real health.** One exploring take (Yorick's Hollow, Golgotha) took the
+  player from 1,020 to 489 health, and the player died twice: once worn down over several takes,
+  once because the take ended in Golgotha and the next page load there lasted long enough to be
+  killed. A fallen player must pay 50 gems or lose the backpack (which held Hope). Now: the
+  take refuses to start under 80 % health (`requireHealth`), teleports to Titania's Bower before
+  it ends, and `shots/heal.js` heals there (one Feverfew per 75 health). `shots/revive.js` takes
+  the gem revive and answers the game's "Spend N Gems?" confirm; run it only on the owner's word.
+- **Never choose "Accept Your Death" from a script.**
+- **Golgotha stalls the page** for seconds at the normal zoom (23 enemies fighting), so its
+  zoom-out lands late as a jump; the edit shows it wide only.
+- **The upside-down frames** in the first V4 cut were a game bug (a negative animation progress
+  in `PixiCamera.js`, now clamped), not a capture fault.

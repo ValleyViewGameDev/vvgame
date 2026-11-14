@@ -93,3 +93,20 @@ export async function teleport(page, place) {
   await sleep(500);
   return whereAmI(page);
 }
+
+/** The player's health as the server has it: { hp, maxhp }. */
+export async function health(page) {
+  const id = await page.evaluate(() => JSON.parse(localStorage.getItem('player') || '{}').playerId);
+  const server = process.env.CAPTURE_SERVER || 'http://localhost:3001';
+  const data = await (await fetch(`${server}/api/player/${id}`)).json();
+  const p = data.player || data;
+  return { hp: p.hp, maxhp: p.maxhp };
+}
+
+/** Refuse to start a take that goes among enemies when the player is not nearly at full health
+ *  (a take in hostile places costs health, and a player who falls must pay gems or lose the backpack). */
+export async function requireHealth(page, fraction = 0.8) {
+  const h = await health(page);
+  if (!(h.hp >= h.maxhp * fraction)) throw new Error(`health ${h.hp} / ${h.maxhp}: heal first (node capture.js shot heal)`);
+  return h;
+}

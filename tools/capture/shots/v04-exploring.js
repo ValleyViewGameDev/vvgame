@@ -3,12 +3,12 @@
 // fade-in and region banner, then changes zoom on camera. Looks only: nothing is picked up,
 // fought or talked to, though enemies near the arrival tile may attack the player.
 // Never add 'Oracle' here: arriving beside her opens her nine-page dialogue on a real account.
-import { sleep, zoomToScale, whereAmI, hidePanels, closePanel, park } from './lib.js';
+import { sleep, zoomToScale, whereAmI, hidePanels, closePanel, park, health, requireHealth } from './lib.js';
 
 const CLOSE = 1, FARISH = 25 / 45;
-// start = the zoom on arrival; the other one is zoomed to on camera
+// start = the zoom on arrival; the other one is zoomed to on camera. (The developer teleport
+// does not take the homestead's own coordinate, so the run starts away from home.)
 const STOPS = [
-  { id: 'home', place: 1010101, start: CLOSE },
   { id: 'belmont', place: 'Belmont', start: FARISH },
   { id: 'sunflower', place: 'Sunflower Peninsula', start: CLOSE },
   { id: 'titania', place: 'Titania', start: FARISH },
@@ -47,10 +47,11 @@ export default {
     await sleep(500);
     await park(page);
     await zoomToScale(page, STOPS[0].start);
-    console.log('starting from', JSON.stringify(await whereAmI(page)));
+    console.log('starting from', JSON.stringify(await whereAmI(page)), 'health', JSON.stringify(await requireHealth(page)));
   },
   async run(page, { mark }) {
-    for (const [i, s] of STOPS.entries()) {
+    for (const s of STOPS) {
+      await zoomToScale(page, s.start);                    // off camera, before every stop
       const here = await whereAmI(page);
       const already = typeof s.place === 'number' && here.gridCoord === s.place;
       if (already) mark(`${s.id}_arrive`);
@@ -63,10 +64,15 @@ export default {
       await page.keyboard.press(s.start === CLOSE ? '-' : '=');
       await sleep(2300);
       mark(`${s.id}_end`);
-      console.log(s.id, JSON.stringify(await whereAmI(page)));
-      const next = STOPS[i + 1];
-      if (next) await zoomToScale(page, next.start);       // off camera
+      const z = await page.evaluate(() => window.__pixiCamera.getZoom());
+      console.log(s.id, JSON.stringify(await whereAmI(page)), 'zoom', s.start.toFixed(2), '->', z.toFixed(2));
     }
     mark('end');
+    // Leave at once, in this same session: the last stops are full of enemies, the take costs
+    // about half the player's health, and a later page load there (even to teleport away) is
+    // long enough to be killed. Titania's Bower is quiet and its fairies heal.
+    await go(page, 'Titania', () => {});
+    await sleep(2500);
+    console.log('parked at', JSON.stringify(await whereAmI(page)), 'health after the take:', JSON.stringify(await health(page)));
   },
 };

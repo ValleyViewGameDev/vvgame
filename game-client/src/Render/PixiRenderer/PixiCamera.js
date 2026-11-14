@@ -149,6 +149,13 @@ function cancelPanReturn() {
   panReturnFrame = null;
 }
 
+// Progress of a timed animation, 0..1. A frame's timestamp can be EARLIER than the
+// performance.now() the animation started from (the frame began before the call; worse when the
+// tab stutters), and a negative t through the cubic ease-out is a large negative step: the zoom
+// went below zero and the board drew upside down and huge for as long as the stall lasted
+// (seen in an ad recording, 2026-11-13).
+const clamp01 = (t) => Math.min(1, Math.max(0, t));
+
 /**
  * Ease a look-around pan back to zero over PAN_RETURN_MS (time-based, so a slow frame rate
  * still lands on time). Used when the player starts moving while the view is panned away,
@@ -159,7 +166,7 @@ function startPanReturn() {
   const from = { ...pan };
   const start = performance.now();
   const step = (now) => {
-    const t = Math.min(1, (now - start) / PAN_RETURN_MS);
+    const t = clamp01((now - start) / PAN_RETURN_MS);
     const eased = 1 - Math.pow(1 - t, 3);
     pan = { x: from.x * (1 - eased), y: from.y * (1 - eased) };
     apply();
@@ -175,7 +182,7 @@ export function animatePanTo(target, ms = 320) {
   const from = { ...pan };
   const start = performance.now();
   const step = (now) => {
-    const t = Math.min(1, (now - start) / ms);
+    const t = clamp01((now - start) / ms);
     const eased = 1 - Math.pow(1 - t, 3);
     pan = { x: from.x + (target.x - from.x) * eased, y: from.y + (target.y - from.y) * eased };
     clampPan();
@@ -314,7 +321,7 @@ export function animateZoom(target, onDone) {
   const from = zoom;
   const start = performance.now();
   const step = (now) => {
-    const t = Math.min(1, (now - start) / ZOOM_DURATION_MS);
+    const t = clamp01((now - start) / ZOOM_DURATION_MS);
     const eased = 1 - Math.pow(1 - t, 3); // cubic ease-out
     zoom = from + (targetZoom - from) * eased;
     apply();
