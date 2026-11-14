@@ -16,6 +16,7 @@ import ambientVFXManager from '../VFX/AmbientVFXManager';
 import soundManager from '../Sound/SoundManager';
 import debugTravelShortcuts from './debugTravelShortcuts.json';
 import { loadMasterResources, loadGlobalTuning } from './TuningManager';
+import farmState from '../FarmState';
 import { isWeapon, isArmor, isShield, isMagic, settingsWearingNewMagic } from '../GameFeatures/Combat/combatGear';
 
 const DebugPanel = ({
@@ -181,6 +182,29 @@ const DebugPanel = ({
 
 
 
+
+  // All Crops Ready (owner 2026-11-14): every crop and planted tree on this grid ripens now. The server
+  // turns each farm plot into its output (/api/dev/ripen-all, developers only); here the plots leave
+  // the farm timer and the board swaps them for their crops, as the timer itself would.
+  const handleAllCropsReady = async () => {
+    if (!currentGridId) { updateStatus('No grid.'); return; }
+    try {
+      const { data } = await axios.post(`${API_BASE}/api/dev/ripen-all`, { gridId: currentGridId });
+      const ripened = data?.ripened || [];
+      if (!ripened.length) { updateStatus('No crops or trees growing on this grid.'); return; }
+      const master = await loadMasterResources();
+      for (const c of ripened) farmState.takeSeedAt(c.x, c.y);
+      const at = new Set(ripened.map((c) => `${c.x},${c.y}`));
+      setResources((prev) => [
+        ...prev.filter((r) => !at.has(`${r.x},${r.y}`)),
+        ...ripened.map((c) => ({ ...(master.find((m) => m.type === c.type) || {}), type: c.type, x: c.x, y: c.y })),
+      ]);
+      updateStatus(`All crops ready: ${ripened.length} ripened.`);
+    } catch (err) {
+      console.error('All Crops Ready failed:', err);
+      updateStatus('All Crops Ready failed (developer session needed).');
+    }
+  };
 
   const handlePlantNewTrees = async () => {
     if (!currentGridId) {
@@ -1294,6 +1318,9 @@ const handleGetRich = async () => {
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-success" onClick={handlePlantNewTrees}> Plant New Trees </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={handleAllCropsReady}> All Crops Ready </button>
       </div>
 
     <br />
