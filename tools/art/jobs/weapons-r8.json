@@ -1,0 +1,25 @@
+{
+  "name": "weapons-r8",
+  "note": "The Legendary Sword's own drawing (owner 2026-11-14: a unique design, 'not quite as awesome as dragonslayer, but the 2nd most awesome'). A one-handed sword (category sword). Royal blue, gold and bright steel, so it reads apart from the Dragonslayer's green and gold. One candidate. Cut with tools/art/weaponfit.js to the Long Sword's length (canvas 192x512, grip 96,448: the sword's grip, padded wider for the guard).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1536"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "legendary-sword": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r3/exploration/openai/painterly-great-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached SWORD on magenta is one of this game's approved swords: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background). SUBJECT: ONE LEGENDARY ONE-HANDED KNIGHTLY SWORD called the LEGENDARY SWORD, a king's heirloom blade of old legend, splendid and noble, a little heroic but more restrained than a dragon sword, in ROYAL BLUE, GOLD and BRIGHT STEEL. POINT UP, pommel down, symmetrical about its centre line. From the bottom: a round golden POMMEL shaped like a small sunburst with short rays, a deep royal-blue sapphire set in its middle; a GRIP long enough for ONE fist with a little room, wrapped in royal-blue leather crossed with a spiral of gold wire, of even thickness; a golden CROSSGUARD, straight across and about four times as wide as the blade, its two arms ending in small curled scrolls that turn up toward the blade, with a round royal-blue sapphire at its centre and a short golden point running a little way up onto the blade; then a long, straight, double-edged BLADE of bright clean silver steel, slim and elegant, with a narrow ROYAL-BLUE fuller down its middle that carries a few small golden stars spaced along it, the edges bright steel, ending in a clean sharp point. The blade is about four times as long as the grip. Colours: rich gold with warm highlights, deep royal blue (a true blue, never violet), bright clean steel. Bold and readable: it is seen about 40 pixels tall on the board, so big plain shapes, a few strong details, no fine engraving, no tiny runes, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. It stands perfectly UPRIGHT in the middle of the picture, exactly vertical, seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    }
+  }
+}

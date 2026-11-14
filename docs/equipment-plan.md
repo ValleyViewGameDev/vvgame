@@ -209,6 +209,12 @@ takes over; nothing is to be done about it.
   `tools/art/jobs/weapons-r7.json`, one candidate, cut by weaponfit at the great sword's length and grip on a 256 px canvas):
   a gold dragon-wing crossguard with an emerald, a gold dragon-head pommel, an emerald grip wound with gold wire, and
   an emerald fuller with gold scales up a steel blade.
+- **Legendary Sword, its own design** (owner: the second most awesome after the Dragonslayer; royal blue, gold and
+  steel so it reads apart from the Dragonslayer's green; `tools/art/jobs/weapons-r8.json`, one candidate, cut by weaponfit
+  at the Long Sword's length and grip on a 192 px canvas): a gold crossguard with scrolled ends and a sapphire, a gold
+  sunburst pommel with a sapphire, a royal-blue grip wound with gold wire, a slim steel blade with a royal-blue fuller
+  set with small gold stars. One-handed, so smaller and plainer than the Dragonslayer by design. Preview
+  `docs/art/equipment/legendary-sword.png` (Long Sword, Legendary Sword, Dragonslayer).
 - **Prop effects** (`heldFx` on the row, `Render/PixiRenderer/weaponFX.js`): an effect is built as a child of the
   weapon's sprite, so it moves, turns, hides and goes with the prop through every guard and attack; the arm rig ticks it
   each frame. Two kinds so far:
