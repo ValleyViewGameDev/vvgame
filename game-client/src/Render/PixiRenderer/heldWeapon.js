@@ -13,6 +13,12 @@
  * same shape as `heldArt`. A weapon with no category shows nothing in the hand. The bows (`bow`,
  * `longbow`) are the exception to all of this: they have no picture, the rig draws the bow itself (ArmRig.setBow).
  *
+ * Every weapon has its own file (`heldArt`, under hand/weapons/, owner 2026-11-14), so each can be
+ * redrawn on its own; the category's `art` is the fallback for a row without one. A weapon's file may
+ * be wider than its category's canvas (padded equally both sides) or taller (padded at the top): the
+ * grip keeps its place from the bottom and the centre line (ArmRig.setHeld). A row's `heldFx`
+ * puts an effect on the prop that travels with it (weaponFX.js: `glow`, the Glowing Sword).
+ *
  * Every drawing is upright, point or head up, at ONE scale (PX_PER_TILE canvas px to a board tile),
  * on its category's canvas (`size`) with the middle of where the hand holds it at `grip`. Files live
  * in public/assets/avatar/hand/; tools/art/weaponfit.js cuts a generated drawing to a canvas.
@@ -21,6 +27,7 @@
  * decides the shield; a two-handed weapon whose category has no `second` is swung by the one arm.
  */
 import { rigFor } from './ArmRig';
+import { weaponFx } from './weaponFX';
 
 export const PX_PER_TILE = 512 / 1.2; // the long sword's 512 px canvas is 1.2 tiles tall; every drawing keeps that scale
 export const HELD_ARM = 'L';
@@ -90,8 +97,8 @@ const heldCache = new Map();
 export function heldFor(row) {
   const cls = row ? WEAPON_CLASSES[row.weaponClass] : null;
   if (!cls) return null;
-  const art = row.heldArt || cls.art, key = `${row.weaponClass}|${art}`;
-  if (!heldCache.has(key)) heldCache.set(key, { ...cls, key, art });
+  const art = row.heldArt || cls.art, fxSpec = row.heldFx || '', key = `${row.weaponClass}|${art}|${fxSpec}`;
+  if (!heldCache.has(key)) heldCache.set(key, { ...cls, key, art, fx: weaponFx(fxSpec) });
   return heldCache.get(key);
 }
 
@@ -117,6 +124,7 @@ export function armFigure(armRig, held, weaponTex, cutW, spanTiles) {
     tex: weaponTex, grip: held.grip, size: held.size,
     scale: (cutW / spanTiles) / PX_PER_TILE, // canvas px to the figure texture's px
     angle: held.angle,
+    fx: held.fx, // an effect on the prop (weaponFX.js), built on the weapon's sprite so it moves with it
     pxPerTile: cutW / spanTiles, // the figure texture's px to a board tile: a clip's `slide` and `second` are in tiles
     // a two-handed weapon on a figure whose rig has the other arm: that hand holds it too, `second` tiles toward the point
     second: held.second && armRig.arms.R && armRig.arms.R.part.fist ? { side: 'R', dist: held.second, pxPerTile: cutW / spanTiles } : null,

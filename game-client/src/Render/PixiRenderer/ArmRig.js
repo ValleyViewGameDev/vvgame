@@ -772,7 +772,7 @@ export class ArmRig {
   setHeld(side, held) {
     const a = this.arms[side];
     if (!a) return;
-    if (a.held) { for (const o of [a.held.weapon, a.held.fist]) if (o) { a.mesh.removeChild(o); o.destroy(); } a.held = null; a.mesh.texture = a.part.tex; }
+    if (a.held) { a.held.fx?.destroy(); for (const o of [a.held.weapon, a.held.fist]) if (o) { a.mesh.removeChild(o); o.destroy(); } a.held = null; a.mesh.texture = a.part.tex; }
     if (this.second) {
       const b = this.arms[this.second.side];
       if (this.second.fist) { this.second.fist.parent?.removeChild(this.second.fist); this.second.fist.destroy(); }
@@ -781,14 +781,27 @@ export class ArmRig {
     }
     if (!held || !held.tex) return;
     const weapon = new Sprite(held.tex);
-    const [tw0, th0] = held.size || [held.tex.width, held.tex.height]; // its canvas: a texture still loading has no size yet
-    weapon.anchor.set(held.grip[0] / tw0, held.grip[1] / th0);
+    // The grip on the drawing. `size` / `grip` are the CATEGORY's canvas; a weapon's own file may be
+    // wider (padded equally both sides) or taller (padded at the top), and its grip keeps its place
+    // from the bottom and the centre line (owner 2026-11-14: the Giant Axe's bigger head). Measured
+    // again once the file has loaded, since a texture still loading has no size yet.
+    const tex = held.tex;
+    const setGrip = () => {
+      if (weapon.destroyed) return;
+      const [cw, ch] = held.size || [tex.width, tex.height];
+      const W = tex.valid ? tex.width : cw, H = tex.valid ? tex.height : ch;
+      weapon.anchor.set((held.grip[0] + (W - cw) / 2) / W, (held.grip[1] + (H - ch)) / H);
+    };
+    setGrip();
+    if (!tex.valid) tex.baseTexture.once('loaded', setGrip);
     weapon.scale.set(held.scale);
     a.mesh.addChild(weapon);
     let fist = null;
     if (a.part.fist) { fist = new Sprite(a.part.fist); fist.anchor.set(0.5); a.mesh.addChild(fist); }
     if (a.part.texNoHand) a.mesh.texture = a.part.texNoHand;
-    a.held = { weapon, fist, angle: held.angle ?? Math.PI / 2, pxPerTile: held.pxPerTile || 0 };
+    // an effect on the prop (weaponFX.js): a child of the weapon's sprite, so it travels with every pose
+    const fx = held.fx ? held.fx.attach(weapon) : null;
+    a.held = { weapon, fist, fx, angle: held.angle ?? Math.PI / 2, pxPerTile: held.pxPerTile || 0 };
     a.pose = null; // placed on the next sync
     // the arm that holds the weapon is drawn LAST, over every other limb: the weapon lies across the body in
     // front of the far arm, whether or not that arm holds it too. (Left to the order the rig lists its arms,
@@ -825,6 +838,7 @@ export class ArmRig {
     const { weapon, fist, angle } = a.held;
     const rot = fore + angle + twist; // the way the weapon points (`twist`: turned in the hand, a weapon-keyed clip); `slide` moves it that way, the fist stays on the hand
     weapon.position.set(x - ax + Math.sin(rot) * slide, y - ay - Math.cos(rot) * slide); weapon.rotation = rot; weapon.visible = show;
+    if (show && a.held.fx) a.held.fx.update(performance.now());
     if (fist) { fist.position.set(x - ax, y - ay); fist.rotation = fore; fist.visible = show; }
     const tex = show && a.part.texNoHand ? a.part.texNoHand : a.part.tex;
     if (a.mesh.texture !== tex) a.mesh.texture = tex;

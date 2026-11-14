@@ -193,6 +193,23 @@ Other players' figures show no weapon and need none: they are never seen in a fi
 last one has recovered (the shortest cooldown is shorter than every swing). The new swing simply
 takes over; nothing is to be done about it.
 
+### Per-weapon art and prop effects (2026-11-14)
+
+- **Every weapon has its own file** (owner: redrawn one by one): `game-client/public/assets/avatar/hand/weapons/<weapon>.png`,
+  named on the row as `heldArt` (36 rows; the seven bows have none, the rig draws them). They began as copies of their
+  category's drawing; the category file is the fallback for a row without one.
+- **A file may be wider or taller than its category's canvas**: padded equally both sides, or at the top. The grip keeps
+  its place from the bottom and the centre line (`ArmRig.setHeld`), so a bigger head or a longer blade needs no new numbers.
+- **Sizes set by the owner:** Short Sword's blade 15 % shorter and Long Sword's 15 % longer than the old shared sword
+  (Glowing Sword and Sword of Song take the Long Sword's drawing); Great Sword 20 % thicker; Giant Axe's head twice the
+  area (x1.41 each way, top where it was, so the axe is no longer). Previews: `docs/art/equipment/sword-lengths.png`,
+  `giant-axe.png`.
+- **Prop effects** (`heldFx` on the row, `Render/PixiRenderer/weaponFX.js`): an effect is built as a child of the
+  weapon's sprite, so it moves, turns, hides and goes with the prop through every guard and attack; the arm rig ticks it
+  each frame. One kind so far, `glow` (or `glow:#rrggbb`): a breathing halo on the BLADE only (everything above the
+  crossguard, found as the widest row of the drawing's lower part), with a crisp copy of the weapon drawn over it. On the
+  Glowing Sword (`docs/art/equipment/glowing-sword.png`). A new kind is one entry in `KINDS`. `rigshot --fx glow` shows one.
+
 ## 1. What exists today
 
 - **The data is ready.** `settings.equippedWeapon` / `equippedShield` / `equippedArmor` are real
