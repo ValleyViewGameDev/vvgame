@@ -13,6 +13,7 @@
  *        [--pose 0.1,1.4,0 --lead R]       the lead arm HELD at shoulder, elbow, wrist angles (radians): try a stance before any clip exists
  *        [--held <weapon png> --span 1.8]  an avatar: the weapon in its hand and the guard raised (heldWeapon.js); --times 0 shows the guard
  *        [--fx glow]                       with --held: an effect on the weapon (heldWeapon `heldFx`, weaponFX.js), e.g. glow, glow:#ffd27a, orb or fire
+ *        [--bow titania]                   with --class bow/longbow: the row's own bow drawing (`bowStyle`, ArmRig BOW_STYLES)
  *        [--class sword]                   the weapon's category (heldWeapon.WEAPON_CLASSES): its guard and its clip; `--class bow` / `longbow` need no --held (the rig draws the bow)
  *        [--turn]                          the figure turns round at 0 ms: one frame per time, each drawn ONCE as the board draws it (16 ms steps show a part that lags the body); mid-breath, as a figure on the board always is
  *        [--gap 3]                         with --turn: this many ms pass between placing the figure's parts and drawing it, as on a busy board (everything under the figure is drawn in between)
@@ -53,7 +54,7 @@ if (args.held) fs.copyFileSync(path.resolve(args.held), path.join(dir, 'held.png
 const params = {
   rig: args.rig, view: args.view || (args.clip || args.pose || args.walk || args.times ? 'clip' : 'cut'), clip: args.pose ? '__pose' : args.clip || null, pose: args.pose ? String(args.pose).split(',').map(Number) : null,
   times: String(args.times || '0').split(',').map(Number), lead: args.lead || 'R', lean: Number(args.lean || 0),
-  mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0), held: !!args.held || /bow$/.test(args.class || ''), heldArt: !!args.held, span: Number(args.span || 1.8), cls: args.class || 'sword', fx: typeof args.fx === 'string' ? args.fx : '', away: !!args.away, turn: !!args.turn, gap: Number(args.gap || 0),
+  mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0), held: !!args.held || /bow$/.test(args.class || ''), heldArt: !!args.held, span: Number(args.span || 1.8), cls: args.class || 'sword', fx: typeof args.fx === 'string' ? args.fx : '', bowStyle: typeof args.bow === 'string' ? args.bow : '', away: !!args.away, turn: !!args.turn, gap: Number(args.gap || 0),
 };
 fs.writeFileSync(path.join(dir, 'index.html'), `<!doctype html><meta charset="utf-8"><body style="margin:0"><script type="module" src="./harness.js"></script>`);
 fs.writeFileSync(path.join(dir, 'harness.js'), `
@@ -100,7 +101,7 @@ if (P.view === 'cut') {
   if (P.mirror) sprite.scale.x = -Math.abs(sprite.scale.x);
   app.stage.addChild(sprite);
   syncArmRig(sprite, rig, cut, { attackClip: P.clip });
-  if (P.held) { const held = heldFor({ weaponClass: P.cls, heldFx: P.fx }); if (!held) throw new Error('no weapon class named ' + P.cls); armFigure(sprite.armRig, held, P.heldArt ? await PIXI.Assets.load('./held.png') : null, cut.w, P.span); if (P.clip) sprite.armRig.attackClip = P.clip; } // a weapon in the hand, the guard raised (heldWeapon.js)
+  if (P.held) { const held = heldFor({ weaponClass: P.cls, heldFx: P.fx, bowStyle: P.bowStyle }); if (!held) throw new Error('no weapon class named ' + P.cls); armFigure(sprite.armRig, held, P.heldArt ? await PIXI.Assets.load('./held.png') : null, cut.w, P.span); if (P.clip) sprite.armRig.attackClip = P.clip; } // a weapon in the hand, the guard raised (heldWeapon.js)
   app.renderer.render(app.stage); fake += 2000; app.renderer.render(app.stage); app.renderer.render(app.stage); // the stance eased in
   if (P.walk) { sprite.walking = true; sprite.walkSideways = true; sprite.walkCycleMs = 900; }
   const t0 = fake;

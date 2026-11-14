@@ -97,8 +97,11 @@ const heldCache = new Map();
 export function heldFor(row) {
   const cls = row ? WEAPON_CLASSES[row.weaponClass] : null;
   if (!cls) return null;
-  const art = row.heldArt || cls.art, fxSpec = row.heldFx || '', key = `${row.weaponClass}|${art}|${fxSpec}`;
-  if (!heldCache.has(key)) heldCache.set(key, { ...cls, key, art, fx: weaponFx(fxSpec) });
+  const art = row.heldArt || cls.art, fxSpec = row.heldFx || '';
+  // a bow row may name its own drawing (`bowStyle`, a key of ArmRig BOW_STYLES: Titania's Bow), else its category's
+  const bow = cls.bow ? (row.bowStyle || cls.bow) : undefined;
+  const key = `${row.weaponClass}|${art}|${fxSpec}|${bow || ''}`;
+  if (!heldCache.has(key)) heldCache.set(key, { ...cls, key, art, bow, fx: weaponFx(fxSpec) });
   return heldCache.get(key);
 }
 

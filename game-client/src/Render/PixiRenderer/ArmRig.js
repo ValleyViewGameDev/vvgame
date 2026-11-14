@@ -417,6 +417,12 @@ const BOW_STYLES = {
   // nocks, with a bound leather handle. The same shot as the short bow: only the drawing differs.
   long: { half: 0.74, bend: 0.07, back: 0.3, belly: 0.03, grip: 0.085, wood: [[0.06, 0x33200f], [0.04, 0xc79a52], [0.013, 0xeed7a0]], gripWood: [[0.07, 0x33200f], [0.047, 0x6e2b20]],
     taper: 0.45, horn: { from: 0.93, strokes: [[0.036, 0x33200f], [0.02, 0xefe6cf]] }, wrap: { at: [-0.72, 0, 0.72], colour: 0xd9a95c, width: 0.012 } },
+  // Titania's Bow (owner 2026-11-14: "thicker wood", "green with gold patterns"): the longbow's shape on a heavier stave of
+  // green wood, a thin gold inlay running up each limb, gold bands across it, gold nocks and a gold-bound green handle.
+  // `bands`: { at (fractions along the limb from the grip), colour, width } strokes across the limb
+  titania: { half: 0.74, bend: 0.07, back: 0.3, belly: 0.035, grip: 0.09, wood: [[0.09, 0x10301a], [0.066, 0x2f8a3e], [0.03, 0x59b85a], [0.011, 0xf2c94c]], gripWood: [[0.1, 0x10301a], [0.072, 0x1f5c2c]],
+    taper: 0.5, horn: { from: 0.9, strokes: [[0.05, 0x5a3d08], [0.032, 0xf2c94c]] }, wrap: { at: [-0.72, 0, 0.72], colour: 0xf2c94c, width: 0.016 },
+    bands: { at: [0.3, 0.55, 0.75], colour: 0xf2c94c, outline: 0x5a3d08, width: 0.016 } },
 };
 // a point on the curve p0 -> (control c) -> p1 at k, and the limb as a filled shape whose width runs from w0 down to w1
 const quadAt = (p0, c, p1, k) => { const m = 1 - k; return [m * m * p0[0] + 2 * m * k * c[0] + k * k * p1[0], m * m * p0[1] + 2 * m * k * c[1] + k * k * p1[1]]; };
@@ -713,6 +719,12 @@ export class ArmRig {
           fx.drawPolygon(taperedLimb(L(root(s)), L(belly(s)), L(tip(s)), w * T, w * T * Y.taper)); fx.drawCircle(...L(tip(s)), w * T * Y.taper / 2); fx.endFill();
         } else { fx.lineStyle({ width: w * T, color, cap: 'round', join: 'round' }); fx.moveTo(...L(root(s))); fx.quadraticCurveTo(...L(belly(s)), ...L(tip(s))); }
       }
+    }
+    if (Y.bands) for (const s of [1, -1]) for (const k of Y.bands.at) { // gold bands across the limb, its width there
+      const q = quadAt(root(s), belly(s), tip(s), k), q2 = quadAt(root(s), belly(s), tip(s), Math.min(1, k + 0.01));
+      let dx = q2[0] - q[0], dy = q2[1] - q[1]; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+      const hw = (Y.wood[0][0] * T * (1 - (1 - (Y.taper || 1)) * k)) / 2 * 0.92, a = [q[0] - dy * hw, q[1] + dx * hw], b = [q[0] + dy * hw, q[1] - dx * hw];
+      line(Y.bands.width * T + 2, Y.bands.outline, [a, b]); line(Y.bands.width * T, Y.bands.colour, [a, b]);
     }
     if (Y.horn) for (const [w, color] of Y.horn.strokes) for (const s of [1, -1]) line(w * T, color, [quadAt(root(s), belly(s), tip(s), Y.horn.from), tip(s)]); // the nocks
     const g = Y.grip * T, [gOut, gIn] = Y.gripWood; // the handle

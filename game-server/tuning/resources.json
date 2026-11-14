@@ -13560,7 +13560,8 @@
     "hands": 2,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
-    "weaponClass": "longbow"
+    "weaponClass": "longbow",
+    "bowStyle": "titania"
   },
   {
     "type": "Legendary Sword",

@@ -223,6 +223,12 @@ takes over; nothing is to be done about it.
   falchion of the 13th-14th century (`weapons-r10`, the Conyers / Thorpe kind: straight back, broad edge swelling toward
   the point, plain iron cross, disc pommel, a little shorter). Preview `docs/art/equipment/saber-falchion.png`
   (Long Sword, Messina Saber, Falchion at guard and held).
+- **Titania's Bow, its own bow drawing** (owner 2026-11-14: thicker wood, green with gold patterns): a row may now name
+  its own bow look with `bowStyle` (a key of `ArmRig` `BOW_STYLES`; blank = its category's `short` / `long`). The
+  `titania` style is the longbow's shape on a heavier green stave (wood strokes about 1.5x the longbow's), a thin gold
+  inlay up each limb, gold `bands` across the limbs (a new style option), gold nocks and a gold-bound green handle. The
+  same shot as every bow. Preview `docs/art/equipment/titania-bow.png` (longbow; Titania's at rest and drawn);
+  `rigshot --class longbow --bow titania`.
 - **Prop effects** (`heldFx` on the row, `Render/PixiRenderer/weaponFX.js`): an effect is built as a child of the
   weapon's sprite, so it moves, turns, hides and goes with the prop through every guard and attack; the arm rig ticks it
   each frame. Two kinds so far:
