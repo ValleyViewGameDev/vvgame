@@ -13581,7 +13581,8 @@
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
     "weaponClass": "sword",
-    "heldArt": "weapons/legendary-sword.png"
+    "heldArt": "weapons/legendary-sword.png",
+    "heldFx": "glow:#ffd27a"
   },
   {
     "type": "Dragonslayer",
