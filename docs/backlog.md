@@ -130,7 +130,7 @@ Added 2026-11-10. Not a launch blocker (owner: "a big task ... come back to that
 **Plan written 2026-11-13: `docs/equipment-plan.md`** (hand-held weapons first). **A first prototype is
 in the game the same day** (a `weaponClass` column on the weapon rows; six categories with a drawing each, sword / dagger / spear /
 polearm / axe / hammer, and three attacks, slash / thrust / chop, each an arm clip with the body's move;
-follows the Combat panel's weapon slot; out only while an enemy is on the grid; an arm rig for every outfit; great swords, polearms, axes and hammers held and swung in both hands: every melee weapon now has its category and its attack): the plan's "The prototype" section says what is
+follows the Combat panel's weapon slot; out only while an enemy is on the grid; an arm rig for every outfit; great swords, polearms, axes and hammers held and swung in both hands: every melee weapon now has its category and its attack; the bows shoot: the Short Bow and a longbow drawing for the six other bows, crossbows and Darts still to do): the plan's "The prototype" section says what is
 and is not built. Checked on offline renders only; the owner's look in a live fight decides what next.
 
 **What.** The equipped weapon drawn in the avatar's hand, held up in an en garde stance and swung

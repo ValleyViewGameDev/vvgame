@@ -276,7 +276,7 @@ export const ARM_CLIPS = {
       { t: 800, d: 0.28 },
     ],
   },
-  // the avatar's BOW SHOT (owner 2026-11-14; ArmRig.setBow / bowPose). Not arm keys: the `bow` block.
+  // the avatar's BOW SHOT (owner 2026-11-13; ArmRig.setBow / bowPose). Not arm keys: the `bow` block.
   //   hand: where the bow hand is, from the far shoulder in lengths of that arm. It does not move.
   //   draw: the draw hand's reach from the near shoulder, in lengths of that arm, [ms, reach] ...
   //   pull: ... nudged `toPull` of the way toward this, one length of string for every body ([ms, tiles
@@ -296,7 +296,7 @@ export const ARM_CLIPS = {
     ],
     bow: {
       hand: [0.62, 0.3],
-      // loosed at 260, the draw arm SNAPS back to the ready in 70 ms (owner 2026-11-14: "very fast"), a new
+      // loosed at 260, the draw arm SNAPS back to the ready in 70 ms (owner 2026-11-13: "very fast"), a new
       // arrow already in the hand and the string taken up as it arrives
       draw: [[0, 0.8], [200, 0.31], [260, 0.31], [330, 0.8], [400, 0.8]],
       pull: [[0, 0.41], [200, 0.68], [260, 0.68], [330, 0.41], [400, 0.41]],

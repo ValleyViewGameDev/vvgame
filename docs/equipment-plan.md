@@ -84,8 +84,8 @@ The owner asked to see the sword in the game before any more planning. What is i
   as `heldArt` (none does yet). `hands` only decides the shield; which weapons are HELD in two hands is the category's
   `second` (below). The two rapiers thrust (category `rapier`, since 2026-11-13).
   **Fen Hook** keeps its code name in data and saves and is shown as Fen Cutlass through
-  `stringLookup.DISPLAY_ALIASES`, so no save needed migrating. Bows, crossbows and Darts have no
-  category and show nothing in the hand. The attacks at half speed: docs/art/equipment/categories.gif.
+  `stringLookup.DISPLAY_ALIASES`, so no save needed migrating. Crossbows and Darts have no
+  category and show nothing in the hand (the bows: below). The attacks at half speed: docs/art/equipment/categories.gif.
 - **Two hands (2026-11-13):** a category with `second` is held in BOTH hands: the great sword, the
   polearm, the axe and the hammer. How they are keyed is under "How the two-handed slash and chop are
   keyed" above; in short the far arm is SET by the clip and does very little, and the near arm is
@@ -97,7 +97,9 @@ The owner asked to see the sword in the game before any more planning. What is i
   in one hand, by the clip's `lead` keys.
   GIFs: two-handed-thrust.gif, two-handed-slash.gif, two-handed-chop.gif, rapier-thrust.gif
   (docs/art/equipment/).
-- **The bow (2026-11-14; the Short Bow only so far):** category `bow`, clip `shoot`. A bow is not a
+- **The bow (2026-11-13):** categories `bow` (the Short Bow) and `longbow` (every other bow that is
+  not a crossbow: Long Bow, Recurve Bow, Highland Longbow, Agincourt Longbow, Herne's Bow, Titania's
+  Bow), one clip, `shoot`. A bow is not a
   picture in a hand: `ArmRig.setBow` / `bowPose` DRAW it each frame (limbs, string, arrow), so the
   limbs bend and the string follows the draw hand. Staging, settled with the owner on a prototype in
   chat: the bow is held out in the FAR hand, upright, and neither it nor that arm moves at all; the
@@ -109,9 +111,15 @@ The owner asked to see the sword in the game before any more planning. What is i
   whole shot is 400 ms. The draw is keyed from the near shoulder and nudged a quarter of the way
   toward one length of string for every body, so the short-armed female draws a few px further without
   her arm folding differently. Both fists sit just past the wrist, lapping the sleeve (at the rig's
-  grip, the middle of the drawn hand, a fist left a gap). The bow and arrow are code-drawn placeholders
-  in the game's colours; a painted bow would not bend. The other eleven ranged weapons have no category
-  yet. docs/art/equipment/bow-shot.gif (half speed).
+  grip, the middle of the drawn hand, a fist left a gap). The bow and arrow are code-drawn
+  in the game's colours; a painted bow would not bend. docs/art/equipment/bow-shot.gif (half speed).
+  **The longbow (owner 2026-11-13: "custom prop art, but no change to animation"):** a bow category's
+  `bow` names its DRAWING, an entry of `BOW_STYLES` in ArmRig.js (length, how far it bends, the limb's
+  curve, the strokes' colours); the shot, the arms and the arrow are shared, so a new bow is a new
+  entry and nothing else. `long` is as tall as the archer (1.48 tiles; the short bow is 0.9): a slim
+  stave of pale yew in a shallow D that tapers to pale horn nocks, with a bound red leather handle.
+  The short bow's drawing did not change by a pixel (checked: renders before and after are identical).
+  Crossbows (four) and Darts still have no category. docs/art/equipment/longbow-shot.gif (half speed).
 - **Poses are absolute (2026-11-13):** the avatar's guards and clips say where the upper arm and
   the forearm POINT (clockwise from straight down), not how far to turn them from the outfit's own
   drawing (`ArmRig.poseOf`, an arm that `holds`). Outfits draw the hanging arm a little differently,
@@ -158,7 +166,8 @@ with the damage number, and how the other outfits' sleeves cut.
 following the Combat panel's slot, the per-outfit rigs, the turning fixes (both), and a tap on an
 out-of-reach enemy walking up and attacking. Approved from the offline GIFs, not yet seen in a fight:
 the two-handed thrust, slash and chop in their final form, and the rapier's thrust and drawing.
-The Short Bow's shot was approved on the chat prototype and is in the game for the owner to judge.
+The Short Bow's shot is approved ("call it done", owner 2026-11-13). The longbow drawing is in the
+game for the owner to judge.
 Other players' figures show no weapon and need none: they are never seen in a fight (owner).
 
 **Decided, not a defect (owner 2026-11-13):** a fast attacker's next attack may start before the

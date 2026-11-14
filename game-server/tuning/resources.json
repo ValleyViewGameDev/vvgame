@@ -12993,7 +12993,8 @@
     "ingredient1qty": 9000,
     "ingredient4": "Book",
     "ingredient4qty": 6,
-    "gemcost": 605
+    "gemcost": 605,
+    "weaponClass": "longbow"
   },
   {
     "type": "Tempest",
@@ -13541,7 +13542,8 @@
     "ranged": true,
     "hands": 2,
     "ingredient1": "Only Found in Scrolls",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "weaponClass": "longbow"
   },
   {
     "type": "Legendary Sword",
@@ -13722,7 +13724,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 15000,
     "ingredient4": "Book",
-    "ingredient4qty": 30
+    "ingredient4qty": 30,
+    "weaponClass": "longbow"
   },
   {
     "type": "Endurance",
@@ -14030,7 +14033,8 @@
     "ingredient3": "Wool",
     "ingredient3qty": 30,
     "ingredient4": "Book",
-    "ingredient4qty": 10
+    "ingredient4qty": 10,
+    "weaponClass": "longbow"
   },
   {
     "type": "Thistle Brooch",
@@ -14482,7 +14486,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 25000,
     "ingredient4": "Book",
-    "ingredient4qty": 50
+    "ingredient4qty": 50,
+    "weaponClass": "longbow"
   },
   {
     "type": "Falstaff's Flagon",
@@ -14648,7 +14653,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 45000,
     "ingredient4": "Book",
-    "ingredient4qty": 110
+    "ingredient4qty": 110,
+    "weaponClass": "longbow"
   },
   {
     "type": "Crispin's Banner",
