@@ -588,7 +588,9 @@ export class ArmRig {
   secondPose(clip, t, now) {
     const H = this.second, a = H && this.arms[H.holder], b = H && this.arms[H.side];
     if (!a || !b || !a.held) return null;
-    const keyed = clip ? (clip.weapon ? keyAt(clip.weapon, t, ['f', 'u', 'a']) : null) : (this.stance && this.stance.weapon) || null;
+    // a clip that keys no weapon and no arm (the crossbow's shot: only the body moves) holds the guard
+    const guard = (this.stance && this.stance.weapon) || null;
+    const keyed = clip ? (clip.weapon ? keyAt(clip.weapon, t, ['f', 'u', 'a']) : clip.lead ? null : guard) : guard;
     return keyed ? this.weaponPose(H, a, b, keyed, clip, t, now) : null;
   }
 

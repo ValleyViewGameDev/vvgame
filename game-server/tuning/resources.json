@@ -13287,7 +13287,8 @@
     "ingredient1qty": 20000,
     "ingredient4": "Book",
     "ingredient4qty": 70,
-    "gemcost": 1415
+    "gemcost": 1415,
+    "weaponClass": "crossbow"
   },
   {
     "type": "Magic Helmet",
@@ -13447,7 +13448,8 @@
     "ranged": true,
     "hands": 2,
     "ingredient1": "Only Found in Scrolls",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "weaponClass": "crossbow"
   },
   {
     "type": "Magic Halberd",
@@ -13602,7 +13604,8 @@
     "ranged": true,
     "hands": 2,
     "ingredient1": "Only Found in Scrolls",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "weaponClass": "crossbow"
   },
   {
     "type": "Warding Charm",
@@ -13819,7 +13822,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 80000,
     "ingredient4": "Book",
-    "ingredient4qty": 160
+    "ingredient4qty": 160,
+    "weaponClass": "crossbow"
   },
   {
     "type": "Fury",

@@ -17,7 +17,7 @@
  * on its category's canvas (`size`) with the middle of where the hand holds it at `grip`. Files live
  * in public/assets/avatar/hand/; tools/art/weaponfit.js cuts a generated drawing to a canvas.
  *
- * Two hands: a category with `second` is held in both (the great sword, the polearm, the axe, the hammer). The row's `hands` only
+ * Two hands: a category with `second` is held in both (the great sword, the polearm, the axe, the hammer, the crossbow). The row's `hands` only
  * decides the shield; a two-handed weapon whose category has no `second` is swung by the one arm.
  */
 import { rigFor } from './ArmRig';
@@ -53,6 +53,9 @@ const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47, weapon: { f: -1.44, u: 0
  * sword's `slash2`; the `thrust` (rapier, dagger, spear) and the polearm's `thrust2`; the `chop2` of the axe and
  * the hammer, which share it (there is no one-handed chop).
  */
+// the crossbow: LEVEL in both hands at the chest, the near hand on the grip, the far hand under the fore-end. It never
+// leaves this hold: its shot is the body's recoil alone (armClips.js `bolt`)
+const CROSSBOW_GUARD = { side: HELD_ARM, s: 0.43, e: -2.05, weapon: { f: 1.75, u: 0.25, a: Math.PI / 2 } };
 export const WEAPON_CLASSES = {
   sword:   { art: 'weapon-long-sword.png', size: [128, 512], grip: [64, 448], angle: ACROSS, guard: CUT_GUARD, clip: 'slash' },
   // the far hand sits just above the near one on the long grip and stays there: no `give`, it must not slide onto the blade
@@ -63,6 +66,8 @@ export const WEAPON_CLASSES = {
   // `bow` names the drawing (ArmRig BOW_STYLES); every bow shares the one shot (owner 2026-11-13)
   bow:     { bow: 'short', clip: 'shoot' },
   longbow: { bow: 'long', clip: 'shoot' },
+  // drawn from above and narrowed (weaponfit --widen 0.9), so that turned level it is a crossbow in the board's view
+  crossbow: { art: 'weapon-crossbow.png', size: [256, 480], grip: [128, 344], angle: ALONG, guard: CROSSBOW_GUARD, clip: 'bolt', second: 0.34 },
   dagger:  { art: 'weapon-dagger.png', size: [128, 512], grip: [64, 448], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   spear:   { art: 'weapon-spear.png', size: [128, 768], grip: [64, 470], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   polearm: { art: 'weapon-halberd.png', size: [256, 896], grip: [128, 580], angle: ALONG, guard: POLE_GUARD, clip: 'thrust2', second: 0.5 },

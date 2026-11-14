@@ -13,7 +13,10 @@
  *        --grip 64,448         where the hand holds it, canvas px (the category's `grip`)
  *        --length 440          the weapon's whole length on the canvas, px (426.67 px = one tile)
  *        --hold 0.14           where along the weapon the hand holds it: 0 its butt, 1 its point
- *        [--widen 1.5]         draw it this much wider than it is long-scaled (a rapier's blade is a hair at board size)
+ *        [--widen 1.5]         draw it this much wider than it is long-scaled (a rapier's blade is a hair at board size;
+ *                              below 1 narrows it: the crossbow is drawn from above and narrowed to the board's view)
+ *        [--pockets]           the drawing ENCLOSES background (between a crossbow's string and its stock): key every
+ *                              magenta pixel, not only the magenta that touches the border. Only for art with no pink or purple
  */
 const fs = require('fs');
 const path = require('path');
@@ -28,7 +31,7 @@ const LENGTH = Number(args.length), HOLD = Number(args.hold), WIDEN = Number(arg
 
 (async () => {
   // steel is grey: never drop low-saturation pixels; only the magenta that touches the border is background
-  const keyed = await keyMagenta(fs.readFileSync(path.resolve(args.in)), { dropGrey: false, flood: true });
+  const keyed = await keyMagenta(fs.readFileSync(path.resolve(args.in)), { dropGrey: false, flood: !args.pockets });
   const { data, info } = await sharp(keyed).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const W = info.width, H = info.height, solid = (x, y) => data[(y * W + x) * 4 + 3] > 40;
   let top = H, bottom = -1, left = W, right = -1;

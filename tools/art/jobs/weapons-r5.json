@@ -1,0 +1,25 @@
+{
+  "name": "weapons-r5",
+  "note": "The crossbow for the `crossbow` category (docs/equipment-plan.md, owner 2026-11-13: prop art, held level, no arm animation). Seen from above, so that turned level in the hands and narrowed by weaponfit --widen it is a level crossbow in the board's three-quarter view. One candidate. Cut to the weapon footprint with tools/art/weaponfit.js.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1536"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "crossbow": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r1/exploration/openai/painterly-long-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached LONG SWORD on magenta is this game's approved sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background), and match the SWORD'S steel and leather colours. SUBJECT: ONE CROSSBOW, a sturdy medieval crossbow, cocked and loaded, drawn as a game item for that farm man to hold in both hands. It is seen from DIRECTLY ABOVE, laid flat, like a plan drawing: the letter T with a curved top. FRONT UP, butt down, perfectly symmetrical about its centre line. From the bottom: a plain wooden stock (the tiller), a straight thick bar of warm mid-brown wood, a little wider at the butt, running straight up the middle of the picture for the whole length of the weapon; near the top, set crosswise on the stock, the BOW (the prod): one thick curved bar of dark grey steel, its middle bound to the stock with a band of brighter steel, its two ends swept BACK toward the butt in a smooth even curve, like a wide shallow arch. The bow is about three quarters as wide, tip to tip, as the whole crossbow is long. A pale cream STRING runs from each tip of the bow straight back to a small steel catch (the nut) on the middle of the stock, a little more than a third of the way down from the front, so the two halves of the string make a wide V pointing at the butt. ONE BOLT lies in the groove along the top of the stock, on the centre line: a short thick pale wooden shaft from the nut to just past the front of the bow, with a small plain steel point sticking out past the front and two small red feathers at its back end by the nut. Behind the nut the stock is bare wood down to the butt, with one band of dark brown leather wrapped around it half way between the nut and the butt, where the hand holds it. Colours: warm brown wood, dark grey steel with brighter steel bands, a cream string, dark brown leather, red feathers. Chunky and sturdy, not delicate: the stock is thick, the bow is thick. Simple and bold: it is seen about 50 pixels long on the board, so big plain shapes, no engraving, no jewels, no runes, no glow, no sparkle, no motion lines, no stirrup, no crank, no trigger lever sticking out. COLOUR: never pink, never magenta, never purple anywhere on it. It stands perfectly UPRIGHT in the middle of the picture, its stock exactly vertical, seen flat from above: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below and on both sides of the bow. ONE WEAPON ONLY, nothing else in the picture: no hand, no quiver, no spare bolts, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    }
+  }
+}

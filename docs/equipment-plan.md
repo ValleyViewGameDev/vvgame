@@ -84,8 +84,8 @@ The owner asked to see the sword in the game before any more planning. What is i
   as `heldArt` (none does yet). `hands` only decides the shield; which weapons are HELD in two hands is the category's
   `second` (below). The two rapiers thrust (category `rapier`, since 2026-11-13).
   **Fen Hook** keeps its code name in data and saves and is shown as Fen Cutlass through
-  `stringLookup.DISPLAY_ALIASES`, so no save needed migrating. Crossbows and Darts have no
-  category and show nothing in the hand (the bows: below). The attacks at half speed: docs/art/equipment/categories.gif.
+  `stringLookup.DISPLAY_ALIASES`, so no save needed migrating. Darts (retired, no longer sold) is the
+  one weapon with no category: it shows nothing in the hand (the bows and the crossbow: below). The attacks at half speed: docs/art/equipment/categories.gif.
 - **Two hands (2026-11-13):** a category with `second` is held in BOTH hands: the great sword, the
   polearm, the axe and the hammer. How they are keyed is under "How the two-handed slash and chop are
   keyed" above; in short the far arm is SET by the clip and does very little, and the near arm is
@@ -119,7 +119,20 @@ The owner asked to see the sword in the game before any more planning. What is i
   entry and nothing else. `long` is as tall as the archer (1.48 tiles; the short bow is 0.9): a slim
   stave of pale yew in a shallow D that tapers to pale horn nocks, with a bound red leather handle.
   The short bow's drawing did not change by a pixel (checked: renders before and after are identical).
-  Crossbows (four) and Darts still have no category. docs/art/equipment/longbow-shot.gif (half speed).
+  docs/art/equipment/longbow-shot.gif (half speed).
+- **The crossbow (owner 2026-11-13: "the avatar just needs to hold it level ... no animation other than
+  the standard full-body recoil"):** category `crossbow` (Crossbow, Heavy Crossbow, Magic Crossbow,
+  Legendary Crossbow), clip `bolt`. A painted prop like the melee weapons (`weapon-crossbow.png`, job
+  `weapons-r5`, one candidate), held in BOTH hands as the two-handed weapons are: the near hand on the
+  leather grip, the far hand under the fore-end, the weapon keyed level (`a` a quarter turn) at the
+  chest. The clip has a `body` track only: the bolt goes at 30 ms and the figure kicks back 0.07 of a
+  tile and settles (260 ms). A clip that keys neither arm nor weapon HOLDS the guard
+  (`ArmRig.secondPose`), so both hands stay on it through the shot. The drawing is the crossbow seen
+  from directly above, cocked, a bolt in the groove, and narrowed to 0.9 by `weaponfit --widen`: turned
+  level in the hands that is a level crossbow in the board's three-quarter view, the bow across it
+  reading at a glance (a true side view hides the bow and reads as a plain stock). `weaponfit
+  --pockets` keys the background the string encloses. The bolt is part of the picture and stays in it
+  after the shot. docs/art/equipment/crossbow-shot.gif (half speed).
 - **Poses are absolute (2026-11-13):** the avatar's guards and clips say where the upper arm and
   the forearm POINT (clockwise from straight down), not how far to turn them from the outfit's own
   drawing (`ArmRig.poseOf`, an arm that `holds`). Outfits draw the hanging arm a little differently,
@@ -166,8 +179,8 @@ with the damage number, and how the other outfits' sleeves cut.
 following the Combat panel's slot, the per-outfit rigs, the turning fixes (both), and a tap on an
 out-of-reach enemy walking up and attacking. Approved from the offline GIFs, not yet seen in a fight:
 the two-handed thrust, slash and chop in their final form, and the rapier's thrust and drawing.
-The Short Bow's shot is approved ("call it done", owner 2026-11-13). The longbow drawing is in the
-game for the owner to judge.
+The Short Bow's shot is approved ("call it done", owner 2026-11-13). The longbow drawing and the
+crossbow are in the game for the owner to judge. With them every weapon that is sold has a category.
 Other players' figures show no weapon and need none: they are never seen in a fight (owner).
 
 **Decided, not a defect (owner 2026-11-13):** a fast attacker's next attack may start before the
