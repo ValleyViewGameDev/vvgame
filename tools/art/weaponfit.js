@@ -15,6 +15,8 @@
  *        --hold 0.14           where along the weapon the hand holds it: 0 its butt, 1 its point
  *        [--widen 1.5]         draw it this much wider than it is long-scaled (a rapier's blade is a hair at board size;
  *                              below 1 narrows it: the crossbow is drawn from above and narrowed to the board's view)
+ *        [--level]             the drawing lies LEVEL, pointing right (the crossbow, drawn from the side as it is held):
+ *                              turn it upright, point up, before fitting; held level in the hands it is the drawing again
  *        [--pockets]           the drawing ENCLOSES background (between a crossbow's string and its stock): key every
  *                              magenta pixel, not only the magenta that touches the border. Only for art with no pink or purple
  */
@@ -31,7 +33,8 @@ const LENGTH = Number(args.length), HOLD = Number(args.hold), WIDEN = Number(arg
 
 (async () => {
   // steel is grey: never drop low-saturation pixels; only the magenta that touches the border is background
-  const keyed = await keyMagenta(fs.readFileSync(path.resolve(args.in)), { dropGrey: false, flood: !args.pockets });
+  const source = fs.readFileSync(path.resolve(args.in));
+  const keyed = await keyMagenta(args.level ? await sharp(source).rotate(270).png().toBuffer() : source, { dropGrey: false, flood: !args.pockets });
   const { data, info } = await sharp(keyed).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const W = info.width, H = info.height, solid = (x, y) => data[(y * W + x) * 4 + 3] > 40;
   let top = H, bottom = -1, left = W, right = -1;

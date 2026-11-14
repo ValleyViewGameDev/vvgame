@@ -122,16 +122,16 @@ The owner asked to see the sword in the game before any more planning. What is i
   docs/art/equipment/longbow-shot.gif (half speed).
 - **The crossbow (owner 2026-11-13: "the avatar just needs to hold it level ... no animation other than
   the standard full-body recoil"):** category `crossbow` (Crossbow, Heavy Crossbow, Magic Crossbow,
-  Legendary Crossbow), clip `bolt`. A painted prop like the melee weapons (`weapon-crossbow.png`, job
-  `weapons-r5`, one candidate), held in BOTH hands as the two-handed weapons are: the near hand on the
+  Legendary Crossbow), clip `bolt`. A painted prop like the melee weapons (`weapon-crossbow.png`), held in BOTH hands as the two-handed weapons are: the near hand on the
   leather grip, the far hand under the fore-end, the weapon keyed level (`a` a quarter turn) at the
   chest. The clip has a `body` track only: the bolt goes at 30 ms and the figure kicks back 0.07 of a
   tile and settles (260 ms). A clip that keys neither arm nor weapon HOLDS the guard
-  (`ArmRig.secondPose`), so both hands stay on it through the shot. The drawing is the crossbow seen
-  from directly above, cocked, a bolt in the groove, and narrowed to 0.9 by `weaponfit --widen`: turned
-  level in the hands that is a level crossbow in the board's three-quarter view, the bow across it
-  reading at a glance (a true side view hides the bow and reads as a plain stock). `weaponfit
-  --pockets` keys the background the string encloses. The bolt is part of the picture and stays in it
+  (`ArmRig.secondPose`), so both hands stay on it through the shot. The drawing (job `weapons-r6`) is a heavy,
+  beefy crossbow drawn LEVEL from the side, the camera the avatar is drawn with, its bow strongly
+  foreshortened; `weaponfit --level` turns it upright for the weapon footprint, and held level it is
+  that drawing again. The first drawing (`weapons-r5`: seen from directly above, the bow a wide arch)
+  was rejected (owner 2026-11-13: "flatter camera angle, more like the character art camera angle. And
+  a beefier design"). `weaponfit --pockets` keys the background the string encloses. The bolt is part of the picture and stays in it
   after the shot. docs/art/equipment/crossbow-shot.gif (half speed).
 - **Poses are absolute (2026-11-13):** the avatar's guards and clips say where the upper arm and
   the forearm POINT (clockwise from straight down), not how far to turn them from the outfit's own

@@ -1,0 +1,25 @@
+{
+  "name": "weapons-r6",
+  "note": "The crossbow again (owner 2026-11-13: a flatter camera, 'more like the character art camera angle', and a beefier design). Drawn LEVEL, pointing right, from the side as the avatar is, the bow foreshortened. One candidate. Cut with tools/art/weaponfit.js --level (it turns the drawing upright for the weapon footprint).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1536x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "crossbow": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r1/exploration/openai/painterly-long-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached LONG SWORD on magenta is this game's approved sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background), and match the SWORD'S steel and leather colours. SUBJECT: ONE HEAVY CROSSBOW, a big, beefy medieval arbalest, cocked and loaded, drawn as a game item for that farm man to hold level in both hands at his chest. CAMERA: the same camera the farm man is drawn with: we stand beside it, almost level with it, looking at its SIDE, only very slightly from above and very slightly from the front. It is NOT seen from above. The crossbow lies LEVEL across the picture, pointing to the RIGHT: its butt at the left edge of the drawing, its front at the right, the stock a straight horizontal bar across the middle of the picture, its top edge (where the bolt lies) up and its underside down. THE STOCK, seen side-on, is the biggest shape and it is THICK and heavy, carved from one chunky block of warm mid-brown wood: at the left a broad, deep shoulder butt with a dark steel butt plate; then it narrows a little to a hand grip wrapped in dark brown leather; then a deep, heavy fore-end running forward to the front, with two wide bands of dark steel riveted around it. Under the stock, just behind the middle, hangs one short thick steel trigger lever, lying close along the underside. On top of the stock, a little in front of the grip, sits a chunky round steel catch (the nut) holding the string. THE BOW (the prod) is mounted crosswise at the very front of the stock, bound on with a big block of bright steel and thick cord lashing. It is a very THICK, broad bar of dark grey steel. Because we look at the crossbow from its side, the bow points toward us and away from us, so it is strongly FORESHORTENED: we see it as a short, fat, shallow arc crossing the front of the stock at a slant, NOT as a wide arch. Its near limb comes toward the viewer: it reaches a short way DOWN and a little back from the stock, big and thick, ending in a chunky steel tip. Its far limb goes away from the viewer: it reaches a short way UP and a little back from the stock, a little smaller, ending in the same steel tip. From tip to tip the bow is only about one third as tall as the crossbow is long. A thick pale cream STRING runs from each tip of the bow back to the nut on top of the stock. ONE BOLT lies along the top of the stock from the nut to past the front: a short, thick, pale wooden shaft with a broad heavy steel point sticking out past the front of the bow, and two red feathers at its back end by the nut. At the very front, under the bow, a small dark steel stirrup loop. Colours: warm brown wood, dark grey steel with brighter steel bands, a cream string, dark brown leather, red feathers. Everything oversized, chunky and sturdy, like a toy siege weapon: nothing thin, nothing delicate. Simple and bold: it is seen about 50 pixels long on the board, so big plain shapes, no engraving, no jewels, no runes, no glow, no sparkle, no motion lines, no crank, no winch. COLOUR: never pink, never magenta, never purple anywhere on it. It lies perfectly LEVEL in the middle of the picture, its stock exactly horizontal, pointing right: no tilt. It fills most of the picture's WIDTH, with a margin of magenta on every side. ONE WEAPON ONLY, nothing else in the picture: no hand, no quiver, no spare bolts, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    }
+  }
+}

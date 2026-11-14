@@ -66,8 +66,10 @@ export const WEAPON_CLASSES = {
   // `bow` names the drawing (ArmRig BOW_STYLES); every bow shares the one shot (owner 2026-11-13)
   bow:     { bow: 'short', clip: 'shoot' },
   longbow: { bow: 'long', clip: 'shoot' },
-  // drawn from above and narrowed (weaponfit --widen 0.9), so that turned level it is a crossbow in the board's view
-  crossbow: { art: 'weapon-crossbow.png', size: [256, 480], grip: [128, 344], angle: ALONG, guard: CROSSBOW_GUARD, clip: 'bolt', second: 0.34 },
+  // drawn LEVEL from the side, as the avatar is seen, its bow foreshortened, and stored upright like every weapon
+  // (weaponfit --level): held level it is that drawing again. The near hand on the leather grip, the far hand between
+  // the fore-end's two steel bands
+  crossbow: { art: 'weapon-crossbow.png', size: [256, 512], grip: [128, 360], angle: ALONG, guard: CROSSBOW_GUARD, clip: 'bolt', second: 0.38 },
   dagger:  { art: 'weapon-dagger.png', size: [128, 512], grip: [64, 448], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   spear:   { art: 'weapon-spear.png', size: [128, 768], grip: [64, 470], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   polearm: { art: 'weapon-halberd.png', size: [256, 896], grip: [128, 580], angle: ALONG, guard: POLE_GUARD, clip: 'thrust2', second: 0.5 },
