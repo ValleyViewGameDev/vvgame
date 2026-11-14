@@ -16,7 +16,7 @@
  * on its category's canvas (`size`) with the middle of where the hand holds it at `grip`. Files live
  * in public/assets/avatar/hand/; tools/art/weaponfit.js cuts a generated drawing to a canvas.
  *
- * Two hands: a category with `second` is held in both (the polearm, the axe, the hammer). The row's `hands` only
+ * Two hands: a category with `second` is held in both (the great sword, the polearm, the axe, the hammer). The row's `hands` only
  * decides the shield; a two-handed weapon whose category has no `second` is swung by the one arm.
  */
 import { rigFor } from './ArmRig';
@@ -31,6 +31,8 @@ const ALONG = Math.PI;      // in line with the forearm, pointing on past the ha
 const CUT_GUARD = { side: HELD_ARM, s: 0.28, e: -1.3 };
 // the point forward: the elbow tucked back, the forearm level, the weapon aimed at the enemy from the hip
 const THRUST_GUARD = { side: HELD_ARM, s: 0.43, e: -2.05 };
+// the two-handed sword's guard: both hands at the belly, the blade standing up and leaning well forward
+const GREAT_GUARD = { side: HELD_ARM, s: 0.15, e: -1.02 };
 // a heavy two-handed head carried low and ready: the rear hand at the hip, the haft across the body with the head forward and up
 const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47 };
 
@@ -41,12 +43,14 @@ const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47 };
  * the first toward its point (ArmRig.secondPose; a figure whose rig has no far arm holds it in one);
  * `give`: how far that hold may shift along the weapon, tiles either way, to keep the far elbow in
  * against the body (the axe and hammer, whose haft passes close to the far shoulder).
- * The attacks: the sword's `slash`, the `thrust` (dagger, spear), the two-handed `thrust2` (polearm)
- * and the two-handed `chop2` (axe and hammer, which share it). A two-handed sword (`slash2`) is planned,
- * not built: docs/equipment-plan.md.
+ * The attacks, `<attack>` in one hand and `<attack>2` in two: the sword's `slash` and the great
+ * sword's `slash2`; the `thrust` (dagger, spear) and the polearm's `thrust2`; the `chop2` of the axe and
+ * the hammer, which share it (there is no one-handed chop).
  */
 export const WEAPON_CLASSES = {
   sword:   { art: 'weapon-long-sword.png', size: [128, 512], grip: [64, 448], angle: ACROSS, guard: CUT_GUARD, clip: 'slash' },
+  // the far hand sits just above the near one on the long grip and stays there: no `give`, it must not slide onto the blade
+  greatsword: { art: 'weapon-great-sword.png', size: [192, 720], grip: [96, 650], angle: ACROSS, guard: GREAT_GUARD, clip: 'slash2', second: 0.23 },
   dagger:  { art: 'weapon-dagger.png', size: [128, 512], grip: [64, 448], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   spear:   { art: 'weapon-spear.png', size: [128, 768], grip: [64, 470], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   polearm: { art: 'weapon-halberd.png', size: [256, 896], grip: [128, 580], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust2', second: 0.58 },

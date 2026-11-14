@@ -13029,7 +13029,7 @@
     "ingredient4": "Book",
     "ingredient4qty": 12,
     "gemcost": 666,
-    "weaponClass": "sword"
+    "weaponClass": "greatsword"
   },
   {
     "type": "Horizon Eye",
@@ -13580,7 +13580,7 @@
     "hands": 2,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
-    "weaponClass": "sword"
+    "weaponClass": "greatsword"
   },
   {
     "type": "Legendary Crossbow",
@@ -13778,7 +13778,7 @@
     "ingredient1qty": 40000,
     "ingredient4": "Book",
     "ingredient4qty": 100,
-    "weaponClass": "sword"
+    "weaponClass": "greatsword"
   },
   {
     "type": "Bulwark",
@@ -14170,7 +14170,7 @@
     "ingredient1qty": 16000,
     "ingredient4": "Book",
     "ingredient4qty": 25,
-    "weaponClass": "sword"
+    "weaponClass": "greatsword"
   },
   {
     "type": "Witches' Charm",
@@ -14812,7 +14812,7 @@
     "ingredient3qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 260,
-    "weaponClass": "sword"
+    "weaponClass": "greatsword"
   },
   {
     "type": "Charon's Obol",

@@ -1,0 +1,25 @@
+{
+  "name": "weapons-r3",
+  "note": "The two-handed sword for the `greatsword` category (docs/equipment-plan.md, owner 2026-11-13: the two-handed slash). One candidate. Cut to the weapon footprint with tools/art/weaponfit.js.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1536"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "great-sword": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r1/exploration/openai/painterly-long-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached LONG SWORD on magenta is this game's approved sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background), and match the SWORD'S steel, brass and leather colours. SUBJECT: ONE TWO-HANDED GREAT SWORD, a knight's long war sword, drawn as a game item for that farm man to hold in BOTH hands. It is the attached long sword's bigger brother: the same plain design, steel, brass and leather, but longer, with a much longer grip. POINT UP, pommel down, symmetrical about its centre line. From the bottom: a round brass pommel; a LONG straight grip wrapped in dark brown leather, long enough for two fists one above the other with a little room to spare (about three times as long as the grip of the attached long sword), of even thickness; a straight brass crossguard, wide, about four times as wide as the blade; then a long straight double-edged steel blade with a shallow central groove, a little broader than the long sword's, of even width until it tapers to a point in its last sixth. The blade is about two and a half times as long as the grip. Colours: bright clean steel with one lighter and one darker side, warm brass, dark brown leather. Simple and bold: it is seen about 50 pixels tall on the board, so big plain shapes, no engraving, no jewels, no runes, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. It stands perfectly UPRIGHT in the middle of the picture, exactly vertical, seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    }
+  }
+}

@@ -1,7 +1,7 @@
 /**
  * Arm clips (docs/arm-rig-plan.md): keyframed joint angles for an ArmRig, in radians.
  *
- * The AVATAR's clips (slash, thrust, thrust2, chop2; a name ending in 2 is two-handed) are ABSOLUTE: `s` is where the upper arm points and
+ * The AVATAR's clips (slash, slash2, thrust, thrust2, chop2; a name ending in 2 is two-handed) are ABSOLUTE: `s` is where the upper arm points and
  * `s + e` where the forearm points, clockwise from straight down (ArmRig.poseOf, an arm that `holds`),
  * so every outfit swings alike. An enemy's clip turns its joints from the way its arm is drawn:
  *
@@ -114,6 +114,36 @@ export const ARM_CLIPS = {
       { t: 290, s: 0.08, e: -0.1, ease: 'out' },
       { t: 350, s: 0.08, e: -0.1 },
       { t: 520, s: 0.28, e: -1.3 },
+    ],
+  },
+  // the avatar's TWO-HANDED SLASH (great swords; the blade stands at a right angle to the forearm, as the
+  // sword's does). The rear hand (the weapon arm) is keyed; the front hand is solved onto the long grip
+  // just above it each frame (ArmRig.secondPose) and cannot slide: above it is the blade. So the HANDS
+  // are routed where the far arm can hold on with its elbow down: up and down the middle of the body,
+  // never out in front of the far shoulder (there the elbow has nowhere to go but out sideways). From
+  // the guard, both hands at the belly and the blade leaning forward, the sword is lifted upright in
+  // front of the chest, tipping a little back (it crosses the face for a moment, as the one-handed
+  // slash does), and cut down forward through the guard to just above level at the belt (no lower: the
+  // far hand could not reach the grip). Quicker than the chop, slower than the one-handed slash
+  slash2: {
+    hit: 295,
+    body: [
+      { t: 0, d: 0 },
+      { t: 195, d: -0.1, ease: 'out' },
+      { t: 295, d: 0.34, ease: 'in' },
+      { t: 370, d: 0.3 },
+      { t: 640, d: 0 },
+    ],
+    lead: [
+      { t: 0, s: 0.15, e: -1.02 },
+      { t: 120, s: 0.08, e: -1.28, ease: 'out' },
+      { t: 195, s: 0, e: -1.67 },
+      { t: 225, s: 0, e: -1.7 },
+      { t: 265, s: 0.1, e: -1.0, ease: 'in' },
+      { t: 295, s: -0.55, e: 0.28 },
+      { t: 335, s: -0.5, e: 0.3, ease: 'out' },
+      { t: 430, s: -0.5, e: 0.3 },
+      { t: 640, s: 0.15, e: -1.02 },
     ],
   },
   // the avatar's THRUST (daggers, spears, polearms: the weapon lies along the forearm, heldWeapon.js).
