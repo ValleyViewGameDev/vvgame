@@ -22,7 +22,8 @@ export default {
     await confirm.locator('button.btn-success').click();
     await sleep(4000);
     console.log('dialog still open:', await page.locator('.modal-overlay').filter({ hasText: 'You have fallen' }).count());
-    console.log('now', JSON.stringify(await teleport(page, process.env.PLACE || 'Titania')));
+    const quiet = (await whereAmI(page)).region === "Titania's Bower";
+    console.log('now', JSON.stringify(quiet ? await whereAmI(page) : await teleport(page, process.env.PLACE || 'Titania')));
     await sleep(3000);
   },
 };
