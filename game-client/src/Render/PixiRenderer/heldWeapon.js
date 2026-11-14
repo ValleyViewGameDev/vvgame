@@ -16,7 +16,7 @@
  * on its category's canvas (`size`) with the middle of where the hand holds it at `grip`. Files live
  * in public/assets/avatar/hand/; tools/art/weaponfit.js cuts a generated drawing to a canvas.
  *
- * Two hands: a category with `second` is held in both (the polearm so far). The row's `hands` only
+ * Two hands: a category with `second` is held in both (the polearm, the axe, the hammer). The row's `hands` only
  * decides the shield; a two-handed weapon whose category has no `second` is swung by the one arm.
  */
 import { rigFor } from './ArmRig';
@@ -31,8 +31,8 @@ const ALONG = Math.PI;      // in line with the forearm, pointing on past the ha
 const CUT_GUARD = { side: HELD_ARM, s: 0.28, e: -1.3 };
 // the point forward: the elbow tucked back, the forearm level, the weapon aimed at the enemy from the hip
 const THRUST_GUARD = { side: HELD_ARM, s: 0.43, e: -2.05 };
-// a heavy head carried ready: the haft leaning well forward, so the head stands clear of the face
-const HEAVY_GUARD = { side: HELD_ARM, s: 0.33, e: -1.12 };
+// a heavy two-handed head carried low and ready: the rear hand at the hip, the haft across the body with the head forward and up
+const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47 };
 
 /**
  * The weapon categories. `art`: the drawing; `size` and `grip`: its canvas and where the hand holds
@@ -40,15 +40,16 @@ const HEAVY_GUARD = { side: HELD_ARM, s: 0.33, e: -1.12 };
  * attack (armClips.js); `second`: a TWO-HANDED hold, the other hand on the weapon this many tiles from
  * the first toward its point (ArmRig.secondPose; a figure whose rig has no far arm holds it in one).
  * The attacks: the sword's `slash`, the `thrust` (dagger, spear), the two-handed `thrust2` (polearm)
- * and the `chop` (axe and hammer, which share it).
+ * and the two-handed `chop2` (axe and hammer, which share it). A two-handed sword (`slash2`) is planned,
+ * not built: docs/equipment-plan.md.
  */
 export const WEAPON_CLASSES = {
   sword:   { art: 'weapon-long-sword.png', size: [128, 512], grip: [64, 448], angle: ACROSS, guard: CUT_GUARD, clip: 'slash' },
   dagger:  { art: 'weapon-dagger.png', size: [128, 512], grip: [64, 448], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   spear:   { art: 'weapon-spear.png', size: [128, 768], grip: [64, 470], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   polearm: { art: 'weapon-halberd.png', size: [256, 896], grip: [128, 580], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust2', second: 0.58 },
-  axe:     { art: 'weapon-great-axe.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop' },
-  hammer:  { art: 'weapon-war-hammer.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop' },
+  axe:     { art: 'weapon-great-axe.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop2', second: 0.5 },
+  hammer:  { art: 'weapon-war-hammer.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop2', second: 0.5 },
 };
 
 const heldCache = new Map();

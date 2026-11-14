@@ -29,9 +29,28 @@ The owner asked to see the sword in the game before any more planning. What is i
   | `sword` | `slash` | as the row says | across the forearm | Short Sword, Long Sword, Great Sword, Sword of Song, Glowing Sword, Legendary Sword, Dragonslayer, Broadsword, Bastard Sword, Arming Sword, Falchion, Portia's Rapier, Courtier's Rapier, Macbeth's Claymore, Bard's Blade, Messina Saber, Demonbane, Fen Hook (shown as **Fen Cutlass**) |
   | `dagger` | `thrust` | 1 | along the forearm | Knife, Mantuan Dagger |
   | `spear` | `thrust` | 1 (all four; Boar Spear and Lakeside Spear were 2) | along the forearm | Spear, Magic Spear, Boar Spear, Lakeside Spear |
-  | `polearm` | `thrust` | 2 | along the forearm | Halberd, Magic Halberd, Morrow Glaive |
-  | `axe` | `chop` | 2 | across the forearm | Giant Axe, Executioner's Axe, Lethe Scythe (drawn as the axe) |
-  | `hammer` | `chop` | 2 | across the forearm | War Hammer, Stone Maul |
+  | `polearm` | `thrust2` | 2, held in both | along the forearm | Halberd, Magic Halberd, Morrow Glaive |
+  | `axe` | `chop2` | 2, held in both | across the forearm | Giant Axe, Executioner's Axe, Lethe Scythe (drawn as the axe) |
+  | `hammer` | `chop2` | 2, held in both | across the forearm | War Hammer, Stone Maul |
+  | *`greatsword` (planned, not built)* | *`slash2`* | *2, held in both* | *across the forearm* | *Great Sword, Dragonslayer, Bastard Sword, Macbeth's Claymore, Demonbane: today these five are `sword` and slash in one hand* |
+
+  **Every attack has a one-handed and a two-handed form, named `<attack>` and `<attack>2`:**
+
+  | Attack | One hand | Two hands |
+  |---|---|---|
+  | slash | `slash` (sword): built | `slash2` (two-handed sword): **to do** |
+  | thrust | `thrust` (dagger, spear): built | `thrust2` (polearm): built |
+  | chop | none: every axe and hammer is two-handed | `chop2` (axe, hammer): built |
+
+  **The two-handed sword (to do).** The slash needs both forms. The five swords whose rows say
+  `hands: 2` get their own category, `greatsword`: a longer sword drawing on a taller canvas (one
+  more picture, cut with `weaponfit.js`), `second` for the front hand, and a `slash2` clip. It is the
+  chop's problem again rather than the thrust's: the blade stands across the forearm, so the hold
+  point up the grip sits close to the far shoulder and swings away from it when the blade goes back.
+  So, as `chop2` does, the raise should stay in front of the far shoulder (not back over the near
+  one), the front hand close above the rear one on a long grip (`second` about 0.2 tile), and the
+  cut end no lower than the belt, where the far hand can still reach it. Nothing else is needed in
+  the engine: `second`, the reach cap and absolute poses are all there.
 
   One drawing a category, all at one scale (`heldWeapon.PX_PER_TILE`), cut to the category's canvas
   by `tools/art/weaponfit.js` from `tools/art/jobs/weapons-r2.json`. A row may name its own drawing
@@ -52,7 +71,14 @@ The owner asked to see the sword in the game before any more planning. What is i
   shaft slides through the hand instead (owner: the front hand need not follow the thrust all the
   way; the far arm is the thin one). It is drawn under the weapon arm and the weapon, its fist over
   the shaft. Every outfit's rig has an `R` arm for it; a figure whose rig had none would hold the
-  weapon in one hand. The axe and hammer are still swung by one arm: the two-handed chop is next.
+  weapon in one hand.
+- **The two-handed chop (2026-11-13):** `chop2`, for the axe and the hammer. The rear hand holds the
+  foot of the haft, the front hand 0.5 tile up it. Guard: the weapon carried low across the body, its
+  head forward and up. It is hoisted upright in front of the far shoulder (never back across the
+  face: the far arm cannot follow it there), hangs a moment, and comes down forward to level at the
+  belt (no lower: below that the far hand cannot reach the haft), the front hand sliding down the
+  haft toward the rear one as it falls. The blow lands at 385 ms. The one-handed `chop` is gone:
+  every axe and hammer is two-handed. docs/art/equipment/two-handed-chop.gif.
   docs/art/equipment/two-handed-thrust.gif.
 - **Poses are absolute (2026-11-13):** the avatar's guards and clips say where the upper arm and
   the forearm POINT (clockwise from straight down), not how far to turn them from the outfit's own
@@ -244,10 +270,9 @@ Families, chosen by the weapon's `swing`, all on that pattern:
   the point forward at the hip. The elbow is drawn back, then the whole arm drives straight out, the
   forearm staying level so the point travels in a line; the body steps back a little, then well
   forward behind the point.
-- **chop** (axes and hammers share it; built 2026-11-13): the head stands across the forearm, as the
-  sword does. Guard: the haft leaning well forward so the head is clear of the face. The hand is
-  lifted to the chin, the head swinging back over the shoulder, then it comes down in front and on
-  past level. Slower than the slash (the blow lands at 385 ms) with a bigger rock back and step in.
+- **chop** (axes and hammers share it): two-handed only, `chop2`; see "The two-handed chop" above.
+- **Two-handed forms** (`thrust2`, `chop2`, and `slash2` to come): the weapon arm is keyed, the far
+  arm is solved onto the weapon each frame.
 
 As built (see "The prototype"): the blow lands at the clip's `hit`, not on the tap, and the body's
 move is a `body` track in the same clip, so each category's swing and body move are authored

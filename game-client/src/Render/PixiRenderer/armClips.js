@@ -1,7 +1,7 @@
 /**
  * Arm clips (docs/arm-rig-plan.md): keyframed joint angles for an ArmRig, in radians.
  *
- * The AVATAR's clips (slash, thrust, thrust2, chop) are ABSOLUTE: `s` is where the upper arm points and
+ * The AVATAR's clips (slash, thrust, thrust2, chop2; a name ending in 2 is two-handed) are ABSOLUTE: `s` is where the upper arm points and
  * `s + e` where the forearm points, clockwise from straight down (ArmRig.poseOf, an arm that `holds`),
  * so every outfit swings alike. An enemy's clip turns its joints from the way its arm is drawn:
  *
@@ -179,29 +179,38 @@ export const ARM_CLIPS = {
       { t: 480, d: 0.58 },
     ],
   },
-  // the avatar's CHOP (axes and hammers share it; the head stands at a right angle to the forearm, as
-  // the sword does). Slower and bigger than the slash: the hand is lifted to the chin with the elbow
-  // folded, the weapon's head swinging up and back over the shoulder (the hand stays below the eyes),
-  // then it comes down in front and on past level, the arm ending low. The body
-  // rocks back under the lift and steps in hard behind the blow
-  chop: {
+  // the avatar's TWO-HANDED CHOP (axes and hammers share it; the head stands at a right angle to the
+  // forearm, as the sword does). The rear hand (the weapon arm) holds the foot of the haft and is keyed
+  // here; the front hand is solved onto the haft each frame (ArmRig.secondPose), `second` tiles up it.
+  // From the guard, the weapon carried low across the body with its head forward and up, it is HOISTED
+  // upright in front of the far shoulder (never back across the face), hangs a moment, and is brought
+  // down forward to level at the belt, the front hand sliding down the haft toward the rear one as it
+  // falls. Slower and heavier than the slash: the body rocks back under the lift and steps in hard
+  chop2: {
     hit: 385,
     body: [
       { t: 0, d: 0 },
       { t: 260, d: -0.12, ease: 'out' },
       { t: 385, d: 0.34, ease: 'in' },
       { t: 470, d: 0.3 },
-      { t: 780, d: 0 },
+      { t: 800, d: 0 },
     ],
     lead: [
-      { t: 0, s: 0.33, e: -1.12 },
-      { t: 170, s: -0.47, e: -1.55, ease: 'out' },
-      { t: 260, s: -0.97, e: -1.65 },
-      { t: 350, s: -0.57, e: -0.25, ease: 'in' },
-      { t: 385, s: -0.07, e: -0.1 },
-      { t: 420, s: 0.28, e: 0.05, ease: 'out' },
-      { t: 540, s: 0.28, e: 0.05 },
-      { t: 780, s: 0.33, e: -1.12 },
+      { t: 0, s: 0.1, e: -0.47 },
+      { t: 170, s: -0.3, e: -0.8, ease: 'out' },
+      { t: 260, s: -0.7, e: -0.87 },
+      { t: 300, s: -0.72, e: -0.88 },
+      { t: 385, s: -0.25, e: 0.13, ease: 'in' },
+      { t: 430, s: -0.22, e: 0.16, ease: 'out' },
+      { t: 560, s: -0.22, e: 0.16 },
+      { t: 800, s: 0.1, e: -0.47 },
+    ],
+    second: [
+      { t: 0, d: 0.5 },
+      { t: 260, d: 0.44, ease: 'out' },
+      { t: 385, d: 0.3, ease: 'in' },
+      { t: 560, d: 0.3 },
+      { t: 800, d: 0.5 },
     ],
   },
   // the Coyote: no arm, the whole body lurches at the target (feet planted) and springs back; in the
