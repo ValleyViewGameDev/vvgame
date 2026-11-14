@@ -80,4 +80,4 @@ export function targetRect(target, gridId, pad = 6) {
   return { x1: Math.round(host.left + tl.x - pad), y1: Math.round(host.top + tl.y - pad), x2: Math.round(host.left + br.x + pad), y2: Math.round(host.top + br.y + pad) };
 }
 
-if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') { window.__boardTarget = findBoardTarget; window.__ftueDirtTile = resolveFtueDirtTile; } // dev hooks
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') { window.__boardTarget = findBoardTarget; window.__boardResources = () => GlobalGridStateTilesAndResources.getResources(); /* the capture tool's survey (tools/capture) */ window.__ftueDirtTile = resolveFtueDirtTile; } // dev hooks

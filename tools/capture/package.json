@@ -1,0 +1,9 @@
+{
+  "name": "vvgame-capture",
+  "private": true,
+  "description": "Scripted gameplay capture for ad videos (docs/social-video-plan.md)",
+  "type": "module",
+  "dependencies": {
+    "playwright-core": "^1.48.0"
+  }
+}

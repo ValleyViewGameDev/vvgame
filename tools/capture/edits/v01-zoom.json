@@ -1,0 +1,12 @@
+{
+  "source": "v01-zoom",
+  "output": "soe_v01-zoom_9x16_b.mp4",
+  "from": "closer",
+  "to": "end",
+  "captions": [
+    { "from": "closer", "to": "close", "text": "One little farmhouse." },
+    { "from": "far", "to": "back", "text": "One big farm." },
+    { "from": "back", "to": "end", "text": "Build yours." }
+  ],
+  "endCard": { "seconds": 1.6, "line": "Play free in your browser", "url": "secretsofelsinore.com" }
+}

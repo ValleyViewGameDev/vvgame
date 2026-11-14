@@ -98,6 +98,7 @@ vvgame/
     ├── editor/               # VVGame Editor: server.js, client/{app.js,core,sheet,layouts,tabs}, sheets/definitions.js (one entry per tuning JSON)
     ├── expand-town.py        # grows the walled valley towns for the size-4 buildings (2026-10-22): --check lists footprint collisions in every valley layout; --town / --all insert duplicate rows and columns at the templates' cut lines; rotate-town.py re-derives townE/S/W from townN
     ├── avatar/               # avatar art tools: render.js (spec/sheet/parts to PNG), deconstruct.js (bust -> colour groups), assemble.js + recipes/ (groups -> rig parts); docs/avatar-plan.md §0
+    ├── capture/              # scripted gameplay capture for ad videos (docs/social-video-plan.md §13): capture.js (login | shot <name>: the installed Chrome via playwright-core, a phone-sized page, records the tab), shots/ (one script per shot + lib.js helpers), edits/ + edit.js (ffmpeg: segments, speed, captions, end card -> ads/video/final/), survey.js; shots PLAY the signed-in account for real
     └── analytics/            # dashboard: server.js, client/, backfill-firstseen.js, purge-analytics.js (docs/analytics.md)
 ```
 

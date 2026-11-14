@@ -15,3 +15,6 @@ tools/art/_candidates/
 ads/video/raw/
 ads/video/selects/
 ads/video/project/
+
+# capture tool: its own Chrome profile (holds a sign-in) (tools/capture/capture.js)
+tools/capture/.profile/

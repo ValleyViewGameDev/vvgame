@@ -14,6 +14,7 @@ html.dev-capture-mode .zoom-controls,
 html.dev-capture-mode .map-controls,
 html.dev-capture-mode .season-controls,
 html.dev-capture-mode .nav-column,
+html.dev-capture-mode [data-dev-ui], /* developer-only controls inside player UI (Kent's Debug Refresh): stamp data-dev-ui on new ones */
 html.dev-capture-mode [id^="kofi-widget-overlay"] {
   display: none !important;
 }
@@ -21,6 +22,7 @@ html.dev-capture-mode [id^="kofi-widget-overlay"] {
 /* Hover tips: the board's tooltip for a resource or NPC under the pointer (Render/Tooltip.css)
    and the header / HUD / nav button tips. */
 html.dev-capture-mode .HoverTooltip,
+html.dev-capture-mode .info-toaster,
 html.dev-capture-mode .header-tip {
   display: none !important;
 }

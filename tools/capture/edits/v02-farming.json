@@ -1,0 +1,85 @@
+{
+  "source": "v02-farming",
+  "output": "soe_v02-farming_9x16_e.mp4",
+  "segments": [
+    {
+      "from": "intro",
+      "to": "harvest",
+      "speed": 1.5
+    },
+    {
+      "from": "harvest",
+      "to": "harvest_end",
+      "toOffset": 1.2,
+      "speed": 7
+    },
+    {
+      "from": "plant",
+      "to": "plant_end",
+      "toOffset": 1.0,
+      "speed": 7
+    },
+    {
+      "from": "grow",
+      "to": "grown_end",
+      "speed": 16
+    },
+    {
+      "from": "animals_pan",
+      "to": "animals_end",
+      "speed": 1.8
+    },
+    {
+      "from": "kent_pan",
+      "to": "kent",
+      "speed": 2,
+      "source": "v02-farming/v02-kent"
+    },
+    {
+      "from": "kent",
+      "to": "kent_out",
+      "speed": 1.3,
+      "source": "v02-farming/v02-kent"
+    },
+    {
+      "from": "pull",
+      "to": "end"
+    }
+  ],
+  "captions": [
+    {
+      "segment": 0,
+      "text": "My little farm."
+    },
+    {
+      "segment": 1,
+      "text": "Harvest it."
+    },
+    {
+      "segment": 2,
+      "text": "Plant it."
+    },
+    {
+      "segment": 3,
+      "text": "Grow it."
+    },
+    {
+      "segment": 4,
+      "text": "Milk it."
+    },
+    {
+      "segment": 5,
+      "toSegment": 6,
+      "text": "Sell it."
+    },
+    {
+      "segment": 7,
+      "text": "Then build all this."
+    }
+  ],
+  "endCard": {
+    "seconds": 1.6,
+    "line": "Play free in your browser",
+    "url": "secretsofelsinore.com"
+  }
+}

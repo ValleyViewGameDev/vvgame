@@ -544,6 +544,7 @@ function KentPanel({
                 {/* Debug refresh button - dev only */}
                 {isDeveloper && (
                   <div
+                    data-dev-ui=""
                     className={`kent-dismiss-all-link ${isTrading ? 'disabled' : ''}`}
                     onClick={() => {
                       if (!isTrading) {

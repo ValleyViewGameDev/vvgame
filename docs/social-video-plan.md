@@ -59,6 +59,11 @@ be seen **at least 250 px from the top, 450 px from the bottom, 60 px from the l
 from the right**. Gameplay can fill the whole frame; only text and the key action need the box.
 Check each finished video in the app's own preview before posting.
 
+**Camera rule (owner, 2026-11-13).** Most videos change zoom level on camera at least once, so
+the camera never sits still: a push-in at the start, a zoom-out between beats, a pull-back at
+the end. A shot script records the zoom key press inside a segment so the game's own zoom
+animation is in the cut.
+
 **On-screen text style.** Follow `docs/narrative-style.md`: plain, a little Shakespearean, no
 em-dashes. White text with a dark outline or a soft dark plate; one font throughout (use the
 game's heading font; put the font file in `ads/brand/`).
@@ -419,3 +424,60 @@ stayed, and stop making the kind that did not.
 - [EaseUS: recording vertical video with OBS](https://recorder.easeus.com/screen-recording-resource/record-vertical-video-obs.html)
 - [CapCut: free usage limits](https://www.capcut.com/help/different-free-usage-limits-features)
 - [Bitly: TikTok link in bio](https://bitly.com/blog/tiktok-link-in-bio/)
+
+## 13. Automated capture (proof, 2026-11-13)
+
+`tools/capture/` records and edits a video with no OBS and no manual editing. Proven on V1 only.
+
+- `node capture.js login`: opens the capture browser (the installed Chrome with its own profile
+  in `tools/capture/.profile`, not in git) to sign in once. It quits when the window is closed.
+- `node capture.js shot v01-zoom`: plays `shots/v01-zoom.js` headlessly at 1080 x 1920 with
+  capture mode on, records the tab, and writes `ads/video/raw/v01-zoom/v01-zoom.rec` plus
+  `.marks.json` (the time of each beat). Needs the local client on port 3000
+  (`CAPTURE_URL` overrides).
+- `node edit.js v01-zoom`: reads `edits/v01-zoom.json` (which marks to cut between, captions
+  between marks, the end card) and writes the finished MP4 into `ads/video/final/`.
+
+What the proof showed: the picture is sharp; Chrome's tab recording delivers about 30 fps (the
+game itself holds 60), so finals are 30 fps; **no sound is captured in headless mode**, so music
+and effects have to be mixed in by `edit.js` from audio files; key presses sent faster than
+about 0.4 s apart are dropped while a zoom level loads. ffmpeg here has no text filter, so
+captions and the end card are drawn by Chrome as transparent PNGs and overlaid.
+
+Since the proof (2026-11-13): `shots/lib.js` holds the helpers shots share (tile and NPC
+positions from the game's dev hooks, zoom, hide or close a panel); `survey.js` lists what is on
+the signed-in player's board; an edit can reorder `segments`, speed each one up and mix takes
+(`"source": "<folder>/<take>"`). V2 Farming is `shots/v02-farming.js` + `shots/v02-kent.js` and
+`edits/v02-farming.json`; these PLAY the account (they harvest, plant and sell for real).
+Known gaps in the V2 first cut: it was recorded one zoom level further out than intended, so the
+action is small in the frame, and it has no sound.
+
+Lessons from recording V2 (2026-11-13), all handled in the tool now:
+
+- **Pace clicks to the server.** Every harvest or planting saves the whole grid, one request at
+  a time. Clicks 45 ms apart left the local server not answering writes for that player until it
+  was restarted; at 110 ms the board showed 66 plantings but the server kept 12. `CLICK_MS` is
+  240 with a 6 s pause between passes, and the edit speeds those segments up 7x.
+- **The dev client reloads when any source file is saved**, which ends a take. The capture
+  browser blocks webpack's `/ws` socket, so it keeps the page it loaded.
+- **Opening a panel returns the camera to the player.** A shot that looks elsewhere calls
+  `lookAt` again after opening or closing one.
+- A failed take no longer replaces the last good recording (`.rec.part`, renamed on success).
+- A square board at the `farish` zoom is shorter than a 9:16 frame; a segment's `"scale": 1.2`
+  crops in to fill it.
+- `shots/prep-wheat.js` replants the crop field slowly so the next take starts with ripe Wheat.
+
+**The capture page is phone-sized (owner, 2026-11-13).** Videos must show the UI at the size a
+phone shows it. `capture.js` opens a 432 x 768 page at 2x with touch emulation, so the game
+serves its mobile layout (panels 58 % of the width, phone type sizes); Chrome's tab recording
+tops out at 2x, so takes are 864 x 1536 and `edit.js` scales them to 1080 x 1920. A 1080 x 1920
+page gets the desktop layout and a sliver of a panel: never record UI that way. At this size
+the normal zoom shows about 10 x 17 tiles, `farish` about 17 x 30, and `far` fits the whole
+board with no bands. V1 Zoom is phone-sized too (version b): it runs closer, close, farish, far and back,
+and leaves out the settlement map (mostly "Unoccupied" cells, and it shows other players' names
+and net worth) and the kingdom level (not on phones). The recorder waits for the stream to reach full size before it
+starts, and a take that is under-sized or has broken picture data is rejected.
+Developer-only controls inside player UI carry `data-dev-ui` and are hidden in capture mode.
+
+Open issue: about one take in five fails with a Playwright `TimeoutError` before or at the start
+of recording (cause not found). Nothing is saved from a failed take; run the shot again.
