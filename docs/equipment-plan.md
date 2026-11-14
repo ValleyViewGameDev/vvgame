@@ -155,6 +155,11 @@ docs/art/equipment/prototype-slash.gif, at half speed). Not yet seen in a live f
 judge there: the blade crossing the face at the top of the raise, the fist, whether the cut lands
 with the damage number, and how the other outfits' sleeves cut.
 
+**Confirmed by the owner in the game (2026-11-13):** the one-handed slash and thrust, the weapon
+following the Combat panel's slot, the per-outfit rigs, the turning fixes (both), and a tap on an
+out-of-reach enemy walking up and attacking. Approved from the offline GIFs, not yet seen in a fight:
+the two-handed thrust, slash and chop in their final form, and the rapier's thrust.
+
 ## 1. What exists today
 
 - **The data is ready.** `settings.equippedWeapon` / `equippedShield` / `equippedArmor` are real
