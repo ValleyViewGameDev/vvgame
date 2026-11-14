@@ -217,6 +217,12 @@ takes over; nothing is to be done about it.
   the blade stretched 1.3x above the guard (canvas 192x585, padded at the top, grip unchanged) and a gold blade glow,
   `heldFx: glow:#ffd27a`. Preview `docs/art/equipment/legendary-sword.png` (Long Sword; Legendary Sword at guard and in
   a held pose).
+- **Messina Saber and Falchion, their own blades** (owner 2026-11-14; one candidate each, cut by weaponfit on a 192 px
+  sword canvas, grip 96,448): the Messina Saber is curved like a scimitar (`weapons-r9`: single edge widening to a swept,
+  clipped point, brass cross with knobbed ends, at the Long Sword's length); the Falchion is the historical cleaver-type
+  falchion of the 13th-14th century (`weapons-r10`, the Conyers / Thorpe kind: straight back, broad edge swelling toward
+  the point, plain iron cross, disc pommel, a little shorter). Preview `docs/art/equipment/saber-falchion.png`
+  (Long Sword, Messina Saber, Falchion at guard and held).
 - **Prop effects** (`heldFx` on the row, `Render/PixiRenderer/weaponFX.js`): an effect is built as a child of the
   weapon's sprite, so it moves, turns, hides and goes with the prop through every guard and attack; the arm rig ticks it
   each frame. Two kinds so far:

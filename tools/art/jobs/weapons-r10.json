@@ -1,0 +1,25 @@
+{
+  "name": "weapons-r10",
+  "note": "The Falchion's own drawing (owner 2026-11-14: 'a unique blade based on historical medieval falchion'). The cleaver-type falchion of the 13th-14th century (the Conyers / Thorpe kind): straight back, broad single edge swelling toward the point. A one-handed sword (category sword). One candidate. Cut with tools/art/weaponfit.js to the sword's footprint.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1536"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "falchion": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r3/exploration/openai/painterly-great-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached SWORD on magenta is one of this game's approved swords: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background). SUBJECT: ONE HISTORICAL MEDIEVAL FALCHION, the broad cleaver-like single-edged sword of 13th and 14th century Europe (like the English Conyers and Thorpe falchions): a soldier's chopping sword, plain and sturdy, not fantasy. POINT UP, pommel down, the hilt perfectly upright on the vertical centre line of the picture. From the bottom: a flat round DISC POMMEL of dark iron; a short GRIP for ONE fist, wrapped in dark brown leather, of even thickness; a plain straight iron CROSSGUARD, a simple bar about three times as wide as the blade at the guard, its ends very slightly drooping toward the blade; then the BLADE: SINGLE-EDGED, its BACK a perfectly STRAIGHT line on the LEFT running all the way up in line with the left side of the grip; its cutting EDGE on the RIGHT, starting narrow at the guard and SWELLING outward in a long convex curve so the blade grows much BROADER toward its upper third (about twice as broad there as at the guard), like a cleaver, then the edge sweeps in and up to meet the straight back at a sharp point at the top left. A broad, heavy, wedge-like blade, noticeably wider than an ordinary sword. Grey-white steel with a slightly darker band along the straight back. The blade is about four times as long as the grip. Colours: bright plain steel, dark iron fittings, dark brown leather. Bold and readable: it is seen about 40 pixels tall on the board, so big plain shapes, no engraving, no ornament, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. Seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    }
+  }
+}
