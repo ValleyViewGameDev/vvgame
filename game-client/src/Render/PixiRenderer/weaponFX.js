@@ -8,7 +8,7 @@
  *   glow:#ffd27a    the same in a colour of its own
  *   orb             a round halo (corona) around the weapon's TIP, the head still clearly seen (the Magic Spear, owner 2026-11-14):
  *                   the head is found from the drawing (the top rows wider than the shaft), the orb
- *                   is centred on it, about three times the head across, and breathes; orb:#hex for a colour
+ *                   is centred just below the point, one fixed size for every weapon, and breathes; orb:#hex for a colour
  *   fire            flames licking off the BLADE (Demonbane, owner 2026-11-14): small flame puffs born on the
  *                   blade's edges, rising straight UP on screen whatever angle the blade is at, yellow to
  *                   orange to deep red as they shrink and fade; fire:#hex tints the hottest colour
@@ -109,7 +109,9 @@ function buildGlow(weapon, option) {
 // -------------------------------------------------------------------------------------------- orb
 const ORB = {
   colour: '#8fe3ff',   // an arcane pale blue
-  size: 3.2,           // the halo's diameter, as a multiple of the head's height
+  diameterPx: 290,     // the halo's diameter in weapon texture px (one scale for every weapon, 426.67 px = a tile): the
+                       // Magic Spear's size; a fixed size, not the head's, so a halberd's tall head does not swamp the figure
+  reachPx: 45,         // its centre: this far below the point, or the head's middle if that is nearer
   alpha: [0.55, 0.95],
   scale: [0.9, 1.08],  // it swells a little as it brightens
   periodMs: 1400,
@@ -141,7 +143,10 @@ function tipOf(tex) {
     if (widest > shaft + 1 && width <= shaft + 1) { bottom = y; break; } // past the head's widest, back down to the shaft (a point starts narrow too)
     bottom = y;
   }
-  return { x: cx, y: (top + bottom) / 2, height: Math.max(8, bottom - top) };
+  // the orb's centre: on the point's line, a spearhead's half-length below the point (or the head's middle if shorter)
+  const y = Math.round(top + Math.min((bottom - top) / 2, ORB.reachPx));
+  const at = span(y);
+  return { x: at ? (at[0] + at[1]) / 2 : cx, y, height: Math.max(8, bottom - top) };
 }
 
 const orbCache = new Map(); // colour -> a soft round texture
@@ -184,7 +189,7 @@ function buildOrb(weapon, option) {
     if (!tex?.valid || !tex.baseTexture?.resource?.source) return;
     const tip = tipOf(tex);
     sprite.position.set(tip.x - weapon.anchor.x * tex.width, tip.y - weapon.anchor.y * tex.height);
-    base = (tip.height * ORB.size) / 128;
+    base = ORB.diameterPx / 128;
     crisp.texture = tex;
     crisp.anchor.copyFrom(weapon.anchor);
     ready = true;

@@ -13460,7 +13460,8 @@
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1,
     "weaponClass": "crossbow",
-    "heldArt": "weapons/magic-crossbow.png"
+    "heldArt": "weapons/magic-crossbow.png",
+    "heldFx": "orb"
   },
   {
     "type": "Magic Halberd",
@@ -13481,7 +13482,8 @@
     "ingredient1qty": 1,
     "attackrange": 1,
     "weaponClass": "polearm",
-    "heldArt": "weapons/magic-halberd.png"
+    "heldArt": "weapons/magic-halberd.png",
+    "heldFx": "orb"
   },
   {
     "type": "Caliban's Breastplate",

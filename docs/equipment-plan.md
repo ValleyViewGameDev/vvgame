@@ -236,9 +236,11 @@ takes over; nothing is to be done about it.
     row of the drawing's lower part), with a crisp copy of the weapon drawn over it. On the Glowing Sword
     (`docs/art/equipment/glowing-sword.png`).
   - `orb` (or `orb:#rrggbb`): a round, pulsing halo (corona) around the weapon's TIP (the head found from the drawing:
-    the top rows wider than the shaft), about 3.2 times the head's height across, in a pale arcane blue, with a crisp copy
-    of the weapon drawn over it so the head stays clearly visible (owner: "a corona/halo rather than a solid orb"). On the
-    Magic Spear (owner 2026-11-14; `docs/art/equipment/magic-spear-orb.png`).
+    the top rows wider than the shaft), in a pale arcane blue, with a crisp copy of the weapon drawn over it so the head
+    stays clearly visible (owner: "a corona/halo rather than a solid orb"). One fixed size for every weapon (290 texture
+    px, ~0.7 tile, the Magic Spear's), centred on the point's line 45 px below the point: sized from the head, a
+    halberd's tall head made it swamp the figure. On the Magic Spear, Magic Halberd and Magic Crossbow (its front)
+    (owner 2026-11-14; `docs/art/equipment/magic-spear-orb.png`, `magic-orbs.png`).
   - `fire` (or `fire:#hex` for the hottest colour): a pool of ~56 flame puffs born just inside the blade's edges above
     the crossguard, each a soft tongue stretched along screen-UP (the inverse of the weapon's world matrix, so flames
     climb upward whatever angle the blade is at, even hanging point-down), yellow to orange to deep red as it shrinks
