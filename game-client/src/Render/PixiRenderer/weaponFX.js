@@ -9,6 +9,9 @@
  *   orb             a round halo (corona) around the weapon's TIP, the head still clearly seen (the Magic Spear, owner 2026-11-14):
  *                   the head is found from the drawing (the top rows wider than the shaft), the orb
  *                   is centred on it, about three times the head across, and breathes; orb:#hex for a colour
+ *   fire            flames licking off the BLADE (Demonbane, owner 2026-11-14): small flame puffs born on the
+ *                   blade's edges, rising straight UP on screen whatever angle the blade is at, yellow to
+ *                   orange to deep red as they shrink and fade; fire:#hex tints the hottest colour
  *
  * An effect is built as a CHILD of the weapon's sprite (ArmRig.setHeld), so it inherits the weapon's
  * position, rotation, scale and visibility: it travels with the prop through the guard and every
@@ -18,7 +21,7 @@
  * To add a kind: one entry in KINDS, `build(weapon, option)` returning { update(now), destroy() }.
  * `update` runs every frame the weapon is placed (ArmRig.placeHeld); keep it to a few property sets.
  */
-import { Sprite, Texture, BLEND_MODES } from 'pixi.js-legacy';
+import { Container, Sprite, Texture, BLEND_MODES } from 'pixi.js-legacy';
 
 // ------------------------------------------------------------------------------------------- glow
 const GLOW = {
@@ -197,7 +200,133 @@ function buildOrb(weapon, option) {
   };
 }
 
-const KINDS = { glow: buildGlow, orb: buildOrb };
+// ------------------------------------------------------------------------------------------- fire
+const FIRE = {
+  count: 56,           // puffs alive at once (a pool: nothing is made or freed while it burns)
+  lifeMs: [420, 780],
+  sizePx: [44, 80],    // a puff's diameter at birth, weapon texture px (512 px = 1.2 tiles)
+  risePx: [120, 220],  // how far a puff climbs over its life
+  drift: 22,           // sideways wander, px
+  colours: ['#ffe27a', '#ff9a1f', '#f2560c', '#a8200a'], // birth to death
+  stretch: 1.7,        // a puff is drawn taller than wide, along "up": a tongue of flame, not a dot
+};
+
+const fireDotCache = { tex: null };
+function fireDot() {
+  if (fireDotCache.tex) return fireDotCache.tex;
+  const n = 64, c = document.createElement('canvas');
+  c.width = c.height = n;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.4, 'rgba(255,255,255,0.7)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, n, n);
+  fireDotCache.tex = Texture.from(c);
+  return fireDotCache.tex;
+}
+
+const hexRgb = (hex) => { const h = hex.replace('#', ''); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) || 0); };
+const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const toTint = ([r, g, b]) => (r << 16) | (g << 8) | b;
+
+/** Where flames are born: points just inside the blade's left and right edges, every few rows above the crossguard. */
+const edgeCache = new Map();
+function bladeEdges(tex) {
+  const src = tex.baseTexture.resource.source;
+  const key = tex.baseTexture.cacheId || src?.src;
+  if (edgeCache.has(key)) return edgeCache.get(key);
+  const w = tex.width, h = tex.height;
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(src, 0, 0, w, h);
+  const guard = guardRow(ctx, w, h);
+  const a = ctx.getImageData(0, 0, w, h).data;
+  const pts = [];
+  for (let y = 0; y < guard - 6; y += 4) {
+    let l = -1, r = -1;
+    for (let x = 0; x < w; x++) if (a[(y * w + x) * 4 + 3] > 40) { if (l < 0) l = x; r = x; }
+    if (l >= 0) pts.push([l + 3, y], [r - 3, y]);
+  }
+  edgeCache.set(key, pts);
+  return pts;
+}
+
+function buildFire(weapon, option) {
+  const ramp = (option ? [option, ...FIRE.colours.slice(1)] : FIRE.colours).map(hexRgb);
+  const layer = new Container();
+  // the flames go BEHIND a crisp copy of the weapon (children draw over their parent): the blade stays clear and the
+  // fire licks out around its edges and climbs off it
+  const crisp = new Sprite(weapon.texture);
+  crisp.anchor.copyFrom(weapon.anchor);
+  weapon.addChild(layer, crisp);
+  const puffs = [];
+  for (let i = 0; i < FIRE.count; i++) {
+    const p = new Sprite(fireDot());
+    p.anchor.set(0.5);
+    p.blendMode = BLEND_MODES.NORMAL; // ADD over grass turns orange to yellow-green (2026-11-14): paint it
+    p.visible = false;
+    layer.addChild(p);
+    puffs.push({ sprite: p, born: -1, life: 1, x: 0, y: 0, rise: 0, drift: 0, size: 1 });
+  }
+  let pts = null, ox = 0, oy = 0;
+  const rand = (lo, hi) => lo + Math.random() * (hi - lo);
+  const spawn = (q, now) => {
+    const [x, y] = pts[Math.floor(Math.random() * pts.length)];
+    q.x = x - ox; q.y = y - oy;
+    q.born = now - Math.random() * 60;
+    q.life = rand(...FIRE.lifeMs);
+    q.rise = rand(...FIRE.risePx);
+    q.drift = rand(-FIRE.drift, FIRE.drift);
+    q.size = rand(...FIRE.sizePx) / 64;
+  };
+  return {
+    update(now) {
+      if (!pts) {
+        const tex = weapon.texture;
+        if (!tex?.valid || !tex.baseTexture?.resource?.source) return;
+        pts = bladeEdges(tex);
+        ox = weapon.anchor.x * tex.width; oy = weapon.anchor.y * tex.height;
+        crisp.texture = tex;
+        crisp.anchor.copyFrom(weapon.anchor);
+        if (!pts.length) return;
+        puffs.forEach((q) => { spawn(q, now); q.born -= Math.random() * q.life; }); // already burning on the first frame
+      }
+      if (!pts.length) return;
+      // "up" on screen, in the weapon's own px: the inverse of its world matrix applied to (0, -1)
+      const m = weapon.worldTransform;
+      const det = m.a * m.d - m.b * m.c || 1;
+      let ux = m.c / det, uy = -m.a / det; // inverse of [a c; b d] times (0, -1)
+      const len = Math.hypot(ux, uy) || 1;
+      ux /= len; uy /= len;
+      const sx = -uy, sy = ux; // sideways, for the wander
+      const turn = Math.atan2(uy, ux) + Math.PI / 2; // the puff's long axis along "up"
+      for (const q of puffs) {
+        let t = (now - q.born) / q.life;
+        if (t >= 1 || t < 0) { spawn(q, now); t = 0; }
+        const e = t * t * 0.4 + t * 0.6; // speeds up as it rises, as heat does
+        const wob = Math.sin((now / 140) + q.drift) * 0.35 + 1;
+        q.sprite.position.set(q.x + ux * q.rise * e + sx * q.drift * t * wob, q.y + uy * q.rise * e + sy * q.drift * t * wob);
+        const k = q.size * (1 - 0.6 * t);
+        q.sprite.rotation = turn;
+        q.sprite.scale.set(k, k * FIRE.stretch);
+        q.sprite.alpha = 0.85 * (t < 0.12 ? t / 0.12 : 1 - (t - 0.12) / 0.88);
+        const seg = Math.min(ramp.length - 2, Math.floor(t * (ramp.length - 1)));
+        q.sprite.tint = toTint(mix(ramp[seg], ramp[seg + 1], t * (ramp.length - 1) - seg));
+        q.sprite.visible = true;
+      }
+    },
+    destroy() {
+      for (const o of [layer, crisp]) o.parent?.removeChild(o);
+      layer.destroy({ children: true });
+      crisp.destroy();
+    },
+  };
+}
+
+const KINDS = { glow: buildGlow, orb: buildOrb, fire: buildFire };
 
 /**
  * The effect a row's `heldFx` names, as { kind, option, attach(weapon) }, or null for none or an

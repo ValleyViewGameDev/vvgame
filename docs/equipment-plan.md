@@ -218,7 +218,7 @@ takes over; nothing is to be done about it.
   `heldFx: glow:#ffd27a`. Preview `docs/art/equipment/legendary-sword.png` (Long Sword; Legendary Sword at guard and in
   a held pose).
 - **Messina Saber and Falchion, their own blades** (owner 2026-11-14; one candidate each, cut by weaponfit on a 192 px
-  sword canvas, grip 96,448): the Messina Saber is curved like a scimitar (`weapons-r9`: single edge widening to a swept,
+  sword canvas, grip 96,448): the Messina Saber is curved like a scimitar (`weapons-r9`, mirrored after the cut so the curve sweeps the other way, owner: single edge widening to a swept,
   clipped point, brass cross with knobbed ends, at the Long Sword's length); the Falchion is the historical cleaver-type
   falchion of the 13th-14th century (`weapons-r10`, the Conyers / Thorpe kind: straight back, broad edge swelling toward
   the point, plain iron cross, disc pommel, a little shorter). Preview `docs/art/equipment/saber-falchion.png`
@@ -233,7 +233,13 @@ takes over; nothing is to be done about it.
     the top rows wider than the shaft), about 3.2 times the head's height across, in a pale arcane blue, with a crisp copy
     of the weapon drawn over it so the head stays clearly visible (owner: "a corona/halo rather than a solid orb"). On the
     Magic Spear (owner 2026-11-14; `docs/art/equipment/magic-spear-orb.png`).
-  A new kind is one entry in `KINDS`. `rigshot --fx glow` (or `--fx orb`) shows one.
+  - `fire` (or `fire:#hex` for the hottest colour): a pool of ~56 flame puffs born just inside the blade's edges above
+    the crossguard, each a soft tongue stretched along screen-UP (the inverse of the weapon's world matrix, so flames
+    climb upward whatever angle the blade is at, even hanging point-down), yellow to orange to deep red as it shrinks
+    and fades, drawn behind a crisp copy of the weapon so the blade stays clear. Normal blend, not ADD (ADD over grass
+    turned the orange yellow-green). On Demonbane (owner 2026-11-14), whose blade was also widened 1.6x above the
+    guard and recoloured orange (a luminance ramp, deep red-brown to pale gold). Preview `docs/art/equipment/demonbane-fire.png`.
+  A new kind is one entry in `KINDS`. `rigshot --fx glow` (or `--fx orb`, `--fx fire`) shows one.
 
 ## 1. What exists today
 

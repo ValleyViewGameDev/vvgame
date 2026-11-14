@@ -14860,7 +14860,8 @@
     "ingredient4": "Book",
     "ingredient4qty": 260,
     "weaponClass": "greatsword",
-    "heldArt": "weapons/demonbane.png"
+    "heldArt": "weapons/demonbane.png",
+    "heldFx": "fire"
   },
   {
     "type": "Charon's Obol",
