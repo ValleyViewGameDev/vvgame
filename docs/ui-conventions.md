@@ -110,6 +110,9 @@ value rather than trust this page.
   column header goes, each group gets its own full-width row, and a row with a cost wraps to
   two lines (checkbox, name, station; then the labelled second checkbox and the cost); the
   name toggles the row's checkbox. A new bulk modal uses these classes, not inline widths.
+- A list row with a checkbox (the Combat panel's gear rows) toggles that checkbox from a tap anywhere
+  in the row, except on the row's own buttons (Discard); a row that cannot be checked shows the
+  not-allowed cursor and ignores the tap (owner 2026-11-13).
 - Full-screen modals with a commit button over scrolling content pin the footer below the
   scroll area; do not float a button over the content.
 - Multi-column modal layouts (the Store's paired and tripled offer cards) collapse to a one-

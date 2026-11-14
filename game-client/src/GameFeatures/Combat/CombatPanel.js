@@ -201,7 +201,17 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, m
     const resource = defOf(power.type);
     const stats = statLines(power, resource);
     return (
-      <div key={power.type} className={`equipment-item${disabled && !checked ? ' equipment-unavailable' : ''}`}>
+      // the whole row is the checkbox's tap target (owner 2026-11-13), except the Discard button and the
+      // checkbox itself (which toggles on its own)
+      <div
+        key={power.type}
+        className={`equipment-item equipment-row-tap${disabled && !checked ? ' equipment-unavailable' : ''}`}
+        onClick={(e) => {
+          if (e.target.closest('.equipment-discard, .equipment-checkbox')) return;
+          if (disabled && !checked) return;
+          onToggle();
+        }}
+      >
         <input
           type="checkbox"
           checked={checked}

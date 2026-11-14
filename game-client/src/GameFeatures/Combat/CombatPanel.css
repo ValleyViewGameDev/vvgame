@@ -33,6 +33,16 @@
   margin-bottom: 8px;
 }
 
+/* the whole row toggles its checkbox (except the Discard button) */
+.equipment-row-tap {
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.equipment-row-tap.equipment-unavailable {
+  cursor: not-allowed;
+}
+
 /* Equipment checkbox styling */
 .equipment-checkbox {
   margin-right: 8px;
