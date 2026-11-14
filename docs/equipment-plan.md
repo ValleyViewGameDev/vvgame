@@ -201,9 +201,14 @@ takes over; nothing is to be done about it.
 - **A file may be wider or taller than its category's canvas**: padded equally both sides, or at the top. The grip keeps
   its place from the bottom and the centre line (`ArmRig.setHeld`), so a bigger head or a longer blade needs no new numbers.
 - **Sizes set by the owner:** Short Sword's blade 15 % shorter and Long Sword's 15 % longer than the old shared sword
-  (Glowing Sword and Sword of Song take the Long Sword's drawing); Great Sword 20 % thicker; Giant Axe's head twice the
-  area (x1.41 each way, top where it was, so the axe is no longer). Previews: `docs/art/equipment/sword-lengths.png`,
-  `giant-axe.png`.
+  (Glowing Sword and Sword of Song take the Long Sword's drawing); Great Sword 20 % thicker; Giant Axe's head 1.8x each
+  way (about 3.2x the area; owner: 'even bigger'), grown about the old head's centre so it costs the handle little and
+  the axe only a little length. Previews: `docs/art/equipment/sword-lengths.png`,
+  `giant-axe.png`, `dragonslayer-giant-axe.png`.
+- **Dragonslayer, its own design** (owner: 'really cool', a little exaggerated, green and gold;
+  `tools/art/jobs/weapons-r7.json`, one candidate, cut by weaponfit at the great sword's length and grip on a 256 px canvas):
+  a gold dragon-wing crossguard with an emerald, a gold dragon-head pommel, an emerald grip wound with gold wire, and
+  an emerald fuller with gold scales up a steel blade.
 - **Prop effects** (`heldFx` on the row, `Render/PixiRenderer/weaponFX.js`): an effect is built as a child of the
   weapon's sprite, so it moves, turns, hides and goes with the prop through every guard and attack; the arm rig ticks it
   each frame. One kind so far, `glow` (or `glow:#rrggbb`): a breathing halo on the BLADE only (everything above the

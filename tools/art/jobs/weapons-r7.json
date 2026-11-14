@@ -1,0 +1,25 @@
+{
+  "name": "weapons-r7",
+  "note": "The Dragonslayer's own drawing (owner 2026-11-14: 'some really cool design', a little exaggerated, green and golden). A two-handed great sword (category greatsword). One candidate. Cut to the weapon footprint with tools/art/weaponfit.js (canvas 256x720, grip 128,650: the great sword's grip, padded wider for the wing guard).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1536"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "dragonslayer": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r3/exploration/openai/painterly-great-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached GREAT SWORD on magenta is this game's approved two-handed sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background). SUBJECT: ONE LEGENDARY TWO-HANDED GREAT SWORD called DRAGONSLAYER, a hero's fantasy sword, a little exaggerated and heroic, in EMERALD GREEN and GOLD. It has the same overall proportions as the attached great sword (a long grip for two hands, a long blade), but a far more splendid design. POINT UP, pommel down, symmetrical about its centre line. From the bottom: a POMMEL shaped like a small golden dragon's head facing down, with a round emerald-green gem set in it; a LONG straight grip, long enough for two fists one above the other with room to spare, wrapped in deep emerald-green leather crossed with a spiral of gold wire, of even thickness; a big golden CROSSGUARD shaped like a pair of spread DRAGON WINGS, one to each side, sweeping up a little at their tips, about five times as wide as the blade, with a green gem at its centre where it meets the blade; then a long, broad, straight double-edged BLADE of bright clean steel, a little broader than the attached great sword's, with a wide EMERALD-GREEN fuller down its middle patterned with a few large simple golden dragon scales near the guard, the edges bright steel; the blade widens very slightly just below the point and then ends in a bold, sharp, slightly flared point. The blade is about two and a half times as long as the grip. Colours: rich gold with warm highlights, deep and bright emerald green, bright clean steel. Bold and readable: it is seen about 50 pixels tall on the board, so big plain shapes, a few strong details, no fine engraving, no tiny runes, no glow, no sparkle, no motion lines, no flames. COLOUR: never pink, never magenta, never purple anywhere on it. It stands perfectly UPRIGHT in the middle of the picture, exactly vertical, seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    }
+  }
+}
