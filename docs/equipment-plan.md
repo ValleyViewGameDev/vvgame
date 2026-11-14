@@ -80,7 +80,12 @@ The owner asked to see the sword in the game before any more planning. What is i
   haft toward the rear one as it falls. The far ELBOW stays in against the body (owner 2026-11-13):
   of the two ways it can fold, the far arm takes the one nearer where it hangs, the front hand comes
   down the haft to just above the rear one as the weapon is hoisted, and the hold may give up to 0.16
-  tile along the haft (`give`) when the elbow would otherwise wing out. The blow lands at 385 ms. The one-handed `chop` is gone:
+  tile along the haft (`give`) when the elbow would otherwise wing out. The far arm's answer is also
+  kept CONTINUOUS from frame to frame (`ArmRig.secondPose`): it holds its fold unless the other is
+  clearly better, the elbow's turn stays on the same side of a half turn, and its joints ease to the
+  answer over a few frames, with the fist drawn on the haft itself. Without that the arm flicked out
+  for a frame at the top of the chop, where it is folded nearly shut and its two folds are close
+  (seen on the King's crimson). The blow lands at 385 ms. The one-handed `chop` is gone:
   every axe and hammer is two-handed. docs/art/equipment/two-handed-chop.gif.
   docs/art/equipment/two-handed-thrust.gif.
 - **Poses are absolute (2026-11-13):** the avatar's guards and clips say where the upper arm and

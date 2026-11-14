@@ -336,6 +336,8 @@ export function cutRig(renderer, texture, rig) {
 // ---------------------------------------------------------------------------------------------
 const SECOND_REACH = 0.86;    // a two-handed weapon's second hand: how far of its arm's full length it may be stretched
 const SECOND_MIN_HOLD = 0.22; // ... and how near the first hand it may come, tiles along the weapon
+const SECOND_KEEP = 0.8;      // ... what a px of the elbow moving since the last frame costs: it holds its fold unless the other is clearly better
+const SECOND_EASE_MS = 35;    // ... and how quickly its joints follow the answer
 const SECOND_STAY = 0.9;      // ... what a px of give in its hold (held.second.give) costs against a px of elbow out of place: it moves only when the elbow would really wing out
 const STANCE_MS = 220;             // a stance eases in or out over this long
 const MESH_STEP = 1 / 72;          // the arm mesh's grid spacing (of the square): fine enough for a smooth bend
@@ -353,10 +355,10 @@ function handPoint(a, ts, te, tw = 0) {
 }
 
 /**
- * The joint turns [shoulder, elbow] that put a limb's hand on a point (the arm image's px): two bones,
- * solved by the cosine rule. Out of reach, the arm straightens toward it. Of the two ways the elbow
- * can fold, the one that leaves it NEARER where it hangs in the drawing: tucked in against the body,
- * never winged out sideways or lifted across the chest (owner 2026-11-13).
+ * The two ways a limb's two bones can put its hand on a point (the arm image's px), by the cosine
+ * rule: each { ts, te (the shoulder's and the elbow's turn), ex, ey (where that leaves the elbow),
+ * away (how far that is from where the elbow hangs in the drawing) }. Out of reach, the arm
+ * straightens toward the point; too near, it folds as far as it can.
  */
 function reachFor(b, tx, ty) {
   const [Sx, Sy] = b.S, [Ex, Ey] = b.E, [Gx, Gy] = b.G;
@@ -365,11 +367,11 @@ function reachFor(b, tx, ty) {
   const dx = tx - Sx, dy = ty - Sy, D = Math.max(Math.abs(L1 - L2) + 1, Math.min(L1 + L2 - 0.5, Math.hypot(dx, dy)));
   const base = Math.atan2(dy, dx), A = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + D * D - L2 * L2) / (2 * L1 * D))));
   const hx = Sx + D * Math.cos(base), hy = Sy + D * Math.sin(base); // the hand: the point itself, or as near as the arm reaches
-  const fold = (bend) => { const t1 = base + bend * A, ex = Sx + L1 * Math.cos(t1), ey = Sy + L1 * Math.sin(t1); return { t1, ex, ey, away: Math.hypot(ex - Ex, ey - Ey) }; };
-  const one = fold(1), other = fold(-1), f = one.away <= other.away ? one : other;
   const wrap = (v) => Math.atan2(Math.sin(v), Math.cos(v));
-  const ts = wrap(f.t1 - a1);
-  return [ts, wrap(Math.atan2(hy - f.ey, hx - f.ex) - a2 - ts), f.away]; // ... and how far that leaves the elbow from where it hangs (px)
+  return [1, -1].map((bend) => {
+    const t1 = base + bend * A, ex = Sx + L1 * Math.cos(t1), ey = Sy + L1 * Math.sin(t1), ts = wrap(t1 - a1);
+    return { ts, te: wrap(Math.atan2(hy - ey, hx - ex) - a2 - ts), ex, ey, away: Math.hypot(ex - Ex, ey - Ey) };
+  });
 }
 
 export class ArmRig {
@@ -540,26 +542,45 @@ export class ArmRig {
     const qx = g.x - b.S[0], qy = g.y - b.S[1], along = -(qx * ux + qy * uy), off2 = qx * qx + qy * qy - along * along; // the weapon's line from that arm's shoulder
     const far = along + Math.sqrt(Math.max(0, R * R - off2)); // the last point of the line within reach
     const lo = SECOND_MIN_HOLD * H.pxPerTile, hold = (v) => Math.max(lo, Math.min(v, far));
-    // ... and the hold may give a little either way along the weapon to keep that arm's ELBOW in against
-    // the body (owner 2026-11-13). A hand held close to its own shoulder leaves the elbow nowhere to go
-    // but out sideways; a little further along the haft and it hangs down again. So nearby holds are
-    // tried and the one kept is the best trade of a tucked elbow against staying where the clip asked
-    let is = 0, ie = 0, best = Infinity;
-    const span = (H.give || 0) * H.pxPerTile, tries = span ? 8 : 0; // only a weapon that asks for it (`give`): the polearm's hold stays put
+    // Which hold, and which of the arm's two folds? The one that best trades three things (px):
+    //   the ELBOW in against the body, near where it hangs (owner 2026-11-13: never winged out sideways);
+    //   the hold where the clip asked (a weapon with `give` may shift it a little along the haft: a hand
+    //     held close to its own shoulder leaves the elbow nowhere to go but out);
+    //   the elbow near where it was LAST frame, so the arm never flicks from one fold to the other for a
+    //     frame (it did, at the top of the chop where the arm is folded nearly shut and both folds are close)
+    const span = (H.give || 0) * H.pxPerTile, tries = span ? 12 : 0; // only a weapon that asks for it: the polearm's hold stays put
+    const was = H.last && now - H.last.at < 120 ? H.last : null; // the last frame's answer, if this is the same motion
+    let pick = null, cost = Infinity;
     for (let i = -tries; i <= tries; i++) {
-      const at = hold(d + (tries ? (span * i) / tries : 0)), [s1, e1, away] = reachFor(b, g.x + ux * at, g.y + uy * at);
-      const cost = away + SECOND_STAY * Math.abs(at - d);
-      if (cost < best) { best = cost; is = s1; ie = e1; }
+      const at = hold(d + (tries ? (span * i) / tries : 0));
+      for (const f of reachFor(b, g.x + ux * at, g.y + uy * at)) {
+        const c = f.away + SECOND_STAY * Math.abs(at - d) + (was ? SECOND_KEEP * Math.hypot(f.ex - was.ex, f.ey - was.ey) : 0);
+        if (c < cost) { cost = c; pick = { ...f, tx: g.x + ux * at, ty: g.y + uy * at }; }
+      }
     }
+    // the elbow's turn is kept on the same side of a half turn as last frame (a nearly shut arm sits at
+    // one, where +180 and -180 are the same pose but bend the sleeve opposite ways), and both turns ease
+    // toward the answer over a few frames, so what jump is left is a quick move, not a flick
+    let { ts, te } = pick;
+    if (was) {
+      while (te - was.te > Math.PI) te -= 2 * Math.PI;
+      while (te - was.te < -Math.PI) te += 2 * Math.PI;
+      const k = 1 - Math.exp(-(now - was.at) / SECOND_EASE_MS);
+      ts = was.ts + (ts - was.ts) * k; te = was.te + (te - was.te) * k;
+    }
+    H.last = { at: now, ts, te, ex: pick.ex, ey: pick.ey };
     const amt = this.stanceAmount(now);
-    return { side: H.side, ts: is * amt, te: ie * amt, tw: 0, st: null };
+    return { side: H.side, ts: ts * amt, te: te * amt, tw: 0, st: null, tx: pick.tx, ty: pick.ty, amt };
   }
 
   /** The second hand's fist, drawn over the weapon where that arm's hand now is; its own drawn hand goes while the weapon is out. */
   placeSecond(second, ax, ay) {
     const H = this.second, a = this.arms[H.holder], b = this.arms[H.side];
     const g = handPoint(b, second.ts, second.te), show = a.held.weapon.visible;
-    if (H.fist) { H.fist.position.set(g.x - ax, g.y - ay); H.fist.rotation = g.fore; H.fist.visible = show; }
+    // the fist sits ON the weapon, at the hold itself (the eased arm may trail it by a hair, under the fist); while the
+    // guard is still rising it travels there from where the arm's own hand is
+    const fx = g.x + (second.tx - g.x) * second.amt, fy = g.y + (second.ty - g.y) * second.amt;
+    if (H.fist) { H.fist.position.set(fx - ax, fy - ay); H.fist.rotation = g.fore; H.fist.visible = show; }
     const tex = show && b.part.texNoHand ? b.part.texNoHand : b.part.tex;
     if (b.mesh.texture !== tex) b.mesh.texture = tex;
   }
