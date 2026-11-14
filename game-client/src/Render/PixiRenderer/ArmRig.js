@@ -630,13 +630,17 @@ export class ArmRig {
     if (a.part.texNoHand) a.mesh.texture = a.part.texNoHand;
     a.held = { weapon, fist, angle: held.angle ?? Math.PI / 2, pxPerTile: held.pxPerTile || 0 };
     a.pose = null; // placed on the next sync
-    // a two-handed weapon: the other arm's hand on it too (secondPose). That arm is drawn UNDER this
-    // one and the weapon, and its fist over the weapon, so the weapon lies in both hands
+    // the arm that holds the weapon is drawn LAST, over every other limb: the weapon lies across the body in
+    // front of the far arm, whether or not that arm holds it too. (Left to the order the rig lists its arms,
+    // the far arm drew over a spear or a rapier, unless a two-handed weapon had been out before and had
+    // already moved it under: so it showed only now and then, owner 2026-11-14)
+    this.root.setChildIndex(a.mesh, this.root.children.length - 1);
+    // a two-handed weapon: the other arm's hand on it too (secondPose). That arm is under this one and the
+    // weapon (above), and its fist is drawn over the weapon, so the weapon lies in both hands
     const b = held.second ? this.arms[held.second.side] : null;
     if (b && b !== a) {
       let fist2 = null;
       if (b.part.fist) { fist2 = new Sprite(b.part.fist); fist2.anchor.set(0.5); a.mesh.addChild(fist2); }
-      this.root.setChildIndex(b.mesh, 0);
       this.second = { holder: side, side: held.second.side, dist: held.second.dist, pxPerTile: held.second.pxPerTile, fist: fist2 };
     }
   }
