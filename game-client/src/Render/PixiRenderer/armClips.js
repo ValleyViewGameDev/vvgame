@@ -162,6 +162,15 @@ export const ARM_CLIPS = {
       { t: 280, s: -0.72, e: -0.85 },
       { t: 480, s: 0.43, e: -2.05 },
     ],
+    // the shaft itself runs forward through BOTH hands as the thrust lands and back again as the guard
+    // returns (tiles toward the point): more reach for the point, the arms and hands where they were
+    slide: [
+      { t: 0, d: 0 },
+      { t: 150, d: 0 },
+      { t: 210, d: 0.2, ease: 'in' },
+      { t: 280, d: 0.18 },
+      { t: 480, d: 0 },
+    ],
     second: [
       { t: 0, d: 0.58 },
       { t: 145, d: 0.68, ease: 'out' },
@@ -244,4 +253,4 @@ export function valueAt(keys, t, field = 'l') {
 }
 
 /** How long a clip runs (ms): its last key. */
-export const clipLength = (clip) => Math.max(...['lead', 'off', 'lean', 'body', 'second'].map((k) => (clip[k]?.length ? clip[k][clip[k].length - 1].t : 0)));
+export const clipLength = (clip) => Math.max(...['lead', 'off', 'lean', 'body', 'second', 'slide'].map((k) => (clip[k]?.length ? clip[k][clip[k].length - 1].t : 0)));

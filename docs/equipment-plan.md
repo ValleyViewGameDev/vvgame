@@ -46,7 +46,9 @@ The owner asked to see the sword in the game before any more planning. What is i
   point `second` tiles up the shaft is found, and the far arm's two joints are solved to put its hand
   there (`ArmRig.secondPose`, a two-bone reach with the elbow kept down and out). The clip's `second`
   track slides the hold along the shaft: back through the front hand as the shaft is drawn, forward
-  through it on the thrust. The front arm is never stretched past 86% of its length: beyond that the
+  through it on the thrust. A clip's `slide` track moves the weapon itself along its own length
+  through both hands, the arms and hands where they were: the polearm runs 0.2 tile further forward as
+  the thrust lands and comes back with the guard (owner 2026-11-13). The front arm is never stretched past 86% of its length: beyond that the
   shaft slides through the hand instead (owner: the front hand need not follow the thrust all the
   way; the far arm is the thin one). It is drawn under the weapon arm and the weapon, its fist over
   the shaft. Every outfit's rig has an `R` arm for it; a figure whose rig had none would hold the

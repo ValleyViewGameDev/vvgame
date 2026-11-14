@@ -79,6 +79,7 @@ export function armFigure(armRig, held, weaponTex, cutW, spanTiles) {
     tex: weaponTex, grip: held.grip, size: held.size,
     scale: (cutW / spanTiles) / PX_PER_TILE, // canvas px to the figure texture's px
     angle: held.angle,
+    pxPerTile: cutW / spanTiles, // the figure texture's px to a board tile: a clip's `slide` and `second` are in tiles
     // a two-handed weapon on a figure whose rig has the other arm: that hand holds it too, `second` tiles toward the point
     second: held.second && armRig.arms.R && armRig.arms.R.part.fist ? { side: 'R', dist: held.second, pxPerTile: cutW / spanTiles } : null,
   });

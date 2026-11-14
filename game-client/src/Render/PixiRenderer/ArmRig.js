@@ -488,7 +488,10 @@ export class ArmRig {
       const shoulderLean = lean ? lean * h * Math.max(0, feetV - a.S[1] / h) / span : 0; // already in p.x, and in the mesh's shoulder point
       const shoulderLeanY = leanY ? leanY * h * Math.max(0, feetV - a.S[1] / h) / span : 0;
       a.mesh.position.set(p.x - p.f * ow * (a.S[0] + shoulderLean - ax), p.y - oh * (a.S[1] + shoulderLeanY - ay));
-      if (a.held) this.placeHeld(a, ts, te, tw, lean, leanY, h, feetV, span, ax, ay, !!clip || !st || this._stanceTo === 1);
+      // a clip may SLIDE the weapon along its own length through the hands that hold it (`slide`: tiles toward
+      // its point): the polearm shoots forward on the thrust and comes back, the hands where they were
+      const slide = a.held && clip && clip.slide ? valueAt(clip.slide, t, 'd') * a.held.pxPerTile : 0;
+      if (a.held) this.placeHeld(a, ts, te, tw, lean, leanY, h, feetV, span, ax, ay, !!clip || !st || this._stanceTo === 1, slide);
     }
     if (second) this.placeSecond(second, ax, ay);
   }
@@ -596,7 +599,7 @@ export class ArmRig {
     let fist = null;
     if (a.part.fist) { fist = new Sprite(a.part.fist); fist.anchor.set(0.5); a.mesh.addChild(fist); }
     if (a.part.texNoHand) a.mesh.texture = a.part.texNoHand;
-    a.held = { weapon, fist, angle: held.angle ?? Math.PI / 2 };
+    a.held = { weapon, fist, angle: held.angle ?? Math.PI / 2, pxPerTile: held.pxPerTile || 0 };
     a.pose = null; // placed on the next sync
     // a two-handed weapon: the other arm's hand on it too (secondPose). That arm is drawn UNDER this
     // one and the weapon, and its fist over the weapon, so the weapon lies in both hands
@@ -610,12 +613,13 @@ export class ArmRig {
   }
 
   /**
-   * Each frame: the held weapon and the fist at the hand, turned with the forearm. `show`: the weapon
+   * Each frame: the held weapon and the fist at the hand, turned with the forearm (`slide`: the weapon
+   * moved this many px along its own length, through the hand). `show`: the weapon
    * is out (the stance is on, or a clip is still playing). The switch is ONE step, never a fade: the
    * weapon and the fist go and the arm's own drawn hand is back in the same frame, and the other way
    * round (owner 2026-11-13: a fade left a moment with no hand at all).
    */
-  placeHeld(a, ts, te, tw, lean, leanY, h, feetV, span, ax, ay, show) {
+  placeHeld(a, ts, te, tw, lean, leanY, h, feetV, span, ax, ay, show, slide = 0) {
     let [x, y] = a.G;
     const turn = (px, py, ang) => { if (!ang) return; const c = Math.cos(ang), s = Math.sin(ang), dx = x - px, dy = y - py; x = px + dx * c - dy * s; y = py + dx * s + dy * c; };
     if (a.W) turn(a.W[0], a.W[1], tw);
@@ -626,7 +630,8 @@ export class ArmRig {
     if (leanY) y += leanY * h * above;
     const fore = a.foreAngle + ts + te + tw; // the forearm now, clockwise from straight down
     const { weapon, fist, angle } = a.held;
-    weapon.position.set(x - ax, y - ay); weapon.rotation = fore + angle; weapon.visible = show;
+    const rot = fore + angle; // the way the weapon points; `slide` moves it that way, the fist stays on the hand
+    weapon.position.set(x - ax + Math.sin(rot) * slide, y - ay - Math.cos(rot) * slide); weapon.rotation = rot; weapon.visible = show;
     if (fist) { fist.position.set(x - ax, y - ay); fist.rotation = fore; fist.visible = show; }
     const tex = show && a.part.texNoHand ? a.part.texNoHand : a.part.tex;
     if (a.mesh.texture !== tex) a.mesh.texture = tex;
