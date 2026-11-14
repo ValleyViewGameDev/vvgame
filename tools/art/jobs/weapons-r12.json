@@ -1,0 +1,25 @@
+{
+  "name": "weapons-r12",
+  "note": "The Fen Cutlass's own drawing (owner 2026-11-14: 'use something like this', a photo of an 18th-century-style cutlass with a brass stirrup/basket hilt). The photo is described in words only: a photoreal image must never be a style ref. A one-handed sword (category sword). One candidate. Cut with tools/art/weaponfit.js to the sword canvas, a little shorter than the Long Sword.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1536"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "fen-cutlass": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r3/exploration/openai/painterly-great-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached SWORD on magenta is one of this game's approved swords: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background). SUBJECT: ONE ONE-HANDED CUTLASS called the FEN CUTLASS, a sturdy marsh-raider's chopping sword. POINT UP, pommel down, the hilt upright on the vertical centre line of the picture, seen from the side. From the bottom: a small rounded brass POMMEL CAP; a GRIP for ONE fist, ribbed, wound with bright silver wire, slightly swelling in the middle; a BRASS HAND GUARD: a broad brass KNUCKLE-BOW that sweeps from the pommel cap down to the guard in a smooth loop on the RIGHT side of the grip, joined by two or three thinner brass side bars that curve around it like a cage, with a short brass quillon sticking out on the LEFT where it meets the blade, and a flat brass shell at the base of the blade; then the BLADE: SHORT and BROAD, single-edged, its cutting edge on the RIGHT, gently CURVED so it leans a little to the right as it rises, of even breadth most of the way, ending in a CLIPPED point: the straight back on the LEFT angles sharply in near the top to meet the curved edge in a point. Dark, slightly weathered steel with a soft lighter edge, and a faint darker etched leaf-and-scroll pattern near the hilt, kept very simple. The blade is about three times as long as the grip. Colours: warm polished brass, silver wire, darkish weathered steel. Bold and readable: it is seen about 40 pixels tall on the board, so big plain shapes, a few strong details, no fine engraving, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. Seen flat-on from the side: no tilt of the hilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    }
+  }
+}

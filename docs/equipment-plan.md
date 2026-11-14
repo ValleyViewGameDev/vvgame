@@ -229,6 +229,12 @@ takes over; nothing is to be done about it.
   yelman-like spur) and sweeps into a hooked point. Cut at the Long Sword's length and grip, then mirrored so it curves
   the same way as the Messina Saber. Preview `docs/art/equipment/sword-of-song.png` (Messina Saber; Sword of Song at
   guard and held).
+- **Fen Hook, a cutlass** (owner 2026-11-14 asked for the "Fen Cutlass" from a photo of a brass-hilted cutlass; no row
+  has that name, the Fen Hook is the cutlass-like sword; `weapons-r12`, the photo described in words): a brass stirrup
+  hilt (knuckle-bow and side bars caging the fist, a short quillon), a ribbed silver-wire grip, and a short, broad,
+  gently curved blade of dark weathered steel with a clipped point and a faint scroll etching. Cut a little shorter
+  than the Long Sword (420 px) with `--pockets` (the guard's cage encloses background), mirrored to curve like the
+  Messina Saber. Preview `docs/art/equipment/fen-hook.png`.
 - **Titania's Bow, its own bow drawing** (owner 2026-11-14: thicker wood, green with gold patterns): a row may now name
   its own bow look with `bowStyle` (a key of `ArmRig` `BOW_STYLES`; blank = its category's `short` / `long`). The
   `titania` style is the longbow's shape on a heavier green stave (wood strokes about 1.5x the longbow's), a thin gold
