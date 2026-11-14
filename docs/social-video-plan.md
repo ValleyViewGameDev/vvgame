@@ -481,3 +481,11 @@ Developer-only controls inside player UI carry `data-dev-ui` and are hidden in c
 
 Open issue: about one take in five fails with a Playwright `TimeoutError` before or at the start
 of recording (cause not found). Nothing is saved from a failed take; run the shot again.
+
+V5 Characters (2026-11-13): `shots/v05-characters.js` + `shots/v05-pull.js`,
+`edits/v05-characters.json`. The player must already be in the Town. For each character the
+script opens the panel (the action menu is the hook), taps a friendly action, hides the panel
+and pushes in one zoom level so the conversation plays close up. Friendly actions only: no
+Taunt, Insult, Kiss, Propose or gifts on a real account. A tap on a character the player is
+standing beside can open the player's own menu, so the script checks the panel title and
+retries. The developer-only Sell / Move buttons on panels carry `data-dev-ui`.

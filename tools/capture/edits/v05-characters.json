@@ -1,0 +1,70 @@
+{
+  "source": "v05-characters",
+  "output": "soe_v05-characters_9x16_a.mp4",
+  "segments": [
+    {
+      "from": "falstaff_panel",
+      "to": "falstaff_act",
+      "fromOffset": -0.4,
+      "speed": 1.2
+    },
+    {
+      "from": "falstaff_act",
+      "to": "falstaff_done",
+      "speed": 1.5
+    },
+    {
+      "from": "juliet_panel",
+      "to": "juliet_act",
+      "fromOffset": -0.4,
+      "speed": 1.6
+    },
+    {
+      "from": "juliet_act",
+      "to": "juliet_done",
+      "speed": 1.5
+    },
+    {
+      "from": "elbow_panel",
+      "to": "elbow_act",
+      "fromOffset": -0.4,
+      "speed": 1.2
+    },
+    {
+      "from": "elbow_act",
+      "to": "elbow_done",
+      "speed": 1.5
+    },
+    {
+      "source": "v05-characters/v05-pull",
+      "from": "pull",
+      "to": "end"
+    }
+  ],
+  "captions": [
+    {
+      "segment": 0,
+      "toSegment": 1,
+      "text": "You can hug Falstaff."
+    },
+    {
+      "segment": 2,
+      "toSegment": 3,
+      "text": "Sweet-talk Juliet."
+    },
+    {
+      "segment": 4,
+      "toSegment": 5,
+      "text": "Make the Constable laugh."
+    },
+    {
+      "segment": 6,
+      "text": "A whole town to befriend."
+    }
+  ],
+  "endCard": {
+    "seconds": 1.6,
+    "line": "Play free in your browser",
+    "url": "secretsofelsinore.com"
+  }
+}

@@ -76,7 +76,7 @@ const body = cursor;
 // `toSegment` carries it across to a later one),
 // or between two marks of a single-segment edit (`from` / `to`).
 const capTimes = (c) => {
-  if (c.segment !== undefined) { const g = segs[c.segment], h = segs[c.toSegment !== undefined ? c.toSegment : c.segment]; return [g.start + (c.start || 0), c.end !== undefined ? g.start + c.end : h.start + h.len]; }
+  if (c.segment !== undefined) { const g = segs[c.segment], h = segs[c.toSegment !== undefined ? c.toSegment : c.segment]; return [g.start + (c.start || 0), c.end !== undefined ? g.start + c.end : h.start + h.len - 0.3]; } // ends early: joined segments drift a few frames from the sum
   return [(at(c.from) - segs[0].a) / segs[0].speed, (at(c.to) - segs[0].a) / segs[0].speed];
 };
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'soe-edit-'));

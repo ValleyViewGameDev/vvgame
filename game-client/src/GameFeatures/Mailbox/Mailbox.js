@@ -78,30 +78,38 @@ function Mailbox({
   });
  
   useEffect(() => {
+  // Each step stands alone (owner 2026-11-13: Oberon's header showed unread mail and the Mailbox
+  // showed none): the fresh messages are SHOWN first, then marked read, so a failed template load or
+  // a failed mark-read can no longer leave the Mailbox blank while the messages stay unread.
   const fetchTemplatesAndMessages = async () => {
     try {
       const response = await fetch(`${API_BASE}/api/messages`);
-      const templates = await response.json();
-      setTemplates(templates);
-      updateBadge(currentPlayer, () => {}, 'mailbox', false); // 🧼 Clear badge
-      setLoading(false);
-      const res = await axios.get(`${API_BASE}/api/player/${currentPlayer.playerId}`);
-      const freshMessages = res.data.messages || [];
-      const unreadMessages = freshMessages.filter(msg => !msg.read);
-
-      if (unreadMessages.length > 0) {
-        // Save only to the DB — don't update local state yet
-        // the server marks them read itself (/action/mail-read); the client never writes messages
-        await axios.post(`${API_BASE}/api/action/mail-read`, { playerId: currentPlayer.playerId });
-        // Track which ones we updated
-        setMarkedReadIds(unreadMessages.map(msg => msg.messageId));
-      }
-      // Still show original messages (not visually marked as read yet)
-      setCurrentPlayer(prev => ({ ...prev, messages: freshMessages }));
-      setVisibleMessages(freshMessages);
-
+      const list = await response.json();
+      if (Array.isArray(list)) setTemplates(list);
+      else console.error('❌ Mailbox: message templates did not load', list);
     } catch (err) {
-      console.error("❌ Error fetching or updating mailbox data:", err);
+      console.error('❌ Mailbox: message templates did not load', err);
+    }
+    setLoading(false);
+    let freshMessages = null;
+    try {
+      const res = await axios.get(`${API_BASE}/api/player/${currentPlayer.playerId}`);
+      freshMessages = Array.isArray(res.data?.messages) ? res.data.messages : null;
+    } catch (err) {
+      console.error('❌ Mailbox: could not fetch the messages', err);
+    }
+    if (!freshMessages) return; // keep showing the messages the player already holds
+    setCurrentPlayer(prev => ({ ...prev, messages: freshMessages }));
+    setVisibleMessages(freshMessages); // still shown as unread until the Mailbox is closed
+    const unreadMessages = freshMessages.filter(msg => !msg.read);
+    if (unreadMessages.length === 0) { updateBadge(currentPlayer, () => {}, 'mailbox', false); return; }
+    try {
+      // the server marks them read itself (/action/mail-read); the client never writes messages
+      await axios.post(`${API_BASE}/api/action/mail-read`, { playerId: currentPlayer.playerId });
+      setMarkedReadIds(unreadMessages.map(msg => msg.messageId));
+      updateBadge(currentPlayer, () => {}, 'mailbox', false); // 🧼 the dot goes only once they really are read
+    } catch (err) {
+      console.error('❌ Mailbox: could not mark the messages read', err?.response?.status, err?.response?.data || err);
     }
   };
   fetchTemplatesAndMessages();
@@ -300,13 +308,14 @@ const renderRewards = (rewards) => {
           const template = templates.find((t) => t.id === msg.messageId);
 
           if (!template) {
+            // never drop a message silently: an unknown template still gets a row (its own text, if any)
             console.warn(`📭 No template found for messageId: ${msg.messageId}`);
-            return null;
           }
+          const tpl = template || { title: msg.title || '', body: msg.body || '', rewards: [] };
 
           const rewards = (msg.rewards && msg.rewards.length > 0)
             ? msg.rewards
-            : template.rewards;
+            : tpl.rewards;
 
           return (
             // the slot collapses (rows below glide up); the message inside pops; the burst sits beside it
@@ -316,12 +325,12 @@ const renderRewards = (rewards) => {
               {/* Left side: message content */}
               <div className="message-left">
                 <h3>
-                  {template.title}
+                  {tpl.title}
                   {(!msg.read || markedReadIds.includes(msg.messageId)) && (
                     <span className="unread-tag" aria-label="new" />
                   )}
                 </h3>
-                <p className="message-body">{richText(msg.body || template.body)}</p>
+                <p className="message-body">{richText(msg.body || tpl.body)}</p>
                 <p className="mailbox-timestamp">
                   {strings[1603]}: {new Date(msg.timestamp).toLocaleString()}
                 </p>

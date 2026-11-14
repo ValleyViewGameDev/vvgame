@@ -117,6 +117,7 @@ export default function SellSection({ resourceType, masterResources, refund, onS
         <button
           type="button"
           className={`btn-basic ${v.sellDev ? 'btn-danger' : 'btn-success'} sell-section-sell`}
+          data-dev-ui={v.sellDev ? '' : undefined} /* a developer-only button: hidden in capture mode (Dev/devCaptureMode.css) */
           onClick={confirmThenSell}
           disabled={disabled || selling}
         >
@@ -127,6 +128,7 @@ export default function SellSection({ resourceType, masterResources, refund, onS
         <button
           type="button"
           className={`btn-basic ${v.moveDev ? 'btn-danger' : 'btn-success'} sell-section-move`}
+          data-dev-ui={v.moveDev ? '' : undefined} /* a developer-only button: hidden in capture mode (Dev/devCaptureMode.css) */
           onClick={onMove}
           disabled={disabled}
           title={strings[2113] || 'Move'}
