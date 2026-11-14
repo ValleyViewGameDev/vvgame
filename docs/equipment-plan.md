@@ -64,7 +64,15 @@ The owner asked to see the sword in the game before any more planning. What is i
   The motion: guard (hands at the belly, blade leaning forward), lifted upright before the chest (the
   blade crosses the face for a moment), hilt drawn in past the chest as the blade comes over, driven
   out level, drawn back. The blow lands at 295 ms. docs/art/equipment/two-handed-slash.gif.
-  `thrust2` and `chop2` are still keyed by the rear arm; they could move to weapon keys the same way.
+  **Guards, the far elbow tucked in (owner 2026-11-13).** At rest the far elbow must hang against the
+  body, not stick out. A weapon-keyed guard does it by construction: the front hand is placed where
+  that arm's elbow hangs straight down (0.46 of the arm's length toward the body from its shoulder,
+  0.5 down), on every body. The great sword's and the axe's guards are keyed so
+  (docs/art/equipment/two-handed-guards.png: six outfits, three weapons).
+  **`chop2` is weapon-keyed too** since the same day, for that guard: same motion as before (hoisted
+  upright at the far shoulder, down to level at the belt), the front hand 0.28 tile up the haft at
+  rest. Its `give` is gone (a weapon-keyed pose places the hand itself). `thrust2` is still keyed by
+  the rear arm: its far arm reaches forward to the shaft and its elbow already hangs.
 
   One drawing a category, all at one scale (`heldWeapon.PX_PER_TILE`), cut to the category's canvas
   by `tools/art/weaponfit.js` from `tools/art/jobs/weapons-r2.json`. A row may name its own drawing

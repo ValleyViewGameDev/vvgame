@@ -141,7 +141,7 @@ export const ARM_CLIPS = {
       { t: 640, d: 0 },
     ],
     weapon: [
-      { t: 0, x: -0.3, y: 0.4, a: 0.7, fold: 1 },
+      { t: 0, x: -0.46, y: 0.5, a: 0.7, fold: 1 }, // the guard: the front hand where its elbow hangs straight down, in against the body
       { t: 120, x: -0.36, y: 0.22, a: 0.3, ease: 'out' },
       { t: 195, x: -0.42, y: 0.05, a: -0.1 },
       { t: 225, x: -0.42, y: 0.04, a: -0.12 },
@@ -150,7 +150,7 @@ export const ARM_CLIPS = {
       { t: 335, x: 0.6, y: 0.52, a: 1.55, ease: 'out' },
       { t: 430, x: 0.6, y: 0.52, a: 1.55 },
       { t: 540, x: -0.04, y: 0.15, a: 0.9, fold: 1 }, // drawn back to the chest, and the arm turned back
-      { t: 640, x: -0.3, y: 0.4, a: 0.7 },
+      { t: 640, x: -0.46, y: 0.5, a: 0.7 },
     ],
     lead: [
       { t: 0, s: 0.15, e: -1.02 },
@@ -228,13 +228,27 @@ export const ARM_CLIPS = {
     ],
   },
   // the avatar's TWO-HANDED CHOP (axes and hammers share it; the head stands at a right angle to the
-  // forearm, as the sword does). The rear hand (the weapon arm) holds the foot of the haft and is keyed
-  // here; the front hand is solved onto the haft each frame (ArmRig.secondPose), `second` tiles up it.
+  // forearm in the one-armed fallback). The rear hand holds the foot of the haft, the front hand `second`
+  // tiles up it, and both arms are solved onto the weapon as its keys place it.
   // From the guard, the weapon carried low across the body with its head forward and up, it is HOISTED
   // upright in front of the far shoulder (never back across the face), hangs a moment, and is brought
   // down forward to level at the belt. Slower and heavier than the slash: the body rocks back under the lift and steps in hard
   chop2: {
     hit: 385,
+    // keyed by the WEAPON, as slash2 is (ArmRig.weaponPose): where the front hand is from its own shoulder,
+    // in lengths of that arm, and where the head points. The guard holds the front hand where its elbow
+    // hangs straight down against the body, on every body (owner 2026-11-13: tucked in, not sticking out)
+    weapon: [
+      { t: 0, x: -0.46, y: 0.5, a: 0.95, fold: 1 },
+      { t: 170, x: -0.32, y: 0.18, a: 0.35, ease: 'out' },
+      { t: 260, x: -0.1, y: -0.22, a: 0 },
+      { t: 300, x: -0.1, y: -0.23, a: -0.03 },
+      { t: 345, x: -0.42, y: 0.42, a: 0.7, ease: 'in' },
+      { t: 385, x: -0.24, y: 0.92, a: 1.45 },
+      { t: 430, x: -0.22, y: 0.9, a: 1.55, ease: 'out' },
+      { t: 560, x: -0.22, y: 0.9, a: 1.55 },
+      { t: 800, x: -0.46, y: 0.5, a: 0.95 },
+    ],
     body: [
       { t: 0, d: 0 },
       { t: 260, d: -0.12, ease: 'out' },
@@ -252,17 +266,15 @@ export const ARM_CLIPS = {
       { t: 560, s: -0.22, e: 0.16 },
       { t: 800, s: 0.1, e: -0.47 },
     ],
-    // the front hand's hold: it slides DOWN the haft as the weapon is hoisted, so that at the top it sits
-    // just above the rear hand and close in front of its own shoulder. Held high on an upright haft the
-    // far elbow had to wing out sideways; held low it folds down against the body (owner 2026-11-13)
+    // the front hand's hold up the haft from the rear hand (tiles): close under the head's weight at the
+    // top, a little wider for the blow. `lead` above is only the one-armed fallback
     second: [
-      { t: 0, d: 0.5 },
-      { t: 170, d: 0.34, ease: 'out' },
-      { t: 260, d: 0.22 },
+      { t: 0, d: 0.28 },
+      { t: 260, d: 0.22, ease: 'out' },
       { t: 300, d: 0.22 },
       { t: 385, d: 0.3, ease: 'in' },
       { t: 560, d: 0.3 },
-      { t: 800, d: 0.5 },
+      { t: 800, d: 0.28 },
     ],
   },
   // the Coyote: no arm, the whole body lurches at the target (feet planted) and springs back; in the

@@ -33,9 +33,10 @@ const CUT_GUARD = { side: HELD_ARM, s: 0.28, e: -1.3 };
 const THRUST_GUARD = { side: HELD_ARM, s: 0.43, e: -2.05 };
 // the two-handed sword's guard: both hands at the belly, the blade standing up and leaning well forward
 // (`weapon`: the same guard as the two-handed clip keys it, armClips.js slash2; s, e: the one-armed fallback)
-const GREAT_GUARD = { side: HELD_ARM, s: 0.15, e: -1.02, weapon: { x: -0.3, y: 0.4, a: 0.7 } };
+const GREAT_GUARD = { side: HELD_ARM, s: 0.15, e: -1.02, weapon: { x: -0.46, y: 0.5, a: 0.7 } };
 // a heavy two-handed head carried low and ready: the rear hand at the hip, the haft across the body with the head forward and up
-const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47 };
+// (`weapon`: the guard as the two-handed clip keys it, armClips.js chop2; s, e: the one-armed fallback)
+const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47, weapon: { x: -0.46, y: 0.5, a: 0.95 } };
 
 /**
  * The weapon categories. `art`: the drawing; `size` and `grip`: its canvas and where the hand holds
@@ -55,8 +56,8 @@ export const WEAPON_CLASSES = {
   dagger:  { art: 'weapon-dagger.png', size: [128, 512], grip: [64, 448], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   spear:   { art: 'weapon-spear.png', size: [128, 768], grip: [64, 470], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust' },
   polearm: { art: 'weapon-halberd.png', size: [256, 896], grip: [128, 580], angle: ALONG, guard: THRUST_GUARD, clip: 'thrust2', second: 0.58 },
-  axe:     { art: 'weapon-great-axe.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop2', second: 0.5, give: 0.16 },
-  hammer:  { art: 'weapon-war-hammer.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop2', second: 0.5, give: 0.16 },
+  axe:     { art: 'weapon-great-axe.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop2', second: 0.28 },
+  hammer:  { art: 'weapon-war-hammer.png', size: [256, 576], grip: [128, 480], angle: ACROSS, guard: HEAVY_GUARD, clip: 'chop2', second: 0.28 },
 };
 
 const heldCache = new Map();
