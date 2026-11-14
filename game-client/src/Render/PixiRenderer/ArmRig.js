@@ -334,10 +334,42 @@ export function cutRig(renderer, texture, rig) {
 // ---------------------------------------------------------------------------------------------
 // The runtime: the arm sprites on a BreathSprite, and the clip player
 // ---------------------------------------------------------------------------------------------
+const SECOND_REACH = 0.86;    // a two-handed weapon's second hand: how far of its arm's full length it may be stretched
+const SECOND_MIN_HOLD = 0.22; // ... and how near the first hand it may come, tiles along the weapon
 const STANCE_MS = 220;             // a stance eases in or out over this long
 const MESH_STEP = 1 / 72;          // the arm mesh's grid spacing (of the square): fine enough for a smooth bend
 const BLEND = [0.05, 0.04];          // default half-widths (of the square) of the shoulder and elbow blend zones
 const smooth01 = (t) => { const c = Math.max(0, Math.min(1, t)); return c * c * (3 - 2 * c); };
+
+/** Where a limb's hand is once its joints are turned (the arm image's px), and how its forearm then lies (clockwise from straight down). */
+function handPoint(a, ts, te, tw = 0) {
+  let [x, y] = a.G;
+  const turn = (px, py, ang) => { if (!ang) return; const c = Math.cos(ang), s = Math.sin(ang), dx = x - px, dy = y - py; x = px + dx * c - dy * s; y = py + dx * s + dy * c; };
+  if (a.W) turn(a.W[0], a.W[1], tw);
+  turn(a.E[0], a.E[1], te);
+  turn(a.S[0], a.S[1], ts);
+  return { x, y, fore: a.foreAngle + ts + te + tw };
+}
+
+/**
+ * The joint turns [shoulder, elbow] that put a limb's hand on a point (the arm image's px): two bones,
+ * solved by the cosine rule. Out of reach, the arm straightens toward it. Of the two ways the elbow
+ * can fold, the one that leaves it LOWER, and then further out on the arm's own side (`out`: 1 the
+ * image's right, -1 its left): an elbow hangs down and away from the chest, never up across it.
+ */
+function reachFor(b, tx, ty, out = 1) {
+  const [Sx, Sy] = b.S, [Ex, Ey] = b.E, [Gx, Gy] = b.G;
+  const L1 = Math.hypot(Ex - Sx, Ey - Sy), L2 = Math.hypot(Gx - Ex, Gy - Ey);
+  const a1 = Math.atan2(Ey - Sy, Ex - Sx), a2 = Math.atan2(Gy - Ey, Gx - Ex);
+  const dx = tx - Sx, dy = ty - Sy, D = Math.max(Math.abs(L1 - L2) + 1, Math.min(L1 + L2 - 0.5, Math.hypot(dx, dy)));
+  const base = Math.atan2(dy, dx), A = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + D * D - L2 * L2) / (2 * L1 * D))));
+  const hx = Sx + D * Math.cos(base), hy = Sy + D * Math.sin(base); // the hand: the point itself, or as near as the arm reaches
+  const fold = (bend) => { const t1 = base + bend * A, ex = Sx + L1 * Math.cos(t1), ey = Sy + L1 * Math.sin(t1); return { t1, ex, ey, score: ey + 0.3 * out * ex }; };
+  const up = fold(1), down = fold(-1), f = up.score >= down.score ? up : down;
+  const wrap = (v) => Math.atan2(Math.sin(v), Math.cos(v));
+  const ts = wrap(f.t1 - a1);
+  return [ts, wrap(Math.atan2(hy - f.ey, hx - f.ex) - a2 - ts)];
+}
 
 export class ArmRig {
   constructor(sprite, rig, cut, { attackClip } = {}) {
@@ -390,10 +422,11 @@ export class ArmRig {
       const mesh = new SimpleMesh(part.tex, verts, uvs, indices);
       this.root.addChild(mesh);
       this.arms[side] = { arm, mesh, part, n, rest, wU, wF, wW, bell, a1, S: [S[0] * w, S[1] * h], E: [E[0] * w, E[1] * h], W: Wr ? [Wr[0] * w, Wr[1] * h] : null, pose: null,
-        G: [G[0] * w, G[1] * h], foreAngle: Math.atan2(-a2[0], a2[1]), held: null }; // foreAngle: how the forearm lies at rest, clockwise from straight down
+        G: [G[0] * w, G[1] * h], foreAngle: Math.atan2(-a2[0], a2[1]), upperAngle: Math.atan2(-a1[0], a1[1]), held: null }; // foreAngle, upperAngle: how the forearm and the upper arm lie at rest, clockwise from straight down
     }
     this.play = null; // { clip, start, lead }
     this.stance = null; // { side, s, e, w }: a pose HELD while no clip plays (the avatar's guard), eased in and out
+    this.second = null; // a two-handed weapon's other hand (setHeld, secondPose)
     this._stanceAmt = 0; this._stanceTo = 0; this._stanceAt = 0;
     sprite.addChild(this.root);
     sprite.armRig = this;
@@ -418,17 +451,11 @@ export class ArmRig {
     const ow = sprite.texture.orig.width / w, oh = sprite.texture.orig.height / h;
     const ax = sprite.anchor.x * w, ay = sprite.anchor.y * h; // the sprite's origin, in the arm image's pixels
     const auto = this.autoPose(sprite, now); // the gait while it moves, the idle wiggle while it stands (spider)
+    const second = this.secondPose(clip, t, now, auto); // a two-handed weapon's other hand, solved from where the weapon is this frame
     for (const side of this.names) {
       const a = this.arms[side];
       if (!a) continue;
-      const track = clip ? (side === this.play.lead ? clip.lead : clip.off) : null;
-      const st = this.stance && this.stance.side === side ? this.stance : null;
-      const k = st ? this.stanceAmount(now) : 0;
-      // a clip's keys are whole poses (the avatar's slash starts and ends in its guard); with no clip the arm rests in the stance
-      const pose = track ? poseAt(track, t) : st ? { s: st.s * k, e: st.e * k, w: (st.w || 0) * k } : { s: 0, e: 0, w: 0 };
-      const out = side === 'R' ? -1 : 1; // outward is clockwise for the image's left arm
-      const extra = auto[side];
-      const ts = out * pose.s + (extra ? extra[0] : 0), te = out * pose.e + (extra ? extra[1] : 0), tw = a.W ? out * (pose.w || 0) : 0;
+      const { ts, te, tw, st } = second && second.side === side ? second : this.poseOf(side, a, clip, t, now, auto);
       // the body's lean shears every row by its height (feet planted): each arm point gets its own row's
       // shift, so a hanging arm leans with the flank beside it instead of sliding off it as one block
       const P = sprite._pt, lean = P ? sprite.lean || 0 : 0, leanY = P ? sprite.leanY || 0 : 0; // this frame's lean (set above), not the last drawn frame's: no lag
@@ -463,6 +490,64 @@ export class ArmRig {
       a.mesh.position.set(p.x - p.f * ow * (a.S[0] + shoulderLean - ax), p.y - oh * (a.S[1] + shoulderLeanY - ay));
       if (a.held) this.placeHeld(a, ts, te, tw, lean, leanY, h, feetV, span, ax, ay, !!clip || !st || this._stanceTo === 1);
     }
+    if (second) this.placeSecond(second, ax, ay);
+  }
+
+  /** One limb's joint turns this frame { ts, te, tw } (and its stance, if it has one): the clip's keys, else the stance, else as drawn. */
+  poseOf(side, a, clip, t, now, auto) {
+    const track = clip ? (side === this.play.lead ? clip.lead : clip.off) : null;
+    const st = this.stance && this.stance.side === side ? this.stance : null;
+    const k = st ? this.stanceAmount(now) : 0;
+    // a clip's keys are whole poses (the avatar's slash starts and ends in its guard); with no clip the arm rests in the stance
+    const pose = track ? poseAt(track, t) : st ? { s: st.s * k, e: st.e * k, w: (st.w || 0) * k } : { s: 0, e: 0, w: 0 };
+    const out = side === 'R' ? -1 : 1; // outward is clockwise for the image's left arm
+    const extra = auto[side];
+    // an arm that HOLDS a weapon (the avatar's) is posed in ABSOLUTE terms: `s` is where the upper arm
+    // points and `s + e` where the forearm points, clockwise from straight down, whatever way the outfit's
+    // own drawing hangs the arm. So every outfit holds a weapon at the same angle and swings it through
+    // the same arc (as drawn, they differed by ten degrees and more). A stance is that pose eased in by k
+    if (a.arm.holds && (track || st)) {
+      const amt = track ? 1 : k, src = track ? pose : st;
+      const up = out * src.s - a.upperAngle, fore = out * (src.s + src.e) - a.foreAngle;
+      return { ts: up * amt, te: (fore - up) * amt, tw: 0, st };
+    }
+    return { ts: out * pose.s + (extra ? extra[0] : 0), te: out * pose.e + (extra ? extra[1] : 0), tw: a.W ? out * (pose.w || 0) : 0, st };
+  }
+
+  /**
+   * The SECOND hand of a two-handed weapon (owner 2026-11-13): the other arm holds the weapon too,
+   * `dist` tiles along it from the first hand toward its point. Nothing is keyed for that arm: each
+   * frame the weapon is where the first arm's pose puts it, the hold point on it is found, and the
+   * second arm's two joints are solved to put its hand there (reachFor). A clip may slide the hold
+   * along the weapon with a `second` track ({ t, d }: tiles), as the front hand does on a thrust.
+   * The arm eases to the weapon and back with the guard. Returns its pose, or null (no second hand).
+   */
+  secondPose(clip, t, now, auto) {
+    const H = this.second, a = H && this.arms[H.holder], b = H && this.arms[H.side];
+    if (!a || !b || !a.held) return null;
+    const p = this.poseOf(H.holder, a, clip, t, now, auto), g = handPoint(a, p.ts, p.te, p.tw);
+    let d = (clip && clip.second ? valueAt(clip.second, t, 'd') : H.dist) * H.pxPerTile;
+    const rot = g.fore + a.held.angle, ux = Math.sin(rot), uy = -Math.cos(rot); // the way the weapon points
+    // never further up the weapon than that arm reaches at REACH of its length: past that the weapon
+    // slides on through the hand instead (owner 2026-11-13: the front hand need not follow the thrust
+    // all the way; the far arm is the thin one, and stretched straight it shows). Never closer to the
+    // first hand than MIN_HOLD either
+    const R = SECOND_REACH * (Math.hypot(b.E[0] - b.S[0], b.E[1] - b.S[1]) + Math.hypot(b.G[0] - b.E[0], b.G[1] - b.E[1]));
+    const qx = g.x - b.S[0], qy = g.y - b.S[1], along = -(qx * ux + qy * uy), off2 = qx * qx + qy * qy - along * along; // the weapon's line from that arm's shoulder
+    const far = along + Math.sqrt(Math.max(0, R * R - off2)); // the last point of the line within reach
+    d = Math.max(SECOND_MIN_HOLD * H.pxPerTile, Math.min(d, far));
+    const [is, ie] = reachFor(b, g.x + ux * d, g.y + uy * d, H.side === 'R' ? 1 : -1);
+    const amt = this.stanceAmount(now);
+    return { side: H.side, ts: is * amt, te: ie * amt, tw: 0, st: null };
+  }
+
+  /** The second hand's fist, drawn over the weapon where that arm's hand now is; its own drawn hand goes while the weapon is out. */
+  placeSecond(second, ax, ay) {
+    const H = this.second, a = this.arms[H.holder], b = this.arms[H.side];
+    const g = handPoint(b, second.ts, second.te), show = a.held.weapon.visible;
+    if (H.fist) { H.fist.position.set(g.x - ax, g.y - ay); H.fist.rotation = g.fore; H.fist.visible = show; }
+    const tex = show && b.part.texNoHand ? b.part.texNoHand : b.part.tex;
+    if (b.mesh.texture !== tex) b.mesh.texture = tex;
   }
 
   /** How far into its stance the arm is, 0..1 (eased over STANCE_MS toward the last `setStance`). */
@@ -489,12 +574,19 @@ export class ArmRig {
    * Put a WEAPON in a limb's hand (docs/equipment-plan.md): its own sprite, fixed in the hand at
    * `angle` to the forearm (the avatar's sword: a right angle, rigid, no wrist), gripped at `grip`
    * (px in its texture), `scale` mesh px per texture px. The arm is drawn without its open hand and a
-   * fist is drawn over the handle. `null` puts it away.
+   * fist is drawn over the handle. `held.second` ({ side, dist, pxPerTile }): the other arm holds it
+   * too, `dist` tiles toward its point (a two-handed weapon). `null` puts it away.
    */
   setHeld(side, held) {
     const a = this.arms[side];
     if (!a) return;
     if (a.held) { for (const o of [a.held.weapon, a.held.fist]) if (o) { a.mesh.removeChild(o); o.destroy(); } a.held = null; a.mesh.texture = a.part.tex; }
+    if (this.second) {
+      const b = this.arms[this.second.side];
+      if (this.second.fist) { this.second.fist.parent?.removeChild(this.second.fist); this.second.fist.destroy(); }
+      if (b) { b.mesh.texture = b.part.tex; b.pose = null; }
+      this.second = null;
+    }
     if (!held || !held.tex) return;
     const weapon = new Sprite(held.tex);
     const [tw0, th0] = held.size || [held.tex.width, held.tex.height]; // its canvas: a texture still loading has no size yet
@@ -506,6 +598,15 @@ export class ArmRig {
     if (a.part.texNoHand) a.mesh.texture = a.part.texNoHand;
     a.held = { weapon, fist, angle: held.angle ?? Math.PI / 2 };
     a.pose = null; // placed on the next sync
+    // a two-handed weapon: the other arm's hand on it too (secondPose). That arm is drawn UNDER this
+    // one and the weapon, and its fist over the weapon, so the weapon lies in both hands
+    const b = held.second ? this.arms[held.second.side] : null;
+    if (b && b !== a) {
+      let fist2 = null;
+      if (b.part.fist) { fist2 = new Sprite(b.part.fist); fist2.anchor.set(0.5); a.mesh.addChild(fist2); }
+      this.root.setChildIndex(b.mesh, 0);
+      this.second = { holder: side, side: held.second.side, dist: held.second.dist, pxPerTile: held.second.pxPerTile, fist: fist2 };
+    }
   }
 
   /**

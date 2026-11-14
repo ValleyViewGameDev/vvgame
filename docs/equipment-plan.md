@@ -35,11 +35,28 @@ The owner asked to see the sword in the game before any more planning. What is i
 
   One drawing a category, all at one scale (`heldWeapon.PX_PER_TILE`), cut to the category's canvas
   by `tools/art/weaponfit.js` from `tools/art/jobs/weapons-r2.json`. A row may name its own drawing
-  as `heldArt` (none does yet). `hands` only decides the shield: there is no two-handed animation,
-  so a two-handed weapon is swung by the same one arm. The two rapiers are swords for now.
+  as `heldArt` (none does yet). `hands` only decides the shield; which weapons are HELD in two hands is the category's
+  `second` (below). The two rapiers are swords for now.
   **Fen Hook** keeps its code name in data and saves and is shown as Fen Cutlass through
   `stringLookup.DISPLAY_ALIASES`, so no save needed migrating. Bows, crossbows and Darts have no
   category and show nothing in the hand. The attacks at half speed: docs/art/equipment/categories.gif.
+- **Two hands (2026-11-13, the thrust first):** a category with `second` is held in BOTH hands; so
+  far the polearm (`thrust2`). The weapon arm is the rear hand and is keyed as before. The far arm,
+  the front hand, is not keyed at all: each frame the weapon is where the rear arm puts it, the hold
+  point `second` tiles up the shaft is found, and the far arm's two joints are solved to put its hand
+  there (`ArmRig.secondPose`, a two-bone reach with the elbow kept down and out). The clip's `second`
+  track slides the hold along the shaft: back through the front hand as the shaft is drawn, forward
+  through it on the thrust. The front arm is never stretched past 86% of its length: beyond that the
+  shaft slides through the hand instead (owner: the front hand need not follow the thrust all the
+  way; the far arm is the thin one). It is drawn under the weapon arm and the weapon, its fist over
+  the shaft. Every outfit's rig has an `R` arm for it; a figure whose rig had none would hold the
+  weapon in one hand. The axe and hammer are still swung by one arm: the two-handed chop is next.
+  docs/art/equipment/two-handed-thrust.gif.
+- **Poses are absolute (2026-11-13):** the avatar's guards and clips say where the upper arm and
+  the forearm POINT (clockwise from straight down), not how far to turn them from the outfit's own
+  drawing (`ArmRig.poseOf`, an arm that `holds`). Outfits draw the hanging arm a little differently,
+  and as turns from the drawing the same weapon sat ten degrees apart between two outfits; now every
+  outfit holds and swings alike. Enemy clips are unchanged (turns from the drawing).
 - **Wired to the Combat panel's weapon slot:** what is in the hand comes from the equipped weapon
   (`player.settings.equippedWeapon`), which the panel changes on the tap. Unequip, or equip a weapon
   with no category, and the arm eases down and the plain drawing returns (rigshot `--away` shows it).

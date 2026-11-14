@@ -83,7 +83,7 @@
     }
   },
   "avatar:male": {
-    "_note": "The avatar's sword arm, male body (docs/equipment-plan.md; the in-game prototype 2026-11-13): the NEAR arm, the image's left, measured on the green tunic. Every other outfit has its own rig (`avatar:<top id>`, below); this one is the fallback for an outfit without one. `holds`: the cut also makes the arm without its hand and a fist, for a held weapon.",
+    "_note": "The avatar's arms, male body (docs/equipment-plan.md): L the NEAR arm, the image's left, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Measured on the green tunic. Every other outfit has its own rig (`avatar:<top id>`, below); this one is the fallback for an outfit without one. `holds`: the cut also makes the arm without its hand and a fist, for a held weapon.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -104,11 +104,30 @@
         "under": [[0.43, 0.31], [0.376, 0.325], [0.364, 0.36], [0.36, 0.42], [0.364, 0.48], [0.37, 0.56], [0.376, 0.64], [0.384, 0.75], [0.43, 0.75]],
         "fill": "clone",
         "cloneStep": [0.05, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.33], [0.625, 0.33], [0.63, 0.4], [0.635, 0.48], [0.638, 0.504], [0.8, 0.504]],
+        "fore": [[0.8, 0.496], [0.637, 0.496], [0.645, 0.56], [0.65, 0.615], [0.655, 0.64], [0.655, 0.7], [0.665, 0.725], [0.665, 0.73], [0.8, 0.73]],
+        "shoulder": [0.645, 0.375],
+        "elbow": [0.67, 0.5],
+        "wrist": [0.685, 0.615],
+        "grip": [0.69, 0.665],
+        "fist": 0.078,
+        "cap": 0.055,
+        "shoulderCap": 0.035,
+        "blend": [0.045, 0.035, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.33], [0.645, 0.33], [0.655, 0.4], [0.66, 0.5], [0.665, 0.6], [0.665, 0.73], [0.57, 0.73]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:female": {
-    "_note": "The avatar's sword arm, female body: the near arm, measured on the adventurer outfit. Every other outfit has its own rig (`avatar:<top id>`); this one is the fallback for an outfit without one.",
+    "_note": "The avatar's arms, female body: L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Measured on the adventurer outfit. Every other outfit has its own rig (`avatar:<top id>`); this one is the fallback for an outfit without one.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -129,11 +148,30 @@
         "under": [[0.47, 0.335], [0.44, 0.34], [0.425, 0.37], [0.422, 0.42], [0.425, 0.47], [0.428, 0.5], [0.47, 0.5]],
         "fill": "clone",
         "cloneStep": [0.04, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.31], [0.575, 0.31], [0.582, 0.38], [0.588, 0.44], [0.593, 0.499], [0.8, 0.499]],
+        "fore": [[0.8, 0.491], [0.592, 0.491], [0.593, 0.5], [0.6, 0.52], [0.612, 0.56], [0.622, 0.59], [0.628, 0.61], [0.638, 0.64], [0.645, 0.675], [0.645, 0.68], [0.8, 0.68]],
+        "shoulder": [0.6, 0.375],
+        "elbow": [0.615, 0.495],
+        "wrist": [0.64, 0.59],
+        "grip": [0.648, 0.63],
+        "fist": 0.056,
+        "cap": 0.042,
+        "shoulderCap": 0.03,
+        "blend": [0.04, 0.03, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.31], [0.59, 0.31], [0.6, 0.4], [0.605, 0.5], [0.612, 0.56], [0.618, 0.6], [0.62, 0.68], [0.57, 0.68]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-m-ranger": {
-    "_note": "The avatar's weapon arm in the Black leathers outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Black leathers outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -154,11 +192,30 @@
         "under": [[0.43, 0.25], [0.375, 0.25], [0.362, 0.36], [0.358, 0.42], [0.372, 0.47], [0.376, 0.49], [0.372, 0.51], [0.367, 0.56], [0.36, 0.6], [0.355, 0.63], [0.356, 0.65], [0.36, 0.748], [0.43, 0.748]],
         "fill": "clone",
         "cloneStep": [0.05, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.3], [0.64, 0.3], [0.645, 0.42], [0.65, 0.5], [0.65, 0.504], [0.8, 0.504]],
+        "fore": [[0.8, 0.496], [0.65, 0.496], [0.65, 0.5], [0.652, 0.55], [0.66, 0.58], [0.668, 0.6], [0.672, 0.62], [0.675, 0.64], [0.67, 0.69], [0.676, 0.715], [0.69, 0.725], [0.69, 0.73], [0.8, 0.73]],
+        "shoulder": [0.665, 0.385],
+        "elbow": [0.685, 0.5],
+        "wrist": [0.7, 0.615],
+        "grip": [0.7, 0.67],
+        "fist": 0.078,
+        "cap": 0.055,
+        "shoulderCap": 0.035,
+        "blend": [0.045, 0.035, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.3], [0.655, 0.3], [0.665, 0.42], [0.665, 0.5], [0.655, 0.55], [0.648, 0.58], [0.652, 0.62], [0.662, 0.73], [0.57, 0.73]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-m-king": {
-    "_note": "The avatar's weapon arm in the King's crimson outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the King's crimson outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -179,11 +236,30 @@
         "under": [[0.44, 0.3], [0.39, 0.3], [0.375, 0.36], [0.372, 0.42], [0.383, 0.47], [0.39, 0.52], [0.385, 0.56], [0.372, 0.6], [0.366, 0.64], [0.366, 0.745], [0.44, 0.745]],
         "fill": "clone",
         "cloneStep": [0.05, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.3], [0.615, 0.3], [0.625, 0.36], [0.63, 0.42], [0.635, 0.47], [0.637, 0.5], [0.637, 0.504], [0.8, 0.504]],
+        "fore": [[0.8, 0.496], [0.637, 0.496], [0.637, 0.5], [0.642, 0.54], [0.65, 0.58], [0.66, 0.6], [0.662, 0.62], [0.67, 0.64], [0.674, 0.68], [0.68, 0.705], [0.69, 0.72], [0.69, 0.725], [0.8, 0.725]],
+        "shoulder": [0.665, 0.385],
+        "elbow": [0.69, 0.5],
+        "wrist": [0.705, 0.63],
+        "grip": [0.705, 0.675],
+        "fist": 0.078,
+        "cap": 0.055,
+        "shoulderCap": 0.035,
+        "blend": [0.045, 0.035, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.3], [0.63, 0.3], [0.645, 0.36], [0.65, 0.42], [0.645, 0.47], [0.635, 0.5], [0.632, 0.52], [0.643, 0.58], [0.655, 0.62], [0.668, 0.66], [0.675, 0.725], [0.57, 0.725]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-m-doublet": {
-    "_note": "The avatar's weapon arm in the Noble doublet outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Noble doublet outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -204,11 +280,30 @@
         "under": [[0.45, 0.33], [0.385, 0.33], [0.378, 0.37], [0.378, 0.42], [0.393, 0.445], [0.396, 0.5], [0.394, 0.55], [0.388, 0.585], [0.374, 0.6], [0.378, 0.63], [0.384, 0.66], [0.386, 0.715], [0.45, 0.715]],
         "fill": "clone",
         "cloneStep": [0.05, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.32], [0.615, 0.32], [0.622, 0.38], [0.625, 0.44], [0.626, 0.49], [0.628, 0.499], [0.8, 0.499]],
+        "fore": [[0.8, 0.491], [0.626, 0.491], [0.632, 0.52], [0.64, 0.55], [0.648, 0.575], [0.65, 0.6], [0.656, 0.615], [0.662, 0.63], [0.666, 0.66], [0.672, 0.69], [0.685, 0.705], [0.685, 0.71], [0.8, 0.71]],
+        "shoulder": [0.655, 0.385],
+        "elbow": [0.675, 0.495],
+        "wrist": [0.69, 0.6],
+        "grip": [0.695, 0.66],
+        "fist": 0.078,
+        "cap": 0.055,
+        "shoulderCap": 0.035,
+        "blend": [0.045, 0.035, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.32], [0.63, 0.32], [0.64, 0.38], [0.64, 0.44], [0.63, 0.49], [0.622, 0.52], [0.634, 0.56], [0.648, 0.6], [0.652, 0.63], [0.652, 0.71], [0.57, 0.71]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-m-vest": {
-    "_note": "The avatar's weapon arm in the Vest and shirt outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Vest and shirt outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -229,11 +324,30 @@
         "under": [[0.44, 0.32], [0.345, 0.32], [0.36, 0.36], [0.365, 0.42], [0.375, 0.47], [0.381, 0.5], [0.38, 0.55], [0.376, 0.59], [0.372, 0.64], [0.372, 0.745], [0.44, 0.745]],
         "fill": "clone",
         "cloneStep": [0.05, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.32], [0.625, 0.32], [0.635, 0.36], [0.638, 0.44], [0.64, 0.5], [0.641, 0.504], [0.8, 0.504]],
+        "fore": [[0.8, 0.496], [0.64, 0.496], [0.64, 0.5], [0.645, 0.54], [0.65, 0.58], [0.657, 0.62], [0.66, 0.64], [0.663, 0.68], [0.67, 0.71], [0.685, 0.725], [0.685, 0.73], [0.8, 0.73]],
+        "shoulder": [0.66, 0.385],
+        "elbow": [0.68, 0.5],
+        "wrist": [0.69, 0.62],
+        "grip": [0.695, 0.67],
+        "fist": 0.078,
+        "cap": 0.055,
+        "shoulderCap": 0.035,
+        "blend": [0.045, 0.035, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.32], [0.64, 0.32], [0.65, 0.36], [0.652, 0.44], [0.65, 0.5], [0.648, 0.58], [0.65, 0.64], [0.652, 0.73], [0.57, 0.73]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-m-robe": {
-    "_note": "The avatar's weapon arm in the Scholar's robe outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Scholar's robe outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -254,11 +368,30 @@
         "under": [[0.45, 0.31], [0.385, 0.31], [0.378, 0.36], [0.375, 0.42], [0.376, 0.5], [0.378, 0.56], [0.378, 0.64], [0.37, 0.7], [0.37, 0.742], [0.45, 0.742]],
         "fill": "clone",
         "cloneStep": [0.05, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.31], [0.61, 0.31], [0.62, 0.38], [0.63, 0.46], [0.636, 0.504], [0.8, 0.504]],
+        "fore": [[0.8, 0.496], [0.635, 0.496], [0.64, 0.53], [0.648, 0.6], [0.655, 0.65], [0.665, 0.66], [0.668, 0.7], [0.68, 0.72], [0.68, 0.725], [0.8, 0.725]],
+        "shoulder": [0.655, 0.385],
+        "elbow": [0.685, 0.5],
+        "wrist": [0.705, 0.645],
+        "grip": [0.705, 0.685],
+        "fist": 0.078,
+        "cap": 0.055,
+        "shoulderCap": 0.035,
+        "blend": [0.045, 0.035, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.31], [0.625, 0.31], [0.64, 0.38], [0.645, 0.46], [0.648, 0.53], [0.652, 0.6], [0.655, 0.725], [0.57, 0.725]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-shift-m": {
-    "_note": "The avatar's weapon arm in the Shift (male) outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Shift (male) outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -279,11 +412,30 @@
         "under": [[0.45, 0.325], [0.385, 0.325], [0.375, 0.36], [0.372, 0.42], [0.38, 0.47], [0.385, 0.49], [0.383, 0.51], [0.38, 0.55], [0.375, 0.6], [0.37, 0.64], [0.372, 0.745], [0.45, 0.745]],
         "fill": "clone",
         "cloneStep": [0.05, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.32], [0.615, 0.32], [0.628, 0.36], [0.63, 0.46], [0.631, 0.504], [0.8, 0.504]],
+        "fore": [[0.8, 0.496], [0.631, 0.496], [0.632, 0.54], [0.64, 0.6], [0.652, 0.62], [0.657, 0.64], [0.657, 0.69], [0.665, 0.71], [0.68, 0.72], [0.68, 0.725], [0.8, 0.725]],
+        "shoulder": [0.655, 0.385],
+        "elbow": [0.68, 0.5],
+        "wrist": [0.69, 0.61],
+        "grip": [0.695, 0.67],
+        "fist": 0.078,
+        "cap": 0.055,
+        "shoulderCap": 0.035,
+        "blend": [0.045, 0.035, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.32], [0.632, 0.32], [0.64, 0.36], [0.642, 0.46], [0.644, 0.54], [0.648, 0.6], [0.65, 0.64], [0.652, 0.725], [0.57, 0.725]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-f-peasant": {
-    "_note": "The avatar's weapon arm in the Peasant dress outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Peasant dress outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -304,11 +456,30 @@
         "under": [[0.48, 0.315], [0.425, 0.315], [0.415, 0.35], [0.41, 0.4], [0.415, 0.45], [0.42, 0.47], [0.4, 0.52], [0.385, 0.57], [0.37, 0.62], [0.352, 0.662], [0.48, 0.662]],
         "fill": "clone",
         "cloneStep": [0.04, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.32], [0.578, 0.32], [0.588, 0.36], [0.59, 0.46], [0.598, 0.494], [0.8, 0.494]],
+        "fore": [[0.8, 0.486], [0.596, 0.486], [0.6, 0.5], [0.612, 0.52], [0.624, 0.54], [0.634, 0.56], [0.637, 0.58], [0.638, 0.63], [0.648, 0.655], [0.648, 0.66], [0.8, 0.66]],
+        "shoulder": [0.6, 0.375],
+        "elbow": [0.63, 0.49],
+        "wrist": [0.655, 0.565],
+        "grip": [0.665, 0.61],
+        "fist": 0.056,
+        "cap": 0.042,
+        "shoulderCap": 0.03,
+        "blend": [0.04, 0.03, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.32], [0.59, 0.32], [0.6, 0.36], [0.602, 0.46], [0.61, 0.5], [0.62, 0.53], [0.632, 0.56], [0.64, 0.6], [0.645, 0.66], [0.57, 0.66]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-f-gown": {
-    "_note": "The avatar's weapon arm in the Blue gown outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Blue gown outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -329,11 +500,30 @@
         "under": [[0.48, 0.32], [0.43, 0.32], [0.425, 0.36], [0.42, 0.41], [0.44, 0.44], [0.438, 0.46], [0.43, 0.5], [0.42, 0.54], [0.405, 0.58], [0.398, 0.6], [0.39, 0.64], [0.38, 0.68], [0.378, 0.695], [0.48, 0.695]],
         "fill": "clone",
         "cloneStep": [0.04, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.32], [0.572, 0.32], [0.578, 0.38], [0.582, 0.46], [0.587, 0.494], [0.8, 0.494]],
+        "fore": [[0.8, 0.486], [0.586, 0.486], [0.588, 0.5], [0.594, 0.53], [0.606, 0.56], [0.616, 0.58], [0.622, 0.6], [0.632, 0.61], [0.636, 0.64], [0.645, 0.67], [0.655, 0.69], [0.655, 0.69], [0.8, 0.69]],
+        "shoulder": [0.595, 0.375],
+        "elbow": [0.615, 0.49],
+        "wrist": [0.645, 0.59],
+        "grip": [0.658, 0.635],
+        "fist": 0.056,
+        "cap": 0.042,
+        "shoulderCap": 0.03,
+        "blend": [0.04, 0.03, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.32], [0.585, 0.32], [0.595, 0.38], [0.598, 0.46], [0.6, 0.5], [0.606, 0.54], [0.614, 0.58], [0.622, 0.62], [0.63, 0.69], [0.57, 0.69]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-f-ranger": {
-    "_note": "The avatar's weapon arm in the Green adventurer outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Green adventurer outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -354,11 +544,30 @@
         "under": [[0.48, 0.32], [0.43, 0.32], [0.42, 0.36], [0.415, 0.42], [0.425, 0.47], [0.43, 0.5], [0.415, 0.53], [0.413, 0.595], [0.397, 0.61], [0.396, 0.66], [0.4, 0.696], [0.48, 0.696]],
         "fill": "clone",
         "cloneStep": [0.04, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.32], [0.578, 0.32], [0.588, 0.36], [0.59, 0.46], [0.594, 0.494], [0.8, 0.494]],
+        "fore": [[0.8, 0.486], [0.593, 0.486], [0.595, 0.5], [0.61, 0.525], [0.616, 0.55], [0.628, 0.58], [0.634, 0.6], [0.638, 0.62], [0.644, 0.65], [0.655, 0.675], [0.655, 0.68], [0.8, 0.68]],
+        "shoulder": [0.6, 0.375],
+        "elbow": [0.62, 0.49],
+        "wrist": [0.645, 0.595],
+        "grip": [0.655, 0.635],
+        "fist": 0.056,
+        "cap": 0.042,
+        "shoulderCap": 0.03,
+        "blend": [0.04, 0.03, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.32], [0.59, 0.32], [0.6, 0.36], [0.602, 0.46], [0.602, 0.52], [0.61, 0.56], [0.624, 0.6], [0.63, 0.68], [0.57, 0.68]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-f-court": {
-    "_note": "The avatar's weapon arm in the Court gown outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Court gown outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -379,11 +588,30 @@
         "under": [[0.49, 0.315], [0.42, 0.315], [0.435, 0.36], [0.44, 0.4], [0.452, 0.44], [0.452, 0.48], [0.44, 0.52], [0.428, 0.55], [0.42, 0.6], [0.412, 0.66], [0.4, 0.72], [0.395, 0.752], [0.49, 0.752]],
         "fill": "clone",
         "cloneStep": [0.04, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.32], [0.572, 0.32], [0.58, 0.38], [0.584, 0.46], [0.589, 0.494], [0.8, 0.494]],
+        "fore": [[0.8, 0.486], [0.588, 0.486], [0.59, 0.5], [0.6, 0.53], [0.615, 0.56], [0.623, 0.58], [0.625, 0.62], [0.632, 0.65], [0.645, 0.68], [0.662, 0.72], [0.672, 0.735], [0.672, 0.74], [0.8, 0.74]],
+        "shoulder": [0.595, 0.375],
+        "elbow": [0.615, 0.49],
+        "wrist": [0.648, 0.585],
+        "grip": [0.66, 0.63],
+        "fist": 0.056,
+        "cap": 0.042,
+        "shoulderCap": 0.03,
+        "blend": [0.04, 0.03, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.32], [0.585, 0.32], [0.595, 0.38], [0.598, 0.46], [0.602, 0.5], [0.61, 0.54], [0.62, 0.58], [0.628, 0.64], [0.64, 0.74], [0.57, 0.74]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-f-queen": {
-    "_note": "The avatar's weapon arm in the Black queen's coat outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Black queen's coat outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -404,11 +632,30 @@
         "under": [[0.48, 0.305], [0.44, 0.305], [0.43, 0.36], [0.43, 0.41], [0.443, 0.44], [0.437, 0.48], [0.422, 0.52], [0.408, 0.56], [0.4, 0.6], [0.39, 0.64], [0.385, 0.695], [0.48, 0.695]],
         "fill": "clone",
         "cloneStep": [0.04, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.305], [0.59, 0.305], [0.598, 0.36], [0.602, 0.44], [0.608, 0.48], [0.611, 0.494], [0.8, 0.494]],
+        "fore": [[0.8, 0.486], [0.609, 0.486], [0.616, 0.52], [0.626, 0.55], [0.632, 0.575], [0.637, 0.6], [0.64, 0.64], [0.648, 0.665], [0.655, 0.67], [0.655, 0.672], [0.8, 0.672]],
+        "shoulder": [0.6, 0.375],
+        "elbow": [0.622, 0.49],
+        "wrist": [0.652, 0.58],
+        "grip": [0.658, 0.625],
+        "fist": 0.056,
+        "cap": 0.042,
+        "shoulderCap": 0.03,
+        "blend": [0.04, 0.03, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.305], [0.6, 0.305], [0.61, 0.36], [0.612, 0.44], [0.613, 0.52], [0.618, 0.55], [0.628, 0.58], [0.634, 0.6], [0.642, 0.64], [0.652, 0.672], [0.57, 0.672]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },
   "avatar:top-shift-f": {
-    "_note": "The avatar's weapon arm in the Shift (female) outfit (the near arm; traced on the outfit's own art, docs/equipment-plan.md). The outer edge is set wide of the art on purpose: only the edge against the body matters.",
+    "_note": "The avatar's arms in the Shift (female) outfit, traced on the outfit's own art (docs/equipment-plan.md): L the near arm, which holds the weapon; R the far arm, the second hand of a two-handed weapon. Each outer edge is set wide of the art on purpose: only the edge against the body matters.",
     "attackArm": "L",
     "arms": {
       "L": {
@@ -429,6 +676,25 @@
         "under": [[0.48, 0.315], [0.435, 0.315], [0.43, 0.36], [0.428, 0.42], [0.44, 0.45], [0.437, 0.5], [0.43, 0.54], [0.42, 0.58], [0.412, 0.62], [0.403, 0.66], [0.4, 0.695], [0.48, 0.695]],
         "fill": "clone",
         "cloneStep": [0.04, 0]
+      },
+      "R": {
+        "holds": true,
+        "upper": [[0.8, 0.32], [0.578, 0.32], [0.59, 0.36], [0.592, 0.44], [0.595, 0.48], [0.598, 0.494], [0.8, 0.494]],
+        "fore": [[0.8, 0.486], [0.596, 0.486], [0.603, 0.52], [0.612, 0.55], [0.622, 0.58], [0.632, 0.6], [0.636, 0.62], [0.638, 0.65], [0.648, 0.68], [0.66, 0.69], [0.66, 0.69], [0.8, 0.69]],
+        "shoulder": [0.6, 0.375],
+        "elbow": [0.622, 0.49],
+        "wrist": [0.652, 0.595],
+        "grip": [0.66, 0.64],
+        "fist": 0.056,
+        "cap": 0.042,
+        "shoulderCap": 0.03,
+        "blend": [0.04, 0.03, 0.02],
+        "feather": 1,
+        "rim": 0.8,
+        "rimWidth": 0.004,
+        "under": [[0.57, 0.32], [0.59, 0.32], [0.6, 0.36], [0.602, 0.44], [0.603, 0.5], [0.61, 0.54], [0.618, 0.58], [0.626, 0.62], [0.632, 0.69], [0.57, 0.69]],
+        "fill": "clone",
+        "cloneStep": [-0.025, 0]
       }
     }
   },

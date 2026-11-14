@@ -1,6 +1,10 @@
 /**
  * Arm clips (docs/arm-rig-plan.md): keyframed joint angles for an ArmRig, in radians.
  *
+ * The AVATAR's clips (slash, thrust, thrust2, chop) are ABSOLUTE: `s` is where the upper arm points and
+ * `s + e` where the forearm points, clockwise from straight down (ArmRig.poseOf, an arm that `holds`),
+ * so every outfit swings alike. An enemy's clip turns its joints from the way its arm is drawn:
+ *
  *   shoulder (s): + raises the arm up and OUT to its own side (0 hangs as drawn; PI/2 level).
  *   elbow (e):    + bends the forearm on round the same way the shoulder raises (with the arm up,
  *                 the hand curls over toward the head); - bends it back (a hanging arm's hand comes in
@@ -102,14 +106,14 @@ export const ARM_CLIPS = {
       { t: 520, d: 0 },
     ],
     lead: [
-      { t: 0, s: 0.15, e: -1.25 },
-      { t: 95, s: -0.4, e: -1.35, ease: 'out' },
-      { t: 155, s: -0.75, e: -1.35 },
-      { t: 220, s: -0.85, e: -0.2, ease: 'in' },
-      { t: 255, s: -0.3, e: -0.1 },
-      { t: 290, s: -0.05, e: -0.05, ease: 'out' },
-      { t: 350, s: -0.05, e: -0.05 },
-      { t: 520, s: 0.15, e: -1.25 },
+      { t: 0, s: 0.28, e: -1.3 },
+      { t: 95, s: -0.27, e: -1.4, ease: 'out' },
+      { t: 155, s: -0.62, e: -1.4 },
+      { t: 220, s: -0.72, e: -0.25, ease: 'in' },
+      { t: 255, s: -0.17, e: -0.15 },
+      { t: 290, s: 0.08, e: -0.1, ease: 'out' },
+      { t: 350, s: 0.08, e: -0.1 },
+      { t: 520, s: 0.28, e: -1.3 },
     ],
   },
   // the avatar's THRUST (daggers, spears, polearms: the weapon lies along the forearm, heldWeapon.js).
@@ -126,12 +130,44 @@ export const ARM_CLIPS = {
       { t: 480, d: 0 },
     ],
     lead: [
-      { t: 0, s: 0.3, e: -2.0 },
-      { t: 110, s: 0.85, e: -2.5, ease: 'out' },
-      { t: 145, s: 0.9, e: -2.55 },
-      { t: 210, s: -1.3, e: -0.4, ease: 'in' },
-      { t: 280, s: -1.25, e: -0.45 },
-      { t: 480, s: 0.3, e: -2.0 },
+      { t: 0, s: 0.43, e: -2.05 },
+      { t: 110, s: 0.98, e: -2.55, ease: 'out' },
+      { t: 145, s: 1.03, e: -2.6 },
+      { t: 210, s: -1.17, e: -0.45, ease: 'in' },
+      { t: 280, s: -1.12, e: -0.5 },
+      { t: 480, s: 0.43, e: -2.05 },
+    ],
+  },
+  // the avatar's TWO-HANDED THRUST (polearms). The rear hand (the weapon arm) does what the thrust does,
+  // a little shorter; the front hand is not keyed: it is solved onto the shaft each frame
+  // (ArmRig.secondPose) and `second` slides its hold along the shaft, tiles from the rear hand. As the
+  // shaft is drawn back it runs back through the front hand (the hold moves toward the point), and on
+  // the thrust it shoots forward through it (the hold closes up), the front hand itself moving little.
+  // These are the holds ASKED for: the front arm is never stretched past its reach (ArmRig.secondPose),
+  // so on a short-armed figure the shaft slides further through the hand instead
+  thrust2: {
+    hit: 215,
+    body: [
+      { t: 0, d: 0 },
+      { t: 140, d: -0.08, ease: 'out' },
+      { t: 215, d: 0.34, ease: 'in' },
+      { t: 290, d: 0.3 },
+      { t: 480, d: 0 },
+    ],
+    lead: [
+      { t: 0, s: 0.43, e: -2.05 },
+      { t: 110, s: 0.93, e: -2.5, ease: 'out' },
+      { t: 145, s: 0.98, e: -2.55 },
+      { t: 210, s: -0.77, e: -0.8, ease: 'in' },
+      { t: 280, s: -0.72, e: -0.85 },
+      { t: 480, s: 0.43, e: -2.05 },
+    ],
+    second: [
+      { t: 0, d: 0.58 },
+      { t: 145, d: 0.68, ease: 'out' },
+      { t: 210, d: 0.38, ease: 'in' },
+      { t: 280, d: 0.4 },
+      { t: 480, d: 0.58 },
     ],
   },
   // the avatar's CHOP (axes and hammers share it; the head stands at a right angle to the forearm, as
@@ -149,14 +185,14 @@ export const ARM_CLIPS = {
       { t: 780, d: 0 },
     ],
     lead: [
-      { t: 0, s: 0.2, e: -1.07 },
-      { t: 170, s: -0.6, e: -1.5, ease: 'out' },
-      { t: 260, s: -1.1, e: -1.6 },
-      { t: 350, s: -0.7, e: -0.2, ease: 'in' },
-      { t: 385, s: -0.2, e: -0.05 },
-      { t: 420, s: 0.15, e: 0.1, ease: 'out' },
-      { t: 540, s: 0.15, e: 0.1 },
-      { t: 780, s: 0.2, e: -1.07 },
+      { t: 0, s: 0.33, e: -1.12 },
+      { t: 170, s: -0.47, e: -1.55, ease: 'out' },
+      { t: 260, s: -0.97, e: -1.65 },
+      { t: 350, s: -0.57, e: -0.25, ease: 'in' },
+      { t: 385, s: -0.07, e: -0.1 },
+      { t: 420, s: 0.28, e: 0.05, ease: 'out' },
+      { t: 540, s: 0.28, e: 0.05 },
+      { t: 780, s: 0.33, e: -1.12 },
     ],
   },
   // the Coyote: no arm, the whole body lurches at the target (feet planted) and springs back; in the
@@ -208,4 +244,4 @@ export function valueAt(keys, t, field = 'l') {
 }
 
 /** How long a clip runs (ms): its last key. */
-export const clipLength = (clip) => Math.max(...['lead', 'off', 'lean', 'body'].map((k) => (clip[k]?.length ? clip[k][clip[k].length - 1].t : 0)));
+export const clipLength = (clip) => Math.max(...['lead', 'off', 'lean', 'body', 'second'].map((k) => (clip[k]?.length ? clip[k][clip[k].length - 1].t : 0)));
