@@ -1,0 +1,79 @@
+{
+  "source": "v04-exploring",
+  "output": "soe_v04-exploring_9x16_a.mp4",
+  "segments": [
+    {
+      "from": "belmont_zoom",
+      "fromOffset": -1.2,
+      "to": "belmont_end",
+      "speed": 1.25
+    },
+    {
+      "from": "sunflower_zoom",
+      "fromOffset": -1.2,
+      "to": "sunflower_end",
+      "speed": 1.25
+    },
+    {
+      "from": "titania_zoom",
+      "fromOffset": -1.2,
+      "to": "titania_end",
+      "speed": 1.25
+    },
+    {
+      "from": "prospero_zoom",
+      "fromOffset": -1.2,
+      "to": "prospero_end",
+      "speed": 1.25
+    },
+    {
+      "from": "yorick_zoom",
+      "fromOffset": -1.2,
+      "to": "yorick_end",
+      "speed": 1.25
+    },
+    {
+      "from": "golgotha_zoom",
+      "fromOffset": -1.2,
+      "to": "golgotha_end",
+      "speed": 1.25
+    }
+  ],
+  "captions": [
+    {
+      "segment": 0,
+      "text": "I left the farm to see the world."
+    },
+    {
+      "segment": 1,
+      "text": "Sunflower Lake."
+    },
+    {
+      "segment": 2,
+      "text": "Titania's Bower."
+    },
+    {
+      "segment": 3,
+      "text": "Prospero's Peak."
+    },
+    {
+      "segment": 4,
+      "text": "Yorick's Hollow."
+    },
+    {
+      "segment": 5,
+      "text": "Golgotha.",
+      "end": 1.3
+    },
+    {
+      "segment": 5,
+      "start": 1.4,
+      "text": "How far will you go?"
+    }
+  ],
+  "endCard": {
+    "seconds": 1.6,
+    "line": "Play free in your browser",
+    "url": "secretsofelsinore.com"
+  }
+}

@@ -489,3 +489,11 @@ and pushes in one zoom level so the conversation plays close up. Friendly action
 Taunt, Insult, Kiss, Propose or gifts on a real account. A tap on a character the player is
 standing beside can open the player's own menu, so the script checks the panel title and
 retries. The developer-only Sell / Move buttons on panels carry `data-dev-ui`.
+
+V4 Exploring (2026-11-13): `shots/v04-exploring.js`, `edits/v04-exploring.json`. Six places by
+developer teleport (the Debug panel's Quick Travel, opened invisibly: `teleport` in `lib.js`),
+each arriving under the game's region banner and changing zoom on camera. `shots/goto.js` moves
+the player to a named place (`PLACE=Belmont node capture.js shot goto`); takes end with the
+player parked at Titania's Bower, away from enemies. Two things to know: arriving beside the
+Oracle opens her nine-page dialogue (keep her out of shot lists on a real account), and the
+teleport does not take the homestead's own coordinate (walk home by signpost instead).

@@ -71,3 +71,25 @@ export const tiles = (page, list) => page.evaluate((ts) => {
 
 /** Park the pointer in the bottom-right corner, out of the way of hover effects. */
 export const park = (page) => { const v = page.viewportSize(); return page.mouse.move(v.width - 6, v.height - 6); };
+
+/** Where the stored player is: { gtype, gridCoord, region }. */
+export const whereAmI = (page) => page.evaluate(() => { const l = JSON.parse(localStorage.getItem('player') || '{}').location || {}; return { gtype: l.gtype, gridCoord: l.gridCoord, region: l.region }; });
+
+/** Developer teleport through the Debug panel's Quick Travel list (`place` = an option's label,
+ *  e.g. 'Belmont') or its grid coordinate box (`place` = a number). Waits for the new board. */
+export async function teleport(page, place) {
+  const before = (await whereAmI(page)).gridCoord;
+  await sleep(700); // a panel that just closed leaves a ghost copy for its exit animation
+  await page.evaluate(() => document.querySelector('button[aria-label="Debug"]')?.click());
+  const select = page.locator('.panel-container select').filter({ hasText: 'Quick Travel' }).last();
+  await select.waitFor({ timeout: 15000 });
+  if (typeof place === 'number') await page.locator('.panel-container input[placeholder="Enter GridCoord"]').last().fill(String(place));
+  else await select.selectOption({ label: place });
+  await sleep(300);
+  await page.locator('.panel-container').getByRole('button', { name: 'Teleport', exact: true }).last().click();
+  for (let i = 0; i < 60; i++) { await sleep(500); if ((await whereAmI(page)).gridCoord !== before) break; }
+  await sleep(4500); // fade in, atlas, NPCs
+  await closePanel(page);
+  await sleep(500);
+  return whereAmI(page);
+}
