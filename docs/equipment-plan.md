@@ -27,7 +27,7 @@ The owner asked to see the sword in the game before any more planning. What is i
   | Category | Attack | Hands | In the hand | Weapons |
   |---|---|---|---|---|
   | `sword` | `slash` | 1 | across the forearm | Short Sword, Long Sword, Sword of Song, Glowing Sword, Legendary Sword, Broadsword, Arming Sword, Falchion, Bard's Blade, Messina Saber, Fen Hook (shown as **Fen Cutlass**) |
-  | `rapier` | `thrust` | 1 | along the forearm | Portia's Rapier, Courtier's Rapier (the long sword's drawing until a rapier is drawn) |
+  | `rapier` | `thrust` | 1 | along the forearm | Portia's Rapier, Courtier's Rapier (its own drawing, `weapon-rapier.png`: a cup hilt and a slender blade, drawn half as wide again so it reads on the board; `tools/art/jobs/weapons-r4.json`) |
   | `dagger` | `thrust` | 1 | along the forearm | Knife, Mantuan Dagger |
   | `spear` | `thrust` | 1 (all four; Boar Spear and Lakeside Spear were 2) | along the forearm | Spear, Magic Spear, Boar Spear, Lakeside Spear |
   | `polearm` | `thrust2` | 2, held in both | along the forearm | Halberd, Magic Halberd, Morrow Glaive |
@@ -74,8 +74,10 @@ The owner asked to see the sword in the game before any more planning. What is i
   (docs/art/equipment/two-handed-guards.png: six outfits, three weapons).
   **`chop2`** is keyed the same way: hoisted with the head kept forward of upright (clear of the face),
   down to level at the belt, the front hand 0.28 tile up the haft at rest; 385 ms.
-  `thrust2` is still keyed by
-  the rear arm: its far arm reaches forward to the shaft and its elbow already hangs.
+  **`thrust2`** (the polearm) is keyed the same way since the same day: the far forearm lies out along
+  the shaft and hardly moves, and the REAR hand does the thrusting, drawn back and then driven forward
+  almost to a straight arm, the shaft running through the front hand. With it the old far-arm solver is
+  gone from the code: every two-handed weapon is now keyed by its far arm.
 
   One drawing a category, all at one scale (`heldWeapon.PX_PER_TILE`), cut to the category's canvas
   by `tools/art/weaponfit.js` from `tools/art/jobs/weapons-r2.json`. A row may name its own drawing
@@ -84,35 +86,17 @@ The owner asked to see the sword in the game before any more planning. What is i
   **Fen Hook** keeps its code name in data and saves and is shown as Fen Cutlass through
   `stringLookup.DISPLAY_ALIASES`, so no save needed migrating. Bows, crossbows and Darts have no
   category and show nothing in the hand. The attacks at half speed: docs/art/equipment/categories.gif.
-- **Two hands (2026-11-13, the thrust first):** a category with `second` is held in BOTH hands; so
-  far the polearm (`thrust2`). The weapon arm is the rear hand and is keyed as before. The far arm,
-  the front hand, is not keyed at all: each frame the weapon is where the rear arm puts it, the hold
-  point `second` tiles up the shaft is found, and the far arm's two joints are solved to put its hand
-  there (`ArmRig.secondPose`, a two-bone reach with the elbow kept down and out). The clip's `second`
-  track slides the hold along the shaft: back through the front hand as the shaft is drawn, forward
-  through it on the thrust. A clip's `slide` track moves the weapon itself along its own length
-  through both hands, the arms and hands where they were: the polearm runs 0.2 tile further forward as
-  the thrust lands and comes back with the guard (owner 2026-11-13). The front arm is never stretched past 86% of its length: beyond that the
-  shaft slides through the hand instead (owner: the front hand need not follow the thrust all the
-  way; the far arm is the thin one). It is drawn under the weapon arm and the weapon, its fist over
-  the shaft. Every outfit's rig has an `R` arm for it; a figure whose rig had none would hold the
-  weapon in one hand.
-- **The two-handed chop (2026-11-13):** `chop2`, for the axe and the hammer. The rear hand holds the
-  foot of the haft, the front hand 0.5 tile up it. Guard: the weapon carried low across the body, its
-  head forward and up. It is hoisted upright in front of the far shoulder (never back across the
-  face: the far arm cannot follow it there), hangs a moment, and comes down forward to level at the
-  belt (no lower: below that the far hand cannot reach the haft), the front hand sliding down the
-  haft toward the rear one as it falls. The far ELBOW stays in against the body (owner 2026-11-13):
-  of the two ways it can fold, the far arm takes the one nearer where it hangs, the front hand comes
-  down the haft to just above the rear one as the weapon is hoisted, and the hold may give up to 0.16
-  tile along the haft (`give`) when the elbow would otherwise wing out. The far arm's answer is also
-  kept CONTINUOUS from frame to frame (`ArmRig.secondPose`): it holds its fold unless the other is
-  clearly better, the elbow's turn stays on the same side of a half turn, and its joints ease to the
-  answer over a few frames, with the fist drawn on the haft itself. Without that the arm flicked out
-  for a frame at the top of the chop, where it is folded nearly shut and its two folds are close
-  (seen on the King's crimson). The blow lands at 385 ms. The one-handed `chop` is gone:
-  every axe and hammer is two-handed. docs/art/equipment/two-handed-chop.gif.
-  docs/art/equipment/two-handed-thrust.gif.
+- **Two hands (2026-11-13):** a category with `second` is held in BOTH hands: the great sword, the
+  polearm, the axe and the hammer. How they are keyed is under "How the two-handed slash and chop are
+  keyed" above; in short the far arm is SET by the clip and does very little, and the near arm is
+  solved to hold the weapon `second` tiles back along it. A clip's `second` track changes that hold
+  (the polearm's shaft runs back and forth through the front hand) and a `slide` track moves the
+  weapon itself along its own length through both hands (the polearm runs 0.2 tile further forward as
+  the thrust lands). The far arm is drawn under the weapon arm and the weapon, its fist over the
+  weapon. Every outfit's rig has an `R` arm for it; a figure whose rig had none would hold the weapon
+  in one hand, by the clip's `lead` keys.
+  GIFs: two-handed-thrust.gif, two-handed-slash.gif, two-handed-chop.gif, rapier-thrust.gif
+  (docs/art/equipment/).
 - **Poses are absolute (2026-11-13):** the avatar's guards and clips say where the upper arm and
   the forearm POINT (clockwise from straight down), not how far to turn them from the outfit's own
   drawing (`ArmRig.poseOf`, an arm that `holds`). Outfits draw the hanging arm a little differently,
@@ -158,7 +142,8 @@ with the damage number, and how the other outfits' sleeves cut.
 **Confirmed by the owner in the game (2026-11-13):** the one-handed slash and thrust, the weapon
 following the Combat panel's slot, the per-outfit rigs, the turning fixes (both), and a tap on an
 out-of-reach enemy walking up and attacking. Approved from the offline GIFs, not yet seen in a fight:
-the two-handed thrust, slash and chop in their final form, and the rapier's thrust.
+the two-handed thrust, slash and chop in their final form, and the rapier's thrust and drawing.
+Other players' figures show no weapon and need none: they are never seen in a fight (owner).
 
 **Decided, not a defect (owner 2026-11-13):** a fast attacker's next attack may start before the
 last one has recovered (the shortest cooldown is shorter than every swing). The new swing simply
@@ -313,8 +298,8 @@ Families, chosen by the weapon's `swing`, all on that pattern:
   forearm staying level so the point travels in a line; the body steps back a little, then well
   forward behind the point.
 - **chop** (axes and hammers share it): two-handed only, `chop2`; see "The two-handed chop" above.
-- **Two-handed forms** (`slash2`, `thrust2`, `chop2`): the weapon arm is keyed, the far
-  arm is solved onto the weapon each frame.
+- **Two-handed forms** (`slash2`, `thrust2`, `chop2`): the far arm is set by the clip's `weapon` keys
+  and the near arm is solved onto the weapon.
 
 As built (see "The prototype"): the blow lands at the clip's `hit`, not on the tap, and the body's
 move is a `body` track in the same clip, so each category's swing and body move are authored

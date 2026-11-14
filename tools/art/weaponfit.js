@@ -13,6 +13,7 @@
  *        --grip 64,448         where the hand holds it, canvas px (the category's `grip`)
  *        --length 440          the weapon's whole length on the canvas, px (426.67 px = one tile)
  *        --hold 0.14           where along the weapon the hand holds it: 0 its butt, 1 its point
+ *        [--widen 1.5]         draw it this much wider than it is long-scaled (a rapier's blade is a hair at board size)
  */
 const fs = require('fs');
 const path = require('path');
@@ -23,7 +24,7 @@ const args = Object.fromEntries(process.argv.slice(2).map((a, i, all) => (a.star
 for (const k of ['in', 'out', 'canvas', 'grip', 'length', 'hold']) if (args[k] === undefined) { console.error(`need --${k}`); process.exit(1); }
 const [CW, CH] = String(args.canvas).split('x').map(Number);
 const [GX, GY] = String(args.grip).split(',').map(Number);
-const LENGTH = Number(args.length), HOLD = Number(args.hold);
+const LENGTH = Number(args.length), HOLD = Number(args.hold), WIDEN = Number(args.widen || 1);
 
 (async () => {
   // steel is grey: never drop low-saturation pixels; only the magenta that touches the border is background
@@ -45,9 +46,9 @@ const LENGTH = Number(args.length), HOLD = Number(args.hold);
   const mids = rows.filter((r) => r.b - r.a <= narrow * 1.3).map((r) => (r.a + r.b) / 2).sort((p, q) => p - q);
   const shaft = mids[Math.floor(mids.length / 2)];
   const scale = LENGTH / (bottom - top + 1);
-  const w = Math.max(1, Math.round((right - left + 1) * scale)), h = Math.round(LENGTH);
-  const art = await sharp(keyed).extract({ left, top, width: right - left + 1, height: bottom - top + 1 }).resize(w, h, { kernel: 'lanczos3' }).png().toBuffer();
-  const x = Math.round(GX - (shaft - left) * scale), y = Math.round(GY + HOLD * LENGTH - h); // its butt sits HOLD of its length below the grip
+  const w = Math.max(1, Math.round((right - left + 1) * scale * WIDEN)), h = Math.round(LENGTH);
+  const art = await sharp(keyed).extract({ left, top, width: right - left + 1, height: bottom - top + 1 }).resize(w, h, { kernel: 'lanczos3', fit: 'fill' }).png().toBuffer();
+  const x = Math.round(GX - (shaft - left) * scale * WIDEN), y = Math.round(GY + HOLD * LENGTH - h); // its butt sits HOLD of its length below the grip
   if (x < 0 || y < 0 || x + w > CW || y + h > CH) throw new Error(`the weapon (${w} x ${h} at ${x}, ${y}) does not fit the ${CW} x ${CH} canvas: change --canvas, --grip, --length or --hold`);
   fs.mkdirSync(path.dirname(path.resolve(args.out)), { recursive: true });
   await sharp({ create: { width: CW, height: CH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite([{ input: art, left: x, top: y }]).png().toFile(path.resolve(args.out));

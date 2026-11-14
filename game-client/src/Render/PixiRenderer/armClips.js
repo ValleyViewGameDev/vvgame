@@ -179,13 +179,13 @@ export const ARM_CLIPS = {
       { t: 480, s: 0.43, e: -2.05 },
     ],
   },
-  // the avatar's TWO-HANDED THRUST (polearms). The rear hand (the weapon arm) does what the thrust does,
-  // a little shorter; the front hand is not keyed: it is solved onto the shaft each frame
-  // (ArmRig.secondPose) and `second` slides its hold along the shaft, tiles from the rear hand. As the
-  // shaft is drawn back it runs back through the front hand (the hold moves toward the point), and on
-  // the thrust it shoots forward through it (the hold closes up), the front hand itself moving little.
-  // These are the holds ASKED for: the front arm is never stretched past its reach (ArmRig.secondPose),
-  // so on a short-armed figure the shaft slides further through the hand instead
+  // the avatar's TWO-HANDED THRUST (polearms). Keyed by the FRONT ARM, as slash2 and chop2 are (`weapon`,
+  // ArmRig.weaponPose): the far arm hardly moves, its forearm lying out along the shaft (`f`) and its
+  // upper arm giving a little on the thrust (`u`); `a` is the way the shaft points. The rear hand is
+  // `second` tiles back along the shaft and the near arm is solved to hold it there, so it is the REAR
+  // hand that does the thrusting: drawn back (the hold widens as the shaft runs back through the front
+  // hand), then driven forward almost to a straight arm (the hold closes up). `slide` runs the shaft a
+  // little further through both hands as the blow lands. `lead` is only the one-armed fallback
   thrust2: {
     hit: 215,
     body: [
@@ -194,6 +194,13 @@ export const ARM_CLIPS = {
       { t: 215, d: 0.34, ease: 'in' },
       { t: 290, d: 0.3 },
       { t: 480, d: 0 },
+    ],
+    weapon: [
+      { t: 0, f: 1.9, u: 0, a: 1.4 },
+      { t: 145, f: 1.92, u: -0.03, a: 1.42, ease: 'out' },
+      { t: 210, f: 1.75, u: 0.2, a: 1.55, ease: 'in' },
+      { t: 280, f: 1.78, u: 0.18, a: 1.55 },
+      { t: 480, f: 1.9, u: 0, a: 1.4 },
     ],
     lead: [
       { t: 0, s: 0.43, e: -2.05 },
@@ -213,11 +220,11 @@ export const ARM_CLIPS = {
       { t: 480, d: 0 },
     ],
     second: [
-      { t: 0, d: 0.58 },
-      { t: 145, d: 0.68, ease: 'out' },
-      { t: 210, d: 0.38, ease: 'in' },
-      { t: 280, d: 0.4 },
-      { t: 480, d: 0.58 },
+      { t: 0, d: 0.5 },
+      { t: 145, d: 0.6, ease: 'out' },
+      { t: 210, d: 0.44, ease: 'in' },
+      { t: 280, d: 0.46 },
+      { t: 480, d: 0.5 },
     ],
   },
   // the avatar's TWO-HANDED CHOP (axes and hammers share it; the head stands at a right angle to the
