@@ -287,21 +287,23 @@ export const ARM_CLIPS = {
   // a resting string out past the far shoulder). The body gives a little as the arrow goes
   shoot: {
     hit: 260,
-    total: 600,
+    total: 400,
     body: [
       { t: 0, d: 0 },
       { t: 260, d: 0 },
-      { t: 300, d: -0.04, ease: 'out' },
-      { t: 440, d: 0 },
+      { t: 290, d: -0.04, ease: 'out' },
+      { t: 380, d: 0 },
     ],
     bow: {
       hand: [0.62, 0.3],
-      draw: [[0, 0.8], [200, 0.31], [260, 0.31], [300, 0.24], [380, 0.28], [520, 0.8], [600, 0.8]],
-      pull: [[0, 0.41], [200, 0.68], [260, 0.68], [300, 0.72], [380, 0.7], [520, 0.41], [600, 0.41]],
+      // loosed at 260, the draw arm SNAPS back to the ready in 70 ms (owner 2026-11-14: "very fast"), a new
+      // arrow already in the hand and the string taken up as it arrives
+      draw: [[0, 0.8], [200, 0.31], [260, 0.31], [330, 0.8], [400, 0.8]],
+      pull: [[0, 0.41], [200, 0.68], [260, 0.68], [330, 0.41], [400, 0.41]],
       toPull: 0.25,
       loose: 260,
-      nock: 380,
-      take: [470, 520],
+      nock: 295,
+      take: [300, 330],
     },
   },
   // the Coyote: no arm, the whole body lurches at the target (feet planted) and springs back; in the

@@ -104,8 +104,9 @@ The owner asked to see the sword in the game before any more planning. What is i
   NEAR arm draws straight back along a level arrow and comes forward again. At rest the figure stands
   ready with the string half drawn (the near hand cannot reach a resting string out past the far
   shoulder). The shot: draw to full by 200 ms, loose at 260 (the clip's `hit`: the game's arrow
-  projectile is launched then, not on the tap), a new arrow in the hand at 380, the string taken up
-  again by 520, ready at 600. The draw is keyed from the near shoulder and nudged a quarter of the way
+  projectile is launched then, not on the tap), then the draw arm SNAPS back to the ready in 70 ms
+  (owner: "very fast"), a new arrow already in the hand and the string taken up as it arrives; the
+  whole shot is 400 ms. The draw is keyed from the near shoulder and nudged a quarter of the way
   toward one length of string for every body, so the short-armed female draws a few px further without
   her arm folding differently. Both fists sit just past the wrist, lapping the sleeve (at the rig's
   grip, the middle of the drawn hand, a fist left a gap). The bow and arrow are code-drawn placeholders
