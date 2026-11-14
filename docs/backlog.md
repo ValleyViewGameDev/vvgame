@@ -92,6 +92,14 @@ attack with rigged arms (the Ogre swings a club), the Coyote lurches, the Spider
 fliers hover and flap, and the Ogre's leap crouches from the legs. What was left of BL-27, the
 player's own lunge, is part of BL-23 (`docs/equipment-plan.md` §3.4).
 
+BL-29 (four Dragons with no room for their 3 x 3 body) closed 2026-11-14: the trees were cleared
+round each one in the valley layouts, the Dragons left where they stand (owner: "don't move the
+dragons"). In `valleyFixedCoord/1012274.json` (54,59) and `1013320.json` (6,31 / 5,37 / 11,44)
+every Oak and Pine on the 3 x 3 body and the ring of tiles round it went, and about half of those
+one tile further out, so each clearing has a ragged natural edge (95 trees in all; the doobers in
+them stay). New copies and resets of those valleys use the files; copies players already made keep
+their trees until their next reset.
+
 ### BL-2: Real session auth in place of the bare `x-player-id` header (LAUNCH BLOCKER)
 
 Added 2026-10-30.
@@ -233,10 +241,3 @@ not lost. Equipment on the figure is BL-23.
   owner found the tones a little strong).
 - Arm swing is muted (the art has no separate arms; see the plan).
 
-### BL-29: Four Dragons have no room for their 3 x 3 body
-
-Carried over from BL-17 when it closed (found 2026-11-12, when the Dragon became 3 x 3). Of
-the 15 Dragons placed in layouts, 4 stand in dense forest with no 3 x 3 clearing within eight
-tiles (valley layouts 1012274 at 54,59 and 1013320 at 6,31 / 5,37 / 11,44), so they cannot
-settle or move (`AllNPCsShared.settleBody` looks three tiles) and sit over the trees. Clear a
-patch at each spot or move them.
