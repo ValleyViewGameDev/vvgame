@@ -160,6 +160,10 @@ following the Combat panel's slot, the per-outfit rigs, the turning fixes (both)
 out-of-reach enemy walking up and attacking. Approved from the offline GIFs, not yet seen in a fight:
 the two-handed thrust, slash and chop in their final form, and the rapier's thrust.
 
+**Decided, not a defect (owner 2026-11-13):** a fast attacker's next attack may start before the
+last one has recovered (the shortest cooldown is shorter than every swing). The new swing simply
+takes over; nothing is to be done about it.
+
 ## 1. What exists today
 
 - **The data is ready.** `settings.equippedWeapon` / `equippedShield` / `equippedArmor` are real
