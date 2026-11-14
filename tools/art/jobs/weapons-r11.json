@@ -1,0 +1,25 @@
+{
+  "name": "weapons-r11",
+  "note": "The Sword of Song's own drawing (owner 2026-11-14: 'try something like this', a photo of a curved sword with a stepped flare halfway down the blade and an S-curved guard, 'and give it a blue tint'). The photo is described in words only: a photoreal image must never be a style ref. A one-handed sword (category sword). One candidate. Cut with tools/art/weaponfit.js to the Long Sword's length and grip.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1536"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "sword-of-song": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r3/exploration/openai/painterly-great-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached SWORD on magenta is one of this game's approved swords: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background). SUBJECT: ONE ONE-HANDED ENCHANTED SWORD called the SWORD OF SONG, elegant and a little otherworldly, its steel TINTED BLUE. POINT UP, pommel down, the hilt perfectly upright on the vertical centre line of the picture. From the bottom: a round flat DISC POMMEL of dark blue-black iron; a GRIP for ONE fist, wrapped in tight black cord, of even thickness; a dark blue-black iron CROSSGUARD shaped like a lazy S: one arm sweeping out and curling DOWN toward the grip, the other arm sweeping out and curling UP toward the blade, about three times as wide as the blade. Then the BLADE: from the guard it runs nearly STRAIGHT for its first half, slim and single-edged with a gentle curve; at about HALF its length the blade WIDENS ABRUPTLY in a sharp angular STEP on its back side (a flared spur, like a yelman), so the upper half is noticeably broader; from there the upper half CURVES clearly and smoothly to the RIGHT and narrows into a long, sweeping, sharp point that hooks back up at the top. The point ends well to the right of the hilt's centre line, about a quarter of the blade's length to the right. A clear bevel line runs along the blade. The blade is about four times as long as the grip, measured along its curve. Colours: the blade is bright steel with a clear cool BLUE tint (pale sky-blue highlights, steel-blue mid-tones, deeper blue along the bevel), never grey; the fittings dark blue-black iron; the grip black cord. Bold and readable: it is seen about 40 pixels tall on the board, so big plain shapes, a few strong details, no engraving, no runes, no musical notes, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple or violet anywhere on it. Seen flat-on from the side: no tilt of the hilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    }
+  }
+}
