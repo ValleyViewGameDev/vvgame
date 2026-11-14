@@ -116,23 +116,41 @@ export const ARM_CLIPS = {
       { t: 520, s: 0.28, e: -1.3 },
     ],
   },
-  // the avatar's TWO-HANDED SLASH (great swords; the blade stands at a right angle to the forearm, as the
-  // sword's does). The rear hand (the weapon arm) is keyed; the front hand is solved onto the long grip
-  // just above it each frame (ArmRig.secondPose) and cannot slide: above it is the blade. So the HANDS
-  // are routed where the far arm can hold on with its elbow down: up and down the middle of the body,
-  // never out in front of the far shoulder (there the elbow has nowhere to go but out sideways). From
-  // the guard, both hands at the belly and the blade leaning forward, the sword is lifted upright in
-  // front of the chest, tipping a little back (it crosses the face for a moment, as the one-handed
-  // slash does), and cut down forward through the guard to just above level at the belt (no lower: the
-  // far hand could not reach the grip). Quicker than the chop, slower than the one-handed slash
+  // the avatar's TWO-HANDED SLASH (great swords). It is keyed by the WEAPON, not by an arm (`weapon`,
+  // ArmRig.weaponPose): each key is where the FRONT hand is, from its own shoulder in lengths of that arm
+  // (x toward the target, y down), and where the blade points (a: 0 straight up, + toward the target).
+  // The rear hand is a grip's width down the blade's line from it, and BOTH arms are solved onto the
+  // sword. Keyed from the front shoulder because the far arm is the one with no room: its hand must stay
+  // where its elbow can hang, and where that is differs between the bodies (the female's far shoulder
+  // sits much nearer the middle; keyed by the rear arm's angles her far elbow thrashed, owner 2026-11-13).
+  // The blade is free in the hands here, not held at a right angle to the forearm: that is what lets the
+  // cut END at full stretch, both arms and the blade reaching out at the target. From the guard, hands
+  // at the belly and the blade leaning forward, the sword is lifted upright before the chest (it crosses
+  // the face for a moment), the hilt is drawn in past the chest as the blade comes over, and the sword is
+  // driven out level as far as the arms reach, then drawn back the same way. `fold` on a key turns the far
+  // arm over from there on (-1: its elbow hangs under the outstretched arm instead of lifting above it); it
+  // is set where the hand passes its own shoulder, the one place the arm can turn over unseen. `lead` is
+  // only the one-armed fallback for a figure whose rig has no far arm
   slash2: {
     hit: 295,
     body: [
       { t: 0, d: 0 },
       { t: 195, d: -0.1, ease: 'out' },
-      { t: 295, d: 0.34, ease: 'in' },
-      { t: 370, d: 0.3 },
+      { t: 295, d: 0.4, ease: 'in' },
+      { t: 370, d: 0.36 },
       { t: 640, d: 0 },
+    ],
+    weapon: [
+      { t: 0, x: -0.3, y: 0.4, a: 0.7, fold: 1 },
+      { t: 120, x: -0.36, y: 0.22, a: 0.3, ease: 'out' },
+      { t: 195, x: -0.42, y: 0.05, a: -0.1 },
+      { t: 225, x: -0.42, y: 0.04, a: -0.12 },
+      { t: 258, x: -0.04, y: 0.13, a: 0.75, ease: 'in', fold: -1 }, // the hilt drawn in past the chest: the far arm turns over here
+      { t: 295, x: 0.6, y: 0.5, a: 1.5 },
+      { t: 335, x: 0.6, y: 0.52, a: 1.55, ease: 'out' },
+      { t: 430, x: 0.6, y: 0.52, a: 1.55 },
+      { t: 540, x: -0.04, y: 0.15, a: 0.9, fold: 1 }, // drawn back to the chest, and the arm turned back
+      { t: 640, x: -0.3, y: 0.4, a: 0.7 },
     ],
     lead: [
       { t: 0, s: 0.15, e: -1.02 },
@@ -295,5 +313,20 @@ export function valueAt(keys, t, field = 'l') {
   return keys[keys.length - 1][field];
 }
 
+/** Several values of a key track at time t (ms): { field: value } for each of `fields`, eased as poseAt eases. */
+export function keyAt(keys, t, fields) {
+  const pick = (k) => Object.fromEntries(fields.map((f) => [f, k[f] || 0]));
+  if (!keys || !keys.length) return null;
+  if (t <= keys[0].t) return pick(keys[0]);
+  for (let i = 1; i < keys.length; i++) {
+    const b = keys[i];
+    if (t <= b.t) {
+      const a = keys[i - 1], p = (EASE[b.ease] || EASE.inOut)((t - a.t) / Math.max(1, b.t - a.t));
+      return Object.fromEntries(fields.map((f) => [f, (a[f] || 0) + ((b[f] || 0) - (a[f] || 0)) * p]));
+    }
+  }
+  return pick(keys[keys.length - 1]);
+}
+
 /** How long a clip runs (ms): its last key. */
-export const clipLength = (clip) => Math.max(...['lead', 'off', 'lean', 'body', 'second', 'slide'].map((k) => (clip[k]?.length ? clip[k][clip[k].length - 1].t : 0)));
+export const clipLength = (clip) => Math.max(...['lead', 'off', 'lean', 'body', 'second', 'slide', 'weapon'].map((k) => (clip[k]?.length ? clip[k][clip[k].length - 1].t : 0)));

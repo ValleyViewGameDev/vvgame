@@ -44,13 +44,27 @@ The owner asked to see the sword in the game before any more planning. What is i
 
   **The two-handed sword (built 2026-11-13).** Category `greatsword`: its own longer drawing
   (`weapon-great-sword.png`, 1.45 tiles, a grip long enough for two fists; `tools/art/jobs/weapons-r3.json`),
-  the front hand 0.23 tile above the rear one, and the `slash2` clip. The front hand cannot slide (above
-  it is the blade), so the hands themselves are routed where the far arm can hold on with its elbow
-  down: up and down the MIDDLE of the body, not out in front of the far shoulder as the axe is hoisted.
-  From the guard (both hands at the belly, the blade leaning forward) the sword is lifted upright in
-  front of the chest, tipping a little back, and cut down forward THROUGH the guard pose to just above
-  level at the belt (the far hand cannot reach lower). The blade crosses the face for a moment at the
-  top, as the one-handed slash does. The blow lands at 295 ms. docs/art/equipment/two-handed-slash.gif.
+  the front hand 0.23 tile above the rear one, and the `slash2` clip. The front hand cannot slide
+  (above it is the blade). `slash2` is **keyed by the weapon**, not by an arm (`weapon` track,
+  `ArmRig.weaponPose`): each key says where the FRONT hand is, from its own shoulder in lengths of that
+  arm, and where the blade points; the rear hand is a grip's width back along the blade, and both arms
+  are solved onto the sword. Why:
+  - *The bodies differ.* Keyed by the rear arm's angles, the female's far elbow thrashed: her far
+    shoulder sits much nearer the middle, so the same arm angles put the hands almost on it. Keyed from
+    the front shoulder, the far hand is always where that arm has room.
+  - *Reach.* The blade is free in the hands here (not at a right angle to the forearm), so the cut ends
+    at full stretch: both arms and the blade reaching out level at the target. The last key is set past
+    reach on purpose and the hands come back until both arms can hold on, so each body stretches as far
+    as its own arms go. The body's step is 0.4 tile.
+  - *The far arm turns over.* With the hand out past its own shoulder the far arm's usual fold lifts
+    the elbow in the air; the other fold lets it hang under the arm. A key's `fold` turns the arm over
+    from there on, and it is set where the hilt is drawn in past the chest, the arm folded shut: the
+    one place the two folds are the same pose, so the turn is not seen. The recovery goes back the same
+    way.
+  The motion: guard (hands at the belly, blade leaning forward), lifted upright before the chest (the
+  blade crosses the face for a moment), hilt drawn in past the chest as the blade comes over, driven
+  out level, drawn back. The blow lands at 295 ms. docs/art/equipment/two-handed-slash.gif.
+  `thrust2` and `chop2` are still keyed by the rear arm; they could move to weapon keys the same way.
 
   One drawing a category, all at one scale (`heldWeapon.PX_PER_TILE`), cut to the category's canvas
   by `tools/art/weaponfit.js` from `tools/art/jobs/weapons-r2.json`. A row may name its own drawing

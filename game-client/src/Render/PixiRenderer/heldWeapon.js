@@ -32,7 +32,8 @@ const CUT_GUARD = { side: HELD_ARM, s: 0.28, e: -1.3 };
 // the point forward: the elbow tucked back, the forearm level, the weapon aimed at the enemy from the hip
 const THRUST_GUARD = { side: HELD_ARM, s: 0.43, e: -2.05 };
 // the two-handed sword's guard: both hands at the belly, the blade standing up and leaning well forward
-const GREAT_GUARD = { side: HELD_ARM, s: 0.15, e: -1.02 };
+// (`weapon`: the same guard as the two-handed clip keys it, armClips.js slash2; s, e: the one-armed fallback)
+const GREAT_GUARD = { side: HELD_ARM, s: 0.15, e: -1.02, weapon: { x: -0.3, y: 0.4, a: 0.7 } };
 // a heavy two-handed head carried low and ready: the rear hand at the hip, the haft across the body with the head forward and up
 const HEAVY_GUARD = { side: HELD_ARM, s: 0.1, e: -0.47 };
 
