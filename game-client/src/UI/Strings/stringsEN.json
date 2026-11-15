@@ -1849,6 +1849,8 @@
     "2169": "Thrice Welcome",
     "2170": "Next",
     "2171": "OK",
+    "2172": "Placing {item}. Click a spot to put it there.",
+    "2172_touch": "Placing {item}. Tap a spot to put it there.",
     "2117": "Your Caravan Orders",
     "2118": "Caravan Departed",
     "2119": "❌ The Caravan has already departed! Cannot fulfill orders.",

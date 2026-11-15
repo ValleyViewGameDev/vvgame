@@ -245,18 +245,18 @@ export const playConversation = async (
     
     // Player speaks - use provided ID or position-based ID
     const playerSpeakerId = playerId || `player_${Math.floor(playerPosition.x)}_${Math.floor(playerPosition.y)}`;
+    const npcSpeakerId = npcId || `npc_${Math.floor(npcPosition.x)}_${Math.floor(npcPosition.y)}`;
     const playerTopicKey = interaction?.[`playertopic${roundNum}`];
     const playerTopic = playerTopicKey ? getTopicSymbol(playerTopicKey, topicContext, true) : '💭';
     
-    await showSpeech('player', playerSpeakerId, playerEmoji, playerTopic);
+    await showSpeech('player', playerSpeakerId, playerEmoji, playerTopic, false, npcSpeakerId);
     // Removed character animation
     await delay(1200);
     await hideSpeech(playerSpeakerId);
 
     await delay(400); // Brief pause between speakers
 
-    // NPC responds - use provided ID or position-based ID
-    const npcSpeakerId = npcId || `npc_${Math.floor(npcPosition.x)}_${Math.floor(npcPosition.y)}`;
+    // NPC responds
     const npcTopicKey = interaction?.[`npctopic${roundNum}`];
 
     // Pass player's topic to context so NPC can react dynamically
@@ -282,7 +282,7 @@ export const playConversation = async (
       conversationResults.rivalTopics++;
     }
 
-    await showSpeech('npc', npcSpeakerId, npcEmoji, npcTopic, matchState);
+    await showSpeech('npc', npcSpeakerId, npcEmoji, npcTopic, matchState, playerSpeakerId);
     // Removed character animation
     await delay(1200);
     await hideSpeech(npcSpeakerId);
@@ -321,7 +321,7 @@ export const playNPCConversation = async ({
     results.totalRounds = roundNum;
     const aKey = interaction?.[`playertopic${roundNum}`] || 'random';
     const aTopic = getTopicSymbol(aKey, { ...base, npcId: initiatorType, playerIcon: initiatorEmoji, npcIcon: partnerEmoji, roundNum }, false);
-    ConversationManager.addSpeech(initiatorType, initiatorEmoji, aTopic, false);
+    ConversationManager.addSpeech(initiatorType, initiatorEmoji, aTopic, false, { partnerId: partnerType });
     if (!(await beat(1200))) { clear(); return { aborted: true, results }; }
     ConversationManager.removeSpeech(initiatorType);
     if (!(await beat(400))) { clear(); return { aborted: true, results }; }
@@ -333,7 +333,7 @@ export const playNPCConversation = async ({
       results.matchingTopics++;
       if (INTEREST_KEYS.includes(aKey) && INTEREST_KEYS.includes(bKey)) results.matchingInterests++;
     } else if (matchState === 'rival') results.rivalTopics++;
-    ConversationManager.addSpeech(partnerType, partnerEmoji, bTopic, matchState, { flip: true }); // the reply: mirrored
+    ConversationManager.addSpeech(partnerType, partnerEmoji, bTopic, matchState, { flip: true, partnerId: initiatorType }); // the reply: mirrored
     if (!(await beat(1200))) { clear(); return { aborted: true, results }; }
     ConversationManager.removeSpeech(partnerType);
     if (!(await beat(400))) { clear(); return { aborted: true, results }; }
@@ -512,9 +512,10 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
 
 // Show speech bubble for a character
 // matchState can be: false, 'match', or 'rival'
-const showSpeech = async (speakerType, speakerId, emoji, topic, matchState = false) => {
-  // the NPC's reply is drawn mirrored, so the player's and the NPC's bubbles alternate sides
-  ConversationManager.addSpeech(speakerId, emoji, topic || emoji, matchState, { flip: speakerType === 'npc' });
+const showSpeech = async (speakerType, speakerId, emoji, topic, matchState = false, partnerId = null) => {
+  // each bubble points toward the partner (renderer, by column); in a shared column the NPC's
+  // reply is drawn mirrored, so the player's and the NPC's bubbles alternate sides
+  ConversationManager.addSpeech(speakerId, emoji, topic || emoji, matchState, { flip: speakerType === 'npc', partnerId });
 };
 
 // Hide speech bubble for a character

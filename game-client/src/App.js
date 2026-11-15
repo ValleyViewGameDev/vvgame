@@ -157,7 +157,8 @@ import { initDevCaptureMode } from './Dev/devCaptureMode';
 import FTUEScrim from './GameFeatures/FTUE/FTUEScrim';
 import useSnugLesson from './GameFeatures/NPCs/useSnugLesson';
 import useAudreyLesson from './GameFeatures/FarmHands/useAudreyLesson';
-import { useMoveMode, MoveBanner } from './GameFeatures/Move/useMoveMode';
+import { useMoveMode, PlacementBanner, isPlacing } from './GameFeatures/Move/useMoveMode';
+import { isTouchPrimary } from './Utils/inputMode';
 import { playCutscene } from './Utils/cutscene';
 import { isInputLocked } from './Utils/inputLock';
 import { createSilentAccount } from './Authentication/silentAccount';
@@ -1020,12 +1021,28 @@ useMoveMode({ cursorMode, setCursorMode, setResources, closePanel, gridId }); //
 // Clear cursor mode when panel changes (except when staying on panels that support cursor placement).
 // An FTUE step with keepCursor: true closes the panel but keeps the plot armed for the planting beat.
 const keepCursorRef = useRef(false);
+// Phones (placement mode): picking the thing closes its panel, and the placement outlives it (until
+// Cancel, a placement that ends it, another panel, or a new grid); see the effect below.
 useEffect(() => {
   const cursorModePanels = ['FarmingPanel', 'ToolsPanel', 'BuildPanel', 'BuyPanel', 'BuyDecoPanel', 'PetsPanel'];
   if (!cursorModePanels.includes(activePanel) && !keepCursorRef.current) {
-    setCursorMode((prev) => (prev?.type === 'move' ? prev : null)); // a Move (GameFeatures/Move) outlives the panel it came from
+    setCursorMode((prev) => {
+      if (prev?.type === 'move') return prev; // a Move (GameFeatures/Move) outlives the panel it came from
+      if (!activePanel && isPlacing(prev) && isTouchPrimary()) return prev;
+      return null;
+    });
   }
 }, [activePanel]);
+// Phones: picking an item in a placement panel closes the panel and enters placement mode (the
+// ghost waits in the middle of the board, PixiRenderer; the banner offers Cancel). Keyed on WHAT is
+// armed, so a panel opened later while placing is not closed by it.
+const armedKeyRef = useRef(null);
+const armedKey = isPlacing(cursorMode) ? `${cursorMode.type}|${cursorMode.tileType || (typeof cursorMode.item === 'object' ? cursorMode.item?.type : cursorMode.item)}` : null;
+useEffect(() => {
+  const was = armedKeyRef.current;
+  armedKeyRef.current = armedKey;
+  if (armedKey && armedKey !== was && activePanel && isTouchPrimary()) closePanel();
+}, [armedKey]); // eslint-disable-line react-hooks/exhaustive-deps
 // FTUE: opening the Farming / Quest panel is a tutorial beat (tuning/FTUEsteps.json, OpenedFarmingPanel / OpenedQuestPanel)
 useEffect(() => {
   if (activePanel === 'FarmingPanel' && currentPlayer?.firsttimeuser) {
@@ -2473,22 +2490,11 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer?._id));
   const targetPos = { x: colIndex, y: rowIndex };
 
-  // Helper to check if target is in range (used by cursor mode handlers)
-  const isInRange = () => {
-    if (isOnOwnHomestead) return true; // No range restriction on own homestead
-    if (!playerPos) return false;
-    const distance = calculateDistance(playerPos, targetPos);
-    const playerRange = getDerivedRange(currentPlayer, masterResources);
-    return distance <= playerRange;
-  };
+  // Placing from a cursor (Move, plant, terraform, build) has no range check anywhere: in the
+  // Town and the valley it works as on the homestead (owner, 2026-11-15)
 
   // Move (GameFeatures/Move): put the picked-up thing down here
   if (cursorMode?.type === 'move') {
-    if (!isInRange()) {
-      FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
-      isProcessing = false;
-      return;
-    }
     const { placeMovedResource } = await import('./GameFeatures/Move/moveMode');
     // answers at once (the server check runs in the background), so move mode ends with the tap
     const outcome = placeMovedResource({ cursorMode, x: colIndex, y: rowIndex, gridId, currentPlayer, masterResources, setResources, TILE_SIZE: activeTileSize, strings });
@@ -2504,12 +2510,6 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
 
   // Handle cursor mode (e.g., planting with cursor)
   if (cursorMode?.type === 'plant' && cursorMode.item) {
-    // Range check for cursor placement (skipped on own homestead)
-    if (!isInRange()) {
-      FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
-      isProcessing = false;
-      return;
-    }
     const { handleFarmPlotPlacement } = await import('./GameFeatures/Farming/Farming');
     await handleFarmPlotPlacement({
       selectedItem: cursorMode.item,
@@ -2538,12 +2538,6 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
 
   // Handle terraform cursor mode (supports both tileType and legacy actionType)
   if (cursorMode?.type === 'terraform' && (cursorMode.tileType || cursorMode.actionType)) {
-    // Range check for cursor placement (skipped on own homestead)
-    if (!isInRange()) {
-      FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
-      isProcessing = false;
-      return;
-    }
     const { handleTerraform } = await import('./GameFeatures/Farming/Farming');
     await handleTerraform({
       TILE_SIZE: activeTileSize,
@@ -2568,12 +2562,6 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       isProcessing = false;
       return;
     }
-    // Range check for cursor placement (skipped on own homestead)
-    if (!isInRange()) {
-      FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
-      isProcessing = false;
-      return;
-    }
 
     // Set processing state if callback is available (for spam-click protection)
     if (cursorMode.setProcessing) {
@@ -2587,6 +2575,9 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       const effectiveBuildOptions = cursorMode.getEffectiveBuildOptions
         ? cursorMode.getEffectiveBuildOptions()
         : cursorMode.buildOptions;
+      // Phones (placement mode): one building, animal or deco per pick; placement mode ends the
+      // moment it lands on the board, not when the server answers
+      const onPlaced = isTouchPrimary() ? () => setCursorMode(null) : undefined;
 
       // Check if this is a gem-modified purchase (modifiedRecipe is present)
       if (cursorMode.modifiedRecipe) {
@@ -2606,6 +2597,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           updateStatus,
           modifiedRecipe: cursorMode.modifiedRecipe,
           overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
+          onPlaced,
           strings,
         });
       } else {
@@ -2624,6 +2616,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           gridId,
           updateStatus,
           overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
+          onPlaced,
           globalTuning,
           masterResources,
           strings,
@@ -3350,7 +3343,7 @@ return (
       ready={isAppInitialized && !!currentPlayer?.location}
     />
 
-    <MoveBanner cursorMode={cursorMode} setCursorMode={setCursorMode} setResources={setResources} />
+    <PlacementBanner cursorMode={cursorMode} setCursorMode={setCursorMode} setResources={setResources} />
 
     {/* Quest: the To Do list, a round button in the left column under the Map button (in phone
         landscape, under the Map button on the right); toggles the Quest panel. Badge at its lower

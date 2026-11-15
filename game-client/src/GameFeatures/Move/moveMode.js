@@ -13,7 +13,7 @@ import { footprintOf, footprintCells } from '../../Utils/footprint';
  * (docs/ui-conventions.md §3, "Sell section"). The Move button in a panel's Sell section calls
  * requestMove; useMoveMode (App) turns that into cursorMode { type: 'move' }: the panel closes,
  * the original stays on the board as a ghost (resource.__moving, drawn at low alpha by
- * PixiRenderer), the cursor carries the item on desktop, and a banner (MoveBanner) says what is
+ * PixiRenderer), the cursor carries the item on desktop, and a banner (PlacementBanner) says what is
  * being moved and offers Cancel (phones have no cursor; Esc also cancels on desktop). The next
  * tile tap calls placeMovedResource: it checks the footprint locally, moves it at once and
  * answers 'placed' on the spot, so App leaves move mode with the tap (the standard cursor back, no

@@ -1,0 +1,118 @@
+{
+  "source": "v03-story/gertrude",
+  "output": "soe_v03-story_9x16_b.mp4",
+  "music": {
+    "file": "game-client/public/sound/music/valley1_2.mp3",
+    "start": 0,
+    "volume": 2.7
+  },
+  "segments": [
+    {
+      "source": "v03-story/gertrude",
+      "from": 7.4,
+      "to": 9.4,
+      "speed": 1.2
+    },
+    {
+      "source": "v03-story/gertrude",
+      "from": 13.8,
+      "to": 19.4,
+      "speed": 1.3
+    },
+    {
+      "source": "v03-story/leontes",
+      "from": 11.6,
+      "to": 13.6,
+      "scale": 1.3,
+      "anchor": "top"
+    },
+    {
+      "source": "v03-story/leontes",
+      "from": 14.2,
+      "to": 18.4,
+      "speed": 1.1,
+      "scale": 1.3,
+      "anchor": "top"
+    },
+    {
+      "source": "v03-story/titania",
+      "from": 10.0,
+      "to": 15.0,
+      "speed": 1.15
+    },
+    {
+      "source": "v03-story/quests",
+      "from": 1.3,
+      "to": 4.1,
+      "speed": 1.2
+    },
+    {
+      "source": "v03-story/cellar",
+      "from": 70.9,
+      "to": 72.9,
+      "speed": 1.2
+    },
+    {
+      "source": "v03-story/cellar",
+      "from": 74.55,
+      "to": 75.35,
+      "speed": 0.45
+    },
+    {
+      "source": "v03-story/prospero",
+      "from": 7.4,
+      "to": 9.3
+    },
+    {
+      "source": "v03-story/prospero",
+      "from": 9.6,
+      "to": 15.2,
+      "speed": 1.3
+    }
+  ],
+  "captions": [
+    {
+      "segment": 0,
+      "text": "A storm tore every story apart."
+    },
+    {
+      "segment": 1,
+      "who": "Gertrude",
+      "size": 62,
+      "text": "“I was stone so long, I almost forgot the feel of the sun.”"
+    },
+    {
+      "segment": 2,
+      "toSegment": 3,
+      "who": "Leontes",
+      "size": 62,
+      "text": "“The storm turned my Queen to stone and stole my crown.”"
+    },
+    {
+      "segment": 4,
+      "who": "Titania",
+      "size": 62,
+      "text": "“Prospero was my friend before his storm, and now I fear him.”"
+    },
+    {
+      "segment": 6,
+      "toSegment": 7,
+      "text": "Take up their quests."
+    },
+    {
+      "segment": 8,
+      "text": "And the magician?"
+    },
+    {
+      "segment": 9,
+      "who": "Prospero",
+      "size": 62,
+      "text": "“I raised the storm, and I have repented it every day since.”"
+    }
+  ],
+  "endCard": {
+    "seconds": 1.8,
+    "line": "How will your story end?",
+    "url": "secretsofelsinore.com"
+  }
+}

@@ -1,4 +1,4 @@
-/* MoveBanner (useMoveMode.js): what is being moved, with Cancel; where the toasts land, above the board */
+/* PlacementBanner (useMoveMode.js): what is being moved or placed, with Cancel; where the toasts land, above the board */
 .move-banner {
   position: fixed;
   left: 50%;

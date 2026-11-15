@@ -1764,6 +1764,8 @@
     "2169": "Tres veces bienvenida",
     "2170": "Siguiente",
     "2171": "Aceptar",
+    "2172": "Colocando {item}. Haz clic en un sitio para ponerlo allí.",
+    "2172_touch": "Colocando {item}. Toca un sitio para ponerlo allí.",
     "2117": "Tus pedidos de la Caravana",
     "2118": "La Caravana partió",
     "2119": "❌ ¡La Caravana ya partió! No se pueden completar los pedidos.",

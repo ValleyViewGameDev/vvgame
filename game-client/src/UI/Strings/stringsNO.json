@@ -1548,6 +1548,8 @@
     "2169": "Thrice Welcome",
     "2170": "Next",
     "2171": "OK",
+    "2172": "Plasserer {item}. Klikk på et sted for å sette det der.",
+    "2172_touch": "Plasserer {item}. Trykk på et sted for å sette det der.",
     "2112": "Sell",
     "2113": "Move",
     "2114": "Moving {item}. Click a free spot to put it down.",

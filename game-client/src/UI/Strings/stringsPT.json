@@ -1548,6 +1548,8 @@
     "2169": "Thrice Welcome",
     "2170": "Next",
     "2171": "OK",
+    "2172": "A colocar {item}. Clica num sítio para o pôr lá.",
+    "2172_touch": "A colocar {item}. Toca num sítio para o pôr lá.",
     "2112": "Sell",
     "2113": "Move",
     "2114": "Moving {item}. Click a free spot to put it down.",

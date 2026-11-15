@@ -27,13 +27,17 @@ const CAPTION_BOTTOM = 470;
 const FONTS = '<link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Lora:wght@500;700&display=swap" rel="stylesheet">';
 const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
-const captionHtml = (text) => `<!doctype html><html><head>${FONTS}<style>
+// A caption is one line of text, or a character's words: `who` (their name, small, above) and
+// `size` (px, default 84; a long quote wants about 60).
+const captionHtml = (c) => `<!doctype html><html><head>${FONTS}<style>
   html,body{margin:0;width:${W}px;height:${H}px;background:transparent}
   .c{position:absolute;left:70px;right:140px;bottom:${CAPTION_BOTTOM}px;text-align:center;
-     font:400 84px/1.1 'Berkshire Swash',serif;color:#fff;
-     -webkit-text-stroke:10px #1d2b06;paint-order:stroke fill;
+     font:400 ${c.size || 84}px/1.12 'Berkshire Swash',serif;color:#fff;
+     -webkit-text-stroke:${c.size && c.size < 70 ? 8 : 10}px #1d2b06;paint-order:stroke fill;
      text-shadow:0 6px 14px rgba(0,0,0,.55)}
-</style></head><body><div class="c">${esc(text)}</div></body></html>`;
+  .w{display:block;margin-bottom:14px;font:700 44px/1 'Lora',serif;letter-spacing:.06em;text-transform:uppercase;color:#fffbb3;
+     -webkit-text-stroke:7px #1d2b06;paint-order:stroke fill}
+</style></head><body><div class="c">${c.who ? `<span class="w">${esc(c.who)}</span>` : ''}${esc(c.text)}</div></body></html>`;
 
 const endCardHtml = (card, logo) => `<!doctype html><html><head>${FONTS}<style>
   html,body{margin:0;width:${W}px;height:${H}px;background:#77ac0d}
@@ -89,7 +93,7 @@ const logo = 'data:image/png;base64,' + fs.readFileSync(path.join(ADS, 'brand/So
 const caps = (edit.captions || []).map((c, i) => { const [a, b] = capTimes(c); return { ...c, file: path.join(tmp, `cap${i}.png`), a, b }; });
 const card = edit.endCard ? { ...edit.endCard, file: path.join(tmp, 'end.png') } : null;
 await renderPngs([
-  ...caps.map((c) => ({ html: captionHtml(c.text), file: c.file, transparent: true })),
+  ...caps.map((c) => ({ html: captionHtml(c), file: c.file, transparent: true })),
   ...(card ? [{ html: endCardHtml(card, logo), file: card.file, transparent: false }] : []),
 ]);
 
@@ -103,7 +107,7 @@ caps.forEach((c) => args.push('-loop', '1', '-t', body.toFixed(3), '-i', c.file)
 if (card) args.push('-loop', '1', '-t', String(card.seconds), '-i', card.file);
 const f = [];
 Object.values(takes).forEach((t) => { const mine = segs.map((g, i) => (g.input === t.input ? `[s${i}]` : '')).filter(Boolean); f.push(`[${t.input}:v]split=${mine.length}${mine.join('')}`); });
-segs.forEach((g, i) => f.push(`[s${i}]trim=start=${g.a.toFixed(3)}:end=${g.b.toFixed(3)},setpts=(PTS-STARTPTS)/${g.speed},fps=${FPS},scale=${Math.round(W * (g.scale || 1) / 2) * 2}:${Math.round(H * (g.scale || 1) / 2) * 2}:flags=lanczos,crop=${W}:${H},format=yuv420p,setsar=1[g${i}]`)); // `scale` > 1 crops in on the middle (a square board in a tall frame)
+segs.forEach((g, i) => f.push(`[s${i}]trim=start=${g.a.toFixed(3)}:end=${g.b.toFixed(3)},setpts=(PTS-STARTPTS)/${g.speed},fps=${FPS},scale=${Math.round(W * (g.scale || 1) / 2) * 2}:${Math.round(H * (g.scale || 1) / 2) * 2}:flags=lanczos,crop=${W}:${H}:(iw-${W})/2:${g.anchor === 'top' ? '0' : `(ih-${H})/2`},format=yuv420p,setsar=1[g${i}]`)); // `scale` > 1 crops in on the middle (a square board in a tall frame), or with `anchor: 'top'` keeps the top and drops the bottom
 f.push(`${segs.map((_, i) => `[g${i}]`).join('')}concat=n=${segs.length}:v=1:a=0[v0]`);
 let last = 'v0';
 caps.forEach((c, i) => {

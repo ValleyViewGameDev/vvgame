@@ -47,6 +47,7 @@ export const handleConstruction = async ({
   masterResources, // Optional: for limit checking
   useGems = false, // the gem button: gems stand in for what is missing (priced on the server)
   strings = {}, // for the regional-animal refusal text
+  onPlaced, // Optional: called the moment it is on the board (phones leave placement mode then)
 }) => {
   if (!currentPlayer) {
     console.warn('Current Player not provided; inventory changes will not be saved.');
@@ -194,6 +195,7 @@ export const handleConstruction = async ({
     // Spawning NPC at the target position (cursor position if in cursor mode, otherwise player position)
     const spawnPosition = overridePosition ? { x, y } : playerPosition;
     NPCsInGridManager.spawnNPC(gridId, selectedResource, spawnPosition);
+    onPlaced?.();
     createCollectEffect(x, y, TILE_SIZE);
     FloatingTextManager.addFloatingText(300, x, y, TILE_SIZE);
     soundManager.playSFX('place');
@@ -221,6 +223,7 @@ export const handleConstruction = async ({
   }
   GlobalGridStateTilesAndResources.setResources(finalResources);
   setResources(finalResources);
+  onPlaced?.();
   createCollectEffect(x, y, TILE_SIZE);
   soundManager.playSFX('place');
 

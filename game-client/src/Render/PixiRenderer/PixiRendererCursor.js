@@ -24,7 +24,8 @@ import { indexWalls, wallMask, wallTexture, wallSpan } from './PixiRendererWalls
  *     it is never hidden.
  * The mouse cursor stays the ordinary pointer (App.js no longer turns it into the item). Leaving
  * the board (onto a panel or any UI) clears hoveredTile, so the preview stops until the mouse is
- * back. Touch screens have no hover: a tap places as before.
+ * back. Touch screens have no hover: in placement mode the ghost starts in the middle of the board
+ * (PixiRenderer sets hoveredTile there) and a tap places where it lands, as before.
  *
  * The blocked rule mirrors the client's own refusals (BuildAndBuy.js, Move/moveMode.js,
  * Farming.js) on the full footprint, like the server's /action/place; it only colours the preview,

@@ -85,12 +85,13 @@ const ToolsPanel = ({
   };
 
   // Handle selecting a terraform action for cursor mode
-  const handleCursorModeSelect = (tileType, emoji) => {
+  const handleCursorModeSelect = (tileType, emoji, label) => {
     setCursorMode({
       type: 'terraform',
       tileType: tileType,
       emoji: emoji,
       src: tileSwatchSrc(tileType), // the tile's own look follows the cursor (App.js)
+      label, // the placement banner's name for it (Move/useMoveMode.js)
     });
   };
 
@@ -173,11 +174,11 @@ const ToolsPanel = ({
   };
 
   // Helper to handle button clicks (cursor mode or direct action)
-  const handleButtonClick = (tileType, emoji, requiredSkill, level) => {
+  const handleButtonClick = (tileType, emoji, requiredSkill, level, label) => {
     if (requiredSkill && requiredSkill !== 'devonly' && !hasRequiredSkill(requiredSkill)) return;
     if (level && !meetsLevelRequirement(level)) return;
     if (useWithCursor) {
-      handleCursorModeSelect(tileType, emoji);
+      handleCursorModeSelect(tileType, emoji, label);
     } else {
       handleTerraformWithCooldown(tileType);
     }
@@ -262,7 +263,7 @@ const ToolsPanel = ({
                     details={details}
                     disabled={isDisabled}
                     info={infoText}
-                    onClick={() => handleButtonClick(tileType, symbol, requiredSkill, requiredLevel)}
+                    onClick={() => handleButtonClick(tileType, symbol, requiredSkill, requiredLevel, displayName)}
                     devOnly={requiredSkill === 'devonly'}
                   />
                 );

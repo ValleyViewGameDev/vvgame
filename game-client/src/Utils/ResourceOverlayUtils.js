@@ -49,12 +49,12 @@ export const getResourceOverlayStatus = (
   }
   
   
-  // Courthouse/Election status: a sign for each phase (owner 2026-11-10); the clock is the
-  // cooldown between elections (Administration, and the minute of Counting)
+  // Courthouse/Election status: a sign for Campaigning and Voting (owner 2026-11-10); nothing at all
+  // in the cooldown between elections (Administration, and the minute of Counting; owner 2026-11-14)
   if (resource.type === 'Courthouse') {
     if (electionPhase === 'Campaigning') return { type: 'campaign', priority: 3 };
     if (electionPhase === 'Voting') return { type: 'voting', priority: 1 };
-    if (electionPhase === 'Administration' || electionPhase === 'Counting') return { type: 'cooldown', priority: 4 };
+    if (electionPhase === 'Administration' || electionPhase === 'Counting') return null;
   }
 
   if (extra) {

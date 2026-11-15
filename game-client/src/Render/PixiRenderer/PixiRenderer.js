@@ -11,7 +11,7 @@ import { Application, Container, Graphics, Text, Sprite, Texture } from 'pixi.js
 import { getResourceOverlayStatus, getNPCOverlayStatus, OVERLAY_SVG_MAPPING, OVERLAY_EMOJI_MAPPING } from '../../Utils/ResourceOverlayUtils';
 import { handleNPCClickShared } from '../../GameFeatures/NPCs/NPCInteractionUtils';
 import { generateResourceTooltip, generateNPCTooltip } from '../RenderDynamicElements';
-import { canHover } from '../../Utils/inputMode';
+import { canHover, isTouchPrimary } from '../../Utils/inputMode';
 import { calculateTooltipPosition } from '../../Utils/TooltipUtils';
 import { getDerivedRange, nearestFootprintTile } from '../../Utils/worldHelpers';
 import PixiRendererVFX from './PixiRendererVFX';
@@ -2294,6 +2294,24 @@ const PixiRenderer = ({
       setTimeout(() => { suppressClickRef.current = false; }, 400);
     }
   }, [cancelLongPress, setHoverTooltip]);
+
+  // Phones, placement mode (App.js; Move/useMoveMode.js): a touch screen has no hover, so when a
+  // placement is armed its ghost appears in the middle of the board, centred on its footprint;
+  // a tap then shows it (and places it) where the tap lands, as before. Keyed on WHAT is armed.
+  const placingKey = cursorMode && ['build', 'plant', 'terraform'].includes(cursorMode.type)
+    ? `${cursorMode.type}|${cursorMode.tileType || (typeof cursorMode.item === 'object' ? cursorMode.item?.type : cursorMode.item)}` : null;
+  useEffect(() => {
+    if (!placingKey || !isTouchPrimary() || !containerRef.current) return;
+    const el = containerRef.current;
+    const { row, col } = PixiCamera.screenToTile(el.clientWidth / 2, el.clientHeight / 2);
+    const { w, h } = footprintOf(cursorMode);
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    // the anchor is the footprint's lower-left cell (Utils/footprint.js)
+    setHoveredTile({
+      col: clamp(col - Math.floor((w - 1) / 2), 0, TILES_PER_GRID - w),
+      row: clamp(row + Math.floor((h - 1) / 2), h - 1, TILES_PER_GRID - 1),
+    });
+  }, [placingKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle mouse leave to clear tooltip and hovered tile
   const handleMouseLeave = useCallback(() => {

@@ -9,8 +9,11 @@ class ConversationManager {
   // Add a conversation bubble
   // matchState can be: false, 'match', or 'rival'
   // flip: draw the bubble mirrored (its tail hooking the other way), for the reply in a
-  // back-and-forth so the two speakers' bubbles face each other (PixiRendererSpeech.js)
-  addSpeech(speakerId, emoji, topic, matchState = false, { flip = false } = {}) {
+  // back-and-forth so the two speakers' bubbles face each other (PixiRendererSpeech.js).
+  // partnerId: who the speaker is talking to; when the two stand in different columns the
+  // renderer points the bubble toward the partner instead (owner 2026-11-15), and `flip` is
+  // only the fallback for a shared column or a partner it can't find
+  addSpeech(speakerId, emoji, topic, matchState = false, { flip = false, partnerId = null } = {}) {
     console.log('🗨️ ConversationManager.addSpeech:', { speakerId, emoji, topic, matchState });
     console.log('🗨️ Current active conversations:', Array.from(this.activeConversations.keys()));
     this.activeConversations.set(speakerId, {
@@ -19,6 +22,7 @@ class ConversationManager {
       timestamp: Date.now(),
       matchState,
       flip: !!flip,
+      partnerId,
     });
     this.notifyListeners();
   }

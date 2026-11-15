@@ -35,11 +35,13 @@ export async function zoomTo(page, stepsIn) {
 }
 
 /** Hide (or show) the open panel without closing it: a placement cursor stays armed. */
-export const hidePanels = (page, on) => page.evaluate((v) => {
+export const hidePanels = (page, on, { away = false } = {}) => page.evaluate(([v, off]) => {
   let s = document.getElementById('capture-hide-panels');
   if (!s) { s = document.createElement('style'); s.id = 'capture-hide-panels'; document.head.appendChild(s); }
-  s.textContent = v ? '.panel-container{opacity:0!important;pointer-events:none!important}' : '';
-}, on);
+  // `away` also moves the panel out of the window: the camera shifts the player clear of an open
+  // panel (revealPlayerBesidePanels measures it), which pushes a conversation to the frame's edge
+  s.textContent = v ? `.panel-container{opacity:0!important;pointer-events:none!important${off ? ';transform:translateX(-300vw)!important;animation:none!important' : ''}}` : '';
+}, [on, away]);
 
 export const closePanel = (page) => page.evaluate(() => document.querySelector('.panel-container .close-btn')?.click());
 export const openNav = (page, name) => page.evaluate((n) => document.querySelector(`[data-nav="${n}"]`)?.click(), name);
@@ -199,4 +201,73 @@ export async function healUp(page, fraction = 0.85) {
   const after = await health(page);
   console.log('healed', JSON.stringify(before), '->', JSON.stringify(after));
   return after;
+}
+
+/** Walk the player onto the SAME ROW as a character, on the tile beside it (owner rule: a
+ *  conversation or a fight is staged on one row), from whichever side is nearer and open. Returns the character's tile and the side
+ *  (-1 = the player stands to its left), or null when no tile beside it could be reached. */
+export async function standBeside(page, type, { ms = 20000, gap = 1 } = {}) {
+  const until = Date.now() + ms;
+  const find = async () => { const [n] = await npcs(page, `n.type === ${JSON.stringify(type)}`); return n && { x: Math.floor(n.x), y: Math.floor(n.y) }; };
+  const open = (x, y) => page.evaluate(([tx, ty]) => {
+    const t = window.__boardTiles(); if (!t[ty] || t[ty][tx] === undefined || t[ty][tx] === 'w') return false;
+    for (const r of window.__boardResources() || []) { if (!r || r.passable === true) continue; const w = r.sizeX || r.size || 1, h = r.sizeY || r.size || 1; if (tx >= r.x && tx < r.x + w && ty <= r.y && ty > r.y - h) return false; }
+    return !Object.values(window.__npcsDebug?.() || {}).some((n) => n?.position && Math.floor(n.position.x) === tx && Math.floor(n.position.y) === ty);
+  }, [x, y]);
+  let lastTap = 0;
+  while (Date.now() < until) {
+    const who = await find(); if (!who) return null;
+    const me = await myTile(page);
+    if (me.y === who.y && Math.abs(me.x - who.x) === gap) return { ...who, side: Math.sign(me.x - who.x) };
+    const reach = await tapReach(page, 1);
+    const far = Math.abs(me.x - who.x) > reach.dx || Math.abs(me.y - who.y) > reach.dy;
+    if (Date.now() - lastTap > 900) {
+      const sides = me.x <= who.x ? [-gap, gap] : [gap, -gap];
+      let spot = null;
+      for (const s of sides) if (await open(who.x + s, who.y) || (me.x === who.x + s && me.y === who.y)) { spot = who.x + s; break; }
+      if (spot === null) { await sleep(500); continue; }   // both sides taken (a wall, a chair): wait for them to wander on
+      // out of the picture: look at the character first, so the tile can be tapped; the game's own
+      // route (doors included) walks him there, and the camera returns to him as he sets off
+      if (far) await lookAt(page, who.x, who.y, 250);
+      await clickTile(page, spot, who.y); lastTap = Date.now() + (far ? 2500 : 0);
+    }
+    await sleep(120);
+  }
+  return null;
+}
+
+/** The weapon in the Combat panel's weapon slot (player.settings.equippedWeapon) as the server
+ *  has it, or null. (The stored copy in the browser is not rewritten on a gear change.) */
+export async function equippedWeapon(page) {
+  const id = await page.evaluate(() => JSON.parse(localStorage.getItem('player') || '{}').playerId);
+  const server = process.env.CAPTURE_SERVER || 'http://localhost:3001';
+  const data = await (await fetch(`${server}/api/player/${id}`)).json();
+  return (data.player || data).settings?.equippedWeapon || null;
+}
+
+/** Equip a weapon the player owns through the Combat panel (kept invisible); `type` null takes the
+ *  weapon off. Changes the account for real. Returns what was equipped before. */
+export async function equipWeapon(page, type) {
+  const before = await equippedWeapon(page);
+  if (before === type) return before;
+  await hidePanels(page, true);
+  await page.evaluate(() => document.querySelector('[data-fly-target="combat"]')?.click());
+  await page.waitForSelector('.panel-container .combat-section-weapons', { state: 'attached', timeout: 15000 });
+  await sleep(800);
+  const done = await page.evaluate(async ([want, was]) => {
+    const section = document.querySelector('.panel-container .combat-section-weapons');
+    if (!section.querySelector('.combat-section-body')) { section.querySelector('.combat-section-header').click(); await new Promise((r) => setTimeout(r, 500)); }
+    const row = [...section.querySelectorAll('.equipment-item')].find((r) => r.querySelector('strong')?.innerText.trim() === (want || was));
+    if (!row) return 'no such weapon in the panel';
+    if (row.querySelector('.equipment-checkbox').checked !== !!want) row.querySelector('.equipment-content').click();
+    return 'ok';
+  }, [type, before]);
+  await sleep(2000);
+  await closePanel(page);
+  await sleep(800);
+  await hidePanels(page, false);
+  const now = await equippedWeapon(page);
+  console.log(`weapon: ${before} -> ${now}${done === 'ok' ? '' : ` (${done})`}`);
+  if (now !== type) throw new Error(`could not equip ${type}: ${done}`);
+  return before;
 }

@@ -423,7 +423,16 @@ const PixiRendererSpeech = ({
 
       // Draw bubble shape
       const borderColor = getBorderColor(speech.matchState);
-      const { cx: centerX, cy: centerY } = drawBubble(bubble.graphics, tipX, tipY, borderColor, !!speech.flip);
+      // Point the bubble toward the partner when they stand in different columns (an unflipped
+      // bubble's body sits left of its tail, so a partner to the right flips it); in a shared
+      // column, or with no partner on the board, keep the speech's own flip (owner 2026-11-15)
+      let flip = !!speech.flip;
+      const partner = speech.partnerId != null ? findEntityPosition(speech.partnerId) : null;
+      if (partner) {
+        const dCol = Math.round(partner.x) - Math.round(position.x);
+        if (dCol !== 0) flip = dCol > 0;
+      }
+      const { cx: centerX, cy: centerY } = drawBubble(bubble.graphics, tipX, tipY, borderColor, flip);
 
       // The topic: its art (a character's headshot in the avatar ring, the player's face, a
       // resource's painted art, a Twemoji), else the emoji as text (speechTopicArt.js)

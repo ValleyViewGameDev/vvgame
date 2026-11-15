@@ -542,3 +542,24 @@ Owner's brief: the player moves in every place, a fight (ghosts in Golgotha), a 
 ### Where the ad files live (owner, 2026-11-14)
 
 All ad assets moved out of the repository to `GameDevelopment/ads/vvgame/` (beside `ads/house/`), so recordings and finished videos are never committed. `tools/capture/capture.js` and `edit.js` write there (`ADS_DIR` overrides it); every `ads/...` path in this plan means that folder. The repository ignores any `ads/` folder.
+
+### V3 Story, version a (2026-11-14) and two standing rules
+
+The tale told by four of its characters in their own first speeches (strings 16014, 16013, 16007, 16009): Leontes, Gertrude, Titania, Prospero. One take each: `node capture.js shot v03-story@<who>`. In every take the player walks up, stops beside the character on their row, and a friendly Talk plays with its panel invisible while the camera comes in; the quote is a caption with the speaker's name (`who` and `size` on a caption in `edit.js`).
+
+- **Standing rule (owner, 2026-11-14): movement on screen only goes forward.** A to B to C, never A to B and back to A: a player who walks back over the same ground looks wrong. When a take has to back off first (the teleport lands beside the character), that part stays out of the edit.
+- **Same row** (the rule above, 2026-11-14) is done by `standBeside` in `shots/lib.js`: it taps the tile beside the character on their row and lets the game's own route walk there, doors included.
+- A hidden panel still moves the camera: the game shifts the player clear of an open panel. `hidePanels(page, true, { away: true })` moves the panel out of the window so a conversation stays in the middle of the frame.
+- Leontes stands four rows from the bottom edge of his grid, so his take is staged at the closest zoom.
+- Not used: the Clues modal (each character's story speeches to read again). It is the real story text and changes nothing on the account, but it is a wall of small type in a 20-second video.
+
+## V3 Story, version b, and V1 Zoom, version c (2026-11-14)
+
+**V3 Story b** (`soe_v03-story_9x16_b.mp4`, 29.9 s). Owner notes on version a, and what changed:
+
+- Gertrude re-recorded after the ghosts in the Town castle were killed: nothing attacks during the talk, and with no enemy on the grid the weapon is not in his hand (the weapon only shows on a grid with an enemy on it).
+- Prospero re-recorded with the **Knife** equipped instead of the bow (`CAST.prospero.weapon`; `equipWeapon` in `shots/lib.js` goes through the Combat panel). The take's step away and back is not in the cut (forward-only rule), so this beat opens on the wide view of the Peak.
+- New cutaways in the middle (`shots/v03-extras.js`): the Quest panel opened for a moment (`@quests`), then the Town Cellar (`@cellar`): the camera comes in on the whole cellar and Oberon runs its passage (slowed to 0.45: the run is 8 tiles, under a second at game speed).
+- The big dungeon (d001_Large, entered from valley 1011132; Belmont's entrance is across water) was tried first and dropped: its first door did not open and a demon stands in the entry room. `@dungeon` and `@scout` are left in the script for another try; they bail out when health falls below 55 %.
+
+**V1 Zoom c** (`soe_v01-zoom_9x16_c.mp4`, 14.0 s): re-recorded on the redecorated homestead, starting in front of the farmhouse at its middle (the Home signpost leaves him at the west edge, where the empty area past the edge shows), out through every level to the **Settlement view** (owner: all the way out), then back in. The Settlement view shows the neighbours' usernames and net worth, and Oberon's homestead is in the settlement's top row, so the top of that frame is empty.

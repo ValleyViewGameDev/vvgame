@@ -1766,6 +1766,8 @@
     "2169": "Dreimal willkommen",
     "2170": "Weiter",
     "2171": "OK",
+    "2172": "{item} wird platziert. Klicke auf eine Stelle, um es dort abzustellen.",
+    "2172_touch": "{item} wird platziert. Tippe auf eine Stelle, um es dort abzustellen.",
     "2117": "Deine Karawanen-Aufträge",
     "2118": "Karawane abgereist",
     "2119": "❌ Die Karawane ist schon abgereist! Aufträge können nicht mehr erfüllt werden.",
