@@ -11364,7 +11364,8 @@
     "filename": "npc-enemy-ghost.svg",
     "iconFile": "npc-head-ghost.svg",
     "artSpan": 1.8,
-    "noFlip": true
+    "noFlip": true,
+    "noShadow": true
   },
   {
     "type": "Ogre",

@@ -1,6 +1,7 @@
 /**
  * actorShadows: a soft shadow on the ground under every figure on the board (owner 2026-11-15): the
- * player, citizens, farm animals and enemies, hovering ones too. The Phoenix, the Demon, the Dragon
+ * player, citizens, farm animals and enemies, hovering ones too (all but a row marked `noShadow`: the
+ * Ghost casts none). The Phoenix, the Demon, the Dragon
  * and the Fairy used to carry a shadow painted into their art; it was taken out of the drawings so
  * that every figure's shadow is this one, made to look as those did (near-black, a flat soft-edged
  * ellipse, about 40% dark).
@@ -95,7 +96,7 @@ export function trackShadow(obj, layer, opts) {
   place(obj, t);
 }
 
-/** Take a figure's shadow away (the player in a boat or a tent). */
+/** Take a figure's shadow away (the player in a boat or a tent; an NPC whose row says `noShadow`: the Ghost). */
 export function untrackShadow(obj) {
   const t = obj && tracked.get(obj);
   if (!t) return;

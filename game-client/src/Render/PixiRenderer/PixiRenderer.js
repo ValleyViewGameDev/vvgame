@@ -1473,10 +1473,14 @@ const PixiRenderer = ({
           displayObj.hoverCut = hover;
           if (!hoverersRef.current.has(npc.id)) hoverersRef.current.set(npc.id, { seed: breathSeed(`${npc.id}:hover`), amp: 0 });
         } else { hoverersRef.current.delete(npc.id); displayObj.hoverLift = 0; displayObj.hoverCut = 0; }
-        // its shadow on the ground (actorShadows.js); a hovering figure's lies under where it floats
-        ActorShadows.trackShadow(displayObj, npcContainer, newDisplayType === 'sprite'
-          ? { feet: opaqueFeet(appRef.current?.renderer, texture), size: spriteSize, anchorY, tile: TILE_SIZE, hover: hover > 0 }
-          : { feet: null, size: fontSize * artScale * bodyScale, anchorY: 0.5, tile: TILE_SIZE, hover: hover > 0 });
+        // its shadow on the ground (actorShadows.js); a hovering figure's lies under where it floats. `noShadow`
+        // on the row: it casts none (the Ghost, owner 2026-11-15; read from the master row so a stored NPC follows the sheet)
+        if (npc.noShadow ?? masterResources?.find((m) => m.type === npc.type)?.noShadow) ActorShadows.untrackShadow(displayObj);
+        else {
+          ActorShadows.trackShadow(displayObj, npcContainer, newDisplayType === 'sprite'
+            ? { feet: opaqueFeet(appRef.current?.renderer, texture), size: spriteSize, anchorY, tile: TILE_SIZE, hover: hover > 0 }
+            : { feet: null, size: fontSize * artScale * bodyScale, anchorY: 0.5, tile: TILE_SIZE, hover: hover > 0 });
+        }
         const pant = Number(npc.pant ?? masterResources?.find((m) => m.type === npc.type)?.pant) || 0;
         if (pant > 0 && 'breath' in displayObj) {
           const p = pantersRef.current.get(npc.id);
