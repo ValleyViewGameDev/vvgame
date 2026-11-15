@@ -235,6 +235,18 @@ takes over; nothing is to be done about it.
   gently curved blade of dark weathered steel with a clipped point and a faint scroll etching. Cut a little shorter
   than the Long Sword (420 px) with `--pockets` (the guard's cage encloses background), mirrored to curve like the
   Messina Saber. Preview `docs/art/equipment/fen-hook.png`.
+- **Bow lengths** (owner 2026-11-14): the Long Bow came down from half-length 0.74 to 0.64 tiles (still longer than the
+  Short Bow's 0.45; the Recurve Bow uses the same `long` style, so it shortened too). Named longbows by `bowStyle`:
+  `highland` (Highland Longbow) = the old 0.74; `herne` (Herne's Bow) = 0.74 in black wood with dark nocks and an
+  iron-grey binding; `agincourt` (Agincourt Longbow) = 0.93, its lower tip just above the archer's feet, bending a
+  little more at full draw. Preview `docs/art/equipment/bow-lengths.png` (Short, Long, Highland, Herne's, Agincourt at
+  rest and drawn).
+- **Rapiers, a swept hilt** (owner 2026-11-14: "look more like a Rapier"; `weapons-r13`, one candidate each): the r4
+  cup hilt read as a candlestick. Portia's Rapier: polished silver swept hilt (knuckle-bow, loops, long knobbed
+  quillons), silver-wire grip, a small pale-blue gem, pearl-tipped pommel. Courtier's Rapier: gilded swept hilt, red
+  velvet grip with gold wire, pear pommel. Both a needle-thin even blade. Cut like r4 (length 533, grip 540, hold 0.11,
+  --widen 1.5) plus --pockets, on a wider 288 px canvas (grip 144) for the quillons. Preview
+  `docs/art/equipment/rapiers.png`.
 - **Titania's Bow, its own bow drawing** (owner 2026-11-14: thicker wood, green with gold patterns): a row may now name
   its own bow look with `bowStyle` (a key of `ArmRig` `BOW_STYLES`; blank = its category's `short` / `long`). The
   `titania` style is the longbow's shape on a heavier green stave (wood strokes about 1.5x the longbow's), a thin gold

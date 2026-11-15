@@ -1,0 +1,36 @@
+{
+  "name": "weapons-r13",
+  "note": "Portia's Rapier and the Courtier's Rapier, each its own drawing (owner 2026-11-14: 'change the art so they look more like a Rapier'): the r4 rapier's cup hilt read as a candlestick; a swept hilt (knuckle-bow, loops, long quillons) and a narrow even blade make it a rapier. One candidate each. Cut with tools/art/weaponfit.js like the r4 rapier (canvas 224x608, grip 112,540, length 533, --widen 1.5) plus --pockets (the hilt's loops enclose background).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1536"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "portias-rapier": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r1/exploration/openai/painterly-long-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached LONG SWORD on magenta is this game's approved sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background). SUBJECT: ONE RAPIER, a Renaissance duelling sword, unmistakably a RAPIER: what makes it one is its SWEPT HILT. POINT UP, pommel down, the hilt upright on the vertical centre line of the picture, seen from the side. From the bottom: a small round polished silver pommel with a single pearl-white bead on its tip; a GRIP for one fist, wrapped in fine silver wire, of even thickness; then the SWEPT HILT in bright polished SILVER: long thin straight QUILLONS reaching well out to each side just below the blade, their ends finished with small knobs; a curved KNUCKLE-BOW that sweeps from the quillons down around the grip to the pommel on the RIGHT side; and two or three thin bars that LOOP and SWEEP from the knuckle-bow round the base of the blade in graceful open curves and rings, so the hand would sit in a light open cage of bars; a slim, graceful, ladylike hilt with one small pale-blue gem at the centre where the bars meet the blade. Then a very LONG, very SLENDER, perfectly STRAIGHT steel BLADE, about as narrow as a finger and of EVEN width almost all the way, a narrow flat ricasso just above the hilt, ending in a fine sharp point. The blade is about seven times as long as the grip. Colours: bright clean steel, polished silver, silver wire, one small pale-blue gem. Bold and readable: it is seen about 50 pixels tall on the board, so clear plain bars, not fine filigree; no engraving, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. Seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    },
+    "courtiers-rapier": {
+      "refs": [
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png",
+        "_candidates/weapons-r1/exploration/openai/painterly-long-sword-1.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached farm man on magenta is an APPROVED character of this game, the attached OGRE holds a club painted the way this game paints weapons, and the attached LONG SWORD on magenta is this game's approved sword: match their rendering exactly (soft painterly, flat-ish colour with gentle shading, soft thick dark outlines, no texture, no background). SUBJECT: ONE RAPIER, a Renaissance duelling sword, unmistakably a RAPIER: what makes it one is its SWEPT HILT. POINT UP, pommel down, the hilt upright on the vertical centre line of the picture, seen from the side. From the bottom: a pear-shaped gilded pommel; a GRIP for one fist, wrapped in deep red velvet crossed with thin gold wire, of even thickness; then the SWEPT HILT in rich GILDED GOLD: long thin straight QUILLONS reaching well out to each side just below the blade, their ends finished with small knobs; a curved KNUCKLE-BOW that sweeps from the quillons down around the grip to the pommel on the RIGHT side; and two or three thin bars that LOOP and SWEEP from the knuckle-bow round the base of the blade in graceful open curves and rings, so the hand would sit in a light open cage of bars; a showy, fashionable courtier's hilt, the bars a little fuller and more numerous. Then a very LONG, very SLENDER, perfectly STRAIGHT steel BLADE, about as narrow as a finger and of EVEN width almost all the way, a narrow flat ricasso just above the hilt, ending in a fine sharp point. The blade is about seven times as long as the grip. Colours: bright clean steel, warm gilded gold, deep red velvet. Bold and readable: it is seen about 50 pixels tall on the board, so clear plain bars, not fine filigree; no engraving, no glow, no sparkle, no motion lines. COLOUR: never pink, never magenta, never purple anywhere on it. Seen flat-on from the side: no tilt, no perspective, no foreshortening. It fills most of the picture's HEIGHT, with a margin of magenta above and below. ONE WEAPON ONLY, nothing else in the picture: no hand, no sheath, no shadow, no ground, no frame, no text. Every other pixel is pure solid magenta (#FF00FF)."
+    }
+  }
+}

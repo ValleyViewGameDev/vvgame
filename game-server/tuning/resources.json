@@ -14067,7 +14067,8 @@
     "ingredient3qty": 30,
     "ingredient4": "Book",
     "ingredient4qty": 10,
-    "weaponClass": "longbow"
+    "weaponClass": "longbow",
+    "bowStyle": "highland"
   },
   {
     "type": "Thistle Brooch",
@@ -14527,7 +14528,8 @@
     "ingredient1qty": 25000,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "weaponClass": "longbow"
+    "weaponClass": "longbow",
+    "bowStyle": "herne"
   },
   {
     "type": "Falstaff's Flagon",
@@ -14696,7 +14698,8 @@
     "ingredient1qty": 45000,
     "ingredient4": "Book",
     "ingredient4qty": 110,
-    "weaponClass": "longbow"
+    "weaponClass": "longbow",
+    "bowStyle": "agincourt"
   },
   {
     "type": "Crispin's Banner",

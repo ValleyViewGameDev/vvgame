@@ -415,8 +415,11 @@ const BOW_STYLES = {
   short: { half: 0.45, bend: 0.06, back: 0.25, belly: 0.05, grip: 0.07, wood: [[0.062, 0x2b1a0d], [0.04, 0x9a5b2b], [0.014, 0xc98c4d]], gripWood: [[0.075, 0x2b1a0d], [0.05, 0x5a3a22]] },
   // the longbow (owner 2026-11-13): as tall as the archer, a slim stave of pale yew in a shallow D, tapering to horn
   // nocks, with a bound leather handle. The same shot as the short bow: only the drawing differs.
-  long: { half: 0.74, bend: 0.07, back: 0.3, belly: 0.03, grip: 0.085, wood: [[0.06, 0x33200f], [0.04, 0xc79a52], [0.013, 0xeed7a0]], gripWood: [[0.07, 0x33200f], [0.047, 0x6e2b20]],
+  long: { half: 0.64, bend: 0.07, back: 0.3, belly: 0.03, grip: 0.085, wood: [[0.06, 0x33200f], [0.04, 0xc79a52], [0.013, 0xeed7a0]], gripWood: [[0.07, 0x33200f], [0.047, 0x6e2b20]],
     taper: 0.45, horn: { from: 0.93, strokes: [[0.036, 0x33200f], [0.02, 0xefe6cf]] }, wrap: { at: [-0.72, 0, 0.72], colour: 0xd9a95c, width: 0.012 } },
+  // the Long Bow came down from 0.74 to 0.64 (owner 2026-11-14: "slightly shorter, but still longer than short bow"); the
+  // named longbows take their own lengths and looks from it
+  highland: null, herne: null, agincourt: null, // filled in below, from `long`
   // Titania's Bow (owner 2026-11-14: "thicker wood", "green with gold patterns"): the longbow's shape on a heavier stave of
   // green wood, a thin gold inlay running up each limb, gold bands across it, gold nocks and a gold-bound green handle.
   // `bands`: { at (fractions along the limb from the grip), colour, width } strokes across the limb
@@ -424,6 +427,13 @@ const BOW_STYLES = {
     taper: 0.5, horn: { from: 0.9, strokes: [[0.05, 0x5a3d08], [0.032, 0xf2c94c]] }, wrap: { at: [-0.72, 0, 0.72], colour: 0xf2c94c, width: 0.016 },
     bands: { at: [0.3, 0.55, 0.75], colour: 0xf2c94c, outline: 0x5a3d08, width: 0.016 } },
 };
+// the Highland Longbow: the longbow's old length, 0.74 (owner 2026-11-14)
+BOW_STYLES.highland = { ...BOW_STYLES.long, half: 0.74 };
+// Herne's Bow: the Highland's length, in BLACK wood, dark horn nocks and a dull iron-grey binding (owner 2026-11-14)
+BOW_STYLES.herne = { ...BOW_STYLES.highland, wood: [[0.06, 0x050505], [0.04, 0x1d1d22], [0.013, 0x4a4a52]], gripWood: [[0.07, 0x050505], [0.047, 0x2a1f1a]],
+  horn: { from: 0.93, strokes: [[0.036, 0x050505], [0.02, 0x6b6b70]] }, wrap: { at: [-0.72, 0, 0.72], colour: 0x8a8a90, width: 0.012 } };
+// the Agincourt Longbow: SUPER long, its lower tip nearly at the archer's feet (owner 2026-11-14); a heavier draw bends it more
+BOW_STYLES.agincourt = { ...BOW_STYLES.long, half: 0.93, bend: 0.09, back: 0.32 };
 // a point on the curve p0 -> (control c) -> p1 at k, and the limb as a filled shape whose width runs from w0 down to w1
 const quadAt = (p0, c, p1, k) => { const m = 1 - k; return [m * m * p0[0] + 2 * m * k * c[0] + k * k * p1[0], m * m * p0[1] + 2 * m * k * c[1] + k * k * p1[1]]; };
 function taperedLimb(p0, c, p1, w0, w1, steps = 12) {
