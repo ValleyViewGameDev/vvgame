@@ -15,14 +15,14 @@ game (she travels as part of the Sebastian quest); rewards are Claude's best gue
 
 | Lvl | Giver | Title (source) | Goal | Reward | Hook |
 |---|---|---|---|---|---|
-| 19 | Hotspur | The Graves Stood Tenantless (Hamlet 1.1) | Kill 6 Zombie | Money 6000, xp 42 | the slow tank, now beatable |
+| 19 | Hotspur | The Graves Stood Tenantless (Hamlet 1.1) | Kill 6 Zombie | Book 4, xp 250 (2026-11-14) | the slow tank, now beatable |
 | 19 | Mistress Quickly | A Good Sherris-Sack (2 Henry IV 4.3) | Build 1 Beverage Station | Money 5000, xp 42 | L18 station |
 | 19 | Feste | The Web of Our Life (All's Well 4.3) | Acquire Weaver | Money 8000, xp 42 | L19 skill |
 | 20 | Portia | Throw Physic to the Dogs (Macbeth 5.3) | Collect 3 Potion C | Gem 3, xp 47 | Potion C |
 | 20 | Hotspur | Lay On, Macduff (Macbeth 5.8) | Discover Dunsinane | Gem 3, xp 47 | a mid-ring region |
 | 22 | The Shepherd | Where the Bee Sucks (Tempest 5.1) | Acquire Beekeeper | Honey 12, xp 55 | L22 skill |
 | 22 | The Shepherd | Good Wine Needs No Bush (As You Like It, epilogue) | Build 1 Winery | Money 8000, xp 55 | L22 station |
-| 23 | Cassio | The Dogs of War (Julius Caesar 3.1) | Kill 5 Ogre | Gem 5, xp 59 | the Ogre's home level |
+| 23 | Cassio | The Dogs of War (Julius Caesar 3.1) | Kill 5 Ogre | Book 6, xp 400 (2026-11-14) | the Ogre's home level |
 | 23 | Helena | Sweets to the Sweet (Hamlet 5.1, Gertrude's line) | Acquire Florist | Money 10000, Gem 5, xp 59 | the long goal: about a week of outposts (§3) |
 | 24 | Hotspur | A Kind of Merry War (Much Ado 1.1) | Discover Messina | Gem 3, xp 63 | a mid-ring region |
 | 24 | Mistress Quickly | A Dish Fit for the Gods (Julius Caesar 2.1) | Craft 10 Queen's Cake | Money 6000, xp 63 | Gertrude trades a Diamond Ring for 10 |
@@ -30,7 +30,7 @@ game (she travels as part of the Sebastian quest); rewards are Claude's best gue
 | 26 | The Shepherd | The Greatest of My Pride (As You Like It 3.2) | Acquire Shepherding | Money 12000, xp 100 | L26 skill |
 | 26 | Hotspur | Upon the Coast of Bohemia (Winter's Tale 3.3) | Discover Bohemia | Gem 3, xp 100 | a mid-ring region |
 | 27 | Hotspur | Light, Seeking Light (Love's Labour's Lost 1.1) | Discover Navarre | Gem 3, xp 175 | a mid-ring region |
-| 28 | Cassio | Hell Is Empty (Tempest 1.2) | Kill 5 Demon | Gem 5, xp 270 | the Demon's home level |
+| 28 | Cassio | Hell Is Empty (Tempest 1.2) | Kill 5 Demon | Book 6, xp 600 (2026-11-14) | the Demon's home level |
 | 28 | Mistress Quickly | Toasted Cheese (King Lear 4.6) | Acquire Fromager | Money 15000, xp 270 | L28 skill |
 | 29 | Portia | Nature's Infinite Book of Secrecy (Antony and Cleopatra 1.2) | Collect 10 Potion C | Gem 5, xp 380 | Potion C before Hecate |
 

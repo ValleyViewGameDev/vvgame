@@ -76,7 +76,23 @@ can check the current value rather than trust this page.
    time x count, hp spent x count): about one Book per 15 s of fighting, and xp about half an
    artifact quest of the same level (rule 10), on top of the kills' own xp. Titania: 5 Ghosts
    (L17) 3 Books + 200 xp, 10 Ogres (L22) 10 + 500, 10 Demons (L28) 12 + 800, 1 Dragon 5 + 500.
-   The relationship buff still multiplies the Books.
+   The relationship buff still multiplies the Books. The same pass (2026-11-14) re-paid every
+   kill quest: Hotspur 10 Coyotes 2 Books + 75 xp (was 5 Rosemary + 1), 10 Bears 4 + 150, the
+   Great Bear 4 Books + 250 (was 3,000 Money + 20), 6 Zombies 4 Books + 250 (was 6,000 Money + 42);
+   Cassio 15 Spiders 2 + 100, 5 Ogres 6 Books + 400 (was 5 Gems + 59), 5 Demons 6 Books + 600
+   (was 5 Gems + 270), Duke Angelo xp 300 (was 40); the Vampire's 25 Zombies xp 600 (was 5).
+   One-off story kills keep their story reward and get the xp. Titania's two Dragon quests
+   moved from L15/L16 to L25 (owner), and Titania's Secret pays 1,000 xp (was 30).
+   Gear-buying quests for a Book-priced item give back half its Books (owner): Strike True
+   (Pinpoint, 16 Books) 8 Books, Raiment of Stars (Unbreakable, 50 Books) 25 Books, both were Gems.
+
+12. **No Gem grind** (owner, 2026-11-14). Gems are the paid currency: nothing a player can repeat
+   on a short clock may pay them. No repeatable quest or trader gives Gems (one-off quests may,
+   a few); dungeons (reset every 8 h) hold no Gem pickups (d001_Large's one became a Book);
+   valley Gems refill only at the season reset; a Harvest Fair's Gem prize is capped at
+   `globalTuning.carnival.gemRewardCap` (3) for the whole fair, whatever the population and
+   season stage (carnivalScheduler.js). Season rank rewards and one-time trophies stay. A new
+   Gem reward is checked against this rule.
 
 ## 3. The level curve (xpLevels.json)
 

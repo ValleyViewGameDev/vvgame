@@ -352,6 +352,11 @@ async function generateCarnivalOffersAndRewards(settlement, frontier, seasonConf
   const rewardsForRandomSelection = rewardItems.filter(reward => reward !== 'XP');
   const numRewards = Math.min(rewardsForRandomSelection.length, 3);
 
+  // Gems are capped (owner 2026-11-14): a Gem prize is at most globalTuning.carnival.gemRewardCap
+  // for the whole fair, however many players the settlement has and however late in the season,
+  // and a second Gem draw only fills up to the cap. No Gem source may grow into a grind.
+  const gemCap = Number(globalTuning.carnival?.gemRewardCap ?? 3);
+  let gemsGiven = 0;
   for (let i = 0; i < numRewards; i++) {
     // first pick an item at random from among the possible rewards in the tuning doc
     const item = rewardsForRandomSelection[Math.floor(Math.random() * rewardsForRandomSelection.length)];
@@ -363,7 +368,12 @@ async function generateCarnivalOffersAndRewards(settlement, frontier, seasonConf
     const variation = 0.15; // 15% variation
     const minQty = Math.floor(baseQty * (1 - variation));
     const maxQty = Math.ceil(baseQty * (1 + variation));
-    const qty = Math.floor(Math.random() * (maxQty - minQty + 1)) + minQty;
+    let qty = Math.floor(Math.random() * (maxQty - minQty + 1)) + minQty;
+    if (item === 'Gem') {
+      qty = Math.min(Math.max(1, qty), gemCap - gemsGiven);
+      if (qty <= 0) continue; // the cap is reached: this draw gives nothing
+      gemsGiven += qty;
+    }
 
     rewards.push({ item, qty });
   }
