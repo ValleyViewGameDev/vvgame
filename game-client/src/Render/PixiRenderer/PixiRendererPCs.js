@@ -10,7 +10,8 @@ import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import CombatFX from './CombatFX';
 import { actorZ } from './depthSort';
-import { opaqueTopFraction } from './artHitTest';
+import { opaqueTopFraction, opaqueFeet } from './artHitTest';
+import { trackShadow, untrackShadow } from './actorShadows';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
 import { cutRig, syncArmRig } from './ArmRig';
@@ -571,6 +572,9 @@ const PixiRendererPCs = ({
       const artTop = opaqueTopFraction(app?.renderer, texture);
       liveHeadTop = span ? 1 - span * (1 - artTop) : 0.5 - flatSize / 2 + flatSize * artTop + flatDrop / TILE_SIZE;
       sprite.__artTop = artTop; // CombatFX centres the cooldown ring on the drawn figure, not its feet
+      // a standing figure casts a ground shadow (actorShadows.js); the tent, the boat and a bust do not
+      if (span) trackShadow(sprite, pcContainerRef.current, { feet: opaqueFeet(app?.renderer, texture), size: TILE_SIZE * span, anchorY: 1, tile: TILE_SIZE });
+      else untrackShadow(sprite);
       sprite.__breathes = !!span; // only a figure breathes (the ticker below sets sprite.breath)
       if (!span) sprite.breath = 0;
       else if (avatarTex) sprite.breathTop = AVATAR_BREATH_TOP[av.body] || AVATAR_BREATH_TOP.female;

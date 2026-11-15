@@ -106,3 +106,40 @@ export function opaqueTopFraction(renderer, texture) {
   tops.set(texture, frac);
   return frac;
 }
+
+const feet = new WeakMap();
+const FEET_BAND = 0.06; // of the art's height: the rows just above its lowest opaque row that count as its feet
+/**
+ * Where a texture's art stands: { bottom, left, right, minX, maxX } as fractions of the texture's
+ * full size. `bottom` is just under its lowest opaque row; `left` and `right` are how far the art
+ * reaches in the rows just above that (its feet, a gown's hem, all four hooves); `minX` and `maxX`
+ * are how far the whole drawing reaches (a hovering figure has no feet on the ground). Read once per texture from
+ * the same alpha mask; null without a renderer or for empty art. Used to lay a figure's ground
+ * shadow under its feet (actorShadows.js).
+ */
+export function opaqueFeet(renderer, texture) {
+  if (!renderer || !texture?.valid) return null;
+  if (feet.has(texture)) return feet.get(texture);
+  let out = null;
+  try {
+    const mask = alphaMask(renderer, texture);
+    const W = texture.orig?.width || mask.w, H = texture.orig?.height || mask.h;
+    const rowHas = (y) => { for (let x = 0; x < mask.w; x++) if (mask.alpha[y * mask.w + x] >= MIN_ALPHA) return true; return false; };
+    let yb = mask.h - 1;
+    while (yb >= 0 && !rowHas(yb)) yb--;
+    if (yb >= 0) {
+      let x0 = mask.w, x1 = -1, all0 = mask.w, all1 = -1;
+      const feetFrom = Math.max(0, yb - Math.max(2, Math.round(H * FEET_BAND)));
+      for (let y = 0; y <= yb; y++) {
+        for (let x = 0; x < mask.w; x++) {
+          if (mask.alpha[y * mask.w + x] < MIN_ALPHA) continue;
+          if (x < all0) all0 = x; if (x > all1) all1 = x;
+          if (y >= feetFrom) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
+        }
+      }
+      out = { bottom: (mask.oy + yb + 1) / H, left: (mask.ox + x0) / W, right: (mask.ox + x1 + 1) / W, minX: (mask.ox + all0) / W, maxX: (mask.ox + all1 + 1) / W };
+    }
+  } catch (e) { out = null; }
+  feet.set(texture, out);
+  return out;
+}

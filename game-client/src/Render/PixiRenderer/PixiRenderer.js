@@ -29,7 +29,8 @@ import PixiCamera from './PixiCamera';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
 import { indexWalls, wallMask, wallTexture, wallSpan, clearWallTextureCache } from './PixiRendererWalls';
 import { npcSize, npcCovers } from '../../Utils/npcFootprint';
-import { findArtAt, opaqueTopFraction } from './artHitTest';
+import { findArtAt, opaqueTopFraction, opaqueFeet } from './artHitTest';
+import * as ActorShadows from './actorShadows';
 import { setNpcHeadTop, clearNpcHeadTop, npcOverlaySpot, onNpcHeadTopsChanged } from './npcHeadTops';
 import { loadAtlas, getAtlasTexture, resetAtlas, isAtlasLoaded } from './AtlasTextures';
 import CombatFX from './CombatFX';
@@ -796,6 +797,9 @@ const PixiRenderer = ({
       // dev hook: the resource whose tall art is under a board-relative screen point (artHitTest.js)
       if (process.env.NODE_ENV !== 'production') window.__artHitAt = (sx, sy) => findArtAt(resourceSpritesRef.current, app.renderer, sx, sy);
 
+      // The ground shadow under every figure (actorShadows.js): placed once a frame, after the moves
+      ActorShadows.attach(app);
+
       // Combat feedback layer (CombatFX.js): reads NPC display objects, and takes one over on a kill
       CombatFX.attach({
         app, worldContainer, TILE_SIZE,
@@ -881,6 +885,7 @@ const PixiRenderer = ({
           canvas.removeEventListener('webglcontextrestored', appRef.current._contextRestoredHandler);
         }
         CombatFX.detach();
+        ActorShadows.detach();
         StoryFX.detach();
         viewCullingRef.current?.detach();
         viewCullingRef.current = null;
@@ -1248,6 +1253,7 @@ const PixiRenderer = ({
           const off = displayObj.__off || { x: 0, y: 0 }; // a multi-tile NPC is drawn at its body's middle, not its anchor tile
           displayObj.x = (animation.currentPos.x + off.x) * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = (animation.currentPos.y + off.y) * TILE_SIZE + TILE_SIZE / 2 - bob;
+          displayObj.__bob = bob; // the step's lift: its ground shadow stays down (actorShadows.js)
           displayObj.zIndex = actorZ(animation.currentPos.y); // by its feet: leaves a row's depth as it leaves the row (depthSort.js)
         }
         // A headline glyph (❗, Zzz, 💬: VFX/NPCVFX.js) rides above the NPC as it walks
@@ -1467,6 +1473,10 @@ const PixiRenderer = ({
           displayObj.hoverCut = hover;
           if (!hoverersRef.current.has(npc.id)) hoverersRef.current.set(npc.id, { seed: breathSeed(`${npc.id}:hover`), amp: 0 });
         } else { hoverersRef.current.delete(npc.id); displayObj.hoverLift = 0; displayObj.hoverCut = 0; }
+        // its shadow on the ground (actorShadows.js); a hovering figure's lies under where it floats
+        ActorShadows.trackShadow(displayObj, npcContainer, newDisplayType === 'sprite'
+          ? { feet: opaqueFeet(appRef.current?.renderer, texture), size: spriteSize, anchorY, tile: TILE_SIZE, hover: hover > 0 }
+          : { feet: null, size: fontSize * artScale * bodyScale, anchorY: 0.5, tile: TILE_SIZE, hover: hover > 0 });
         const pant = Number(npc.pant ?? masterResources?.find((m) => m.type === npc.type)?.pant) || 0;
         if (pant > 0 && 'breath' in displayObj) {
           const p = pantersRef.current.get(npc.id);

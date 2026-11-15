@@ -44,9 +44,9 @@ import { WALK, TAP, DEFAULT_LEGS, NO_ARMS, shapeOf, armsOf, armCutAt, walkLegs, 
  *                              // still, so all four paws of a beast stand firm, the far pair drawn higher than
  *                              // the near pair (the Coyote 0.83); 0 = its feet row
  *   sprite.hoverLift = px;     // a floating enemy's idle bob (world px up): every row above `hoverCut` (the
- *                              // fraction of the square where the gap over its painted ground shadow is; 1 = the
- *                              // whole art) rises, the shadow under it stays; the band across the gap stretches,
- *                              // and it is transparent
+ *                              // fraction of the square the figure ends at; 1 = the whole art) rises. Its ground
+ *                              // shadow is the board's own blob (actorShadows.js), which stays down; the shadows
+ *                              // once painted under the cut were taken out of the art (owner 2026-11-15)
  *   sprite.wingRoots = [uL, uR, vEnd?]; // where a winged figure's wings meet its body (fractions of the square across;
  *                                // the optional third: the row the wings end at, so what hangs under them, the
  *                                // Phoenix's tail flames, is not folded; the fold fades out over WING.ramp under it)
