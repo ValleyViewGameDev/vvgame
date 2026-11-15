@@ -512,3 +512,29 @@ Hard lessons from re-recording V4 (2026-11-13):
   zoom-out lands late as a jump; the edit shows it wide only.
 - **The upside-down frames** in the first V4 cut were a game bug (a negative animation progress
   in `PixiCamera.js`, now clamped), not a capture fault.
+
+V2 Farming, version f (2026-11-14, the owner's rebuilt homestead): the shot harvests the whole
+mixed field (99 crops at x 24-32, y 16-26) and replants every tile with the crop it had, picking
+each plot through the invisible Farming panel (`[data-resource-type="<plot>"] button`), so the
+layout survives; only crops whose plot can be planted now are touched. Only the Wheat is ripe
+again inside the take; the rest regrow in their own time (up to 4 hours). `shots/go-home.js`
+walks the player from the Town to the homestead.
+
+**Music.** An edit's `"music": { "file", "start", "volume" }` lays a track under the whole
+video with a fade in and out. V2 uses `game-client/public/sound/music/homestead.mp3` at 1.5x.
+The licence of the game's music for advertising is still unconfirmed (section 9).
+
+### V4 version b (2026-11-14): everyone moving, a fight, a boat, eight places
+
+Owner's brief: the player moves in every place, a fight (ghosts in Golgotha), a run across Sunflower Lake's desert through the spiders at several zoom levels, a boat ride on a river past a town, two more places than version a at the same length, the valley music.
+
+- **One take per place**: `node capture.js shot v04-exploring@<stop>` (belmont, sunflower, titania, strathmoore, prospero, yorick, acheron, golgotha) writes `ads/video/raw/v04-exploring/<stop>.rec`. Each take heals first when needed, teleports in, plays its beat and parks at Titania's Bower. A bad place is re-recorded alone.
+- **Walking** is tap-to-walk: `walkTarget` (shots/lib.js) picks the farthest open tile that stays in the picture; the zoom key is pressed while he walks.
+- **Sunflower Lake** is grid 1012525 (sand, 22 spiders). He must run the moment he lands: spiders box in a player who stands. Enemies stay where a take left them, so the run ends by leading them away from the arrival tile. At the widest zoom he stays near the middle: nothing is drawn past a grid's edge.
+- **The boat** is at Strathmoore (1012154): Get in Boat from the player's own menu beside the lake, then taps on water. The menu's button needs about a second after the panel opens.
+- **The fight** is on grid 1014266 (region Golgotha, two ghosts and their spawners). The Vampire's grid (1014265) has 18 ghosts and 5 zombies round the arrival tile and killed the player in nine seconds.
+- **Standing rule (owner, 2026-11-14): when the player talks to or fights someone, he stands on the same ROW as them.** The fight script walks him onto the ghost's row before every blow; conversation shots must do the same.
+- **Health is read live** (`window.__pcDebug()`, a dev hook), never from the server, whose copy trails by seconds. That lag is how the player died in the first fight take (revived on the owner's word, 50 gems).
+- **Marks can sit late.** A take that stalls (a teleport) records less time than passed, so its marks drift by a second or two. `edit.js` segments take plain numbers (seconds of the recording) for `from` / `to`; read them off a strip of frames.
+- The developer teleport's grid-number box is the input right after the Quick Travel list; the panel has a second "Enter GridCoord" box further down that does something else.
+- Music: `valley1_1.mp3` at 1.7. The licence question in the Music note above applies to it too.

@@ -1,54 +1,98 @@
 // V2 Farming (docs/social-video-plan.md §5), one take on the player's own homestead, close in:
-// click-harvest the ripe Wheat, replant it, watch it grow (1 minute), collect from the ready
-// animals, sell to Kent, pull back. The edit speeds these up and orders them.
-// This PLAYS the account: it harvests, plants and sells for real.
+// click-harvest the mixed crop field, replant every tile with the crop it had, watch the Wheat
+// grow (1 minute), collect from the ready animals, sell to Kent, pull back. The edit speeds
+// these up and orders them.
+// This PLAYS the account: it harvests, plants and sells for real. The field keeps its layout
+// (each tile is replanted with its own crop) but only the Wheat is ripe again within the take.
 import { sleep, clickTile, resources, npcs, zoomToScale, lookAt, tiles, hidePanels, closePanel, openNav, park } from './lib.js';
 
-const FIELD = { x: 27, y: 21 };      // middle of the six Wheat columns (x 25-30, y 16-26) in the fenced field
+// The fenced field north of the farmhouse (owner's layout, 2026-11-14): columns of Wheat,
+// Carrot, Corn, Pepper, Onion and Sugarcane at x 24-32, y 16-26. Nine columns fill a phone
+// frame at the normal zoom (about 10 x 17 tiles).
+const BOX = { x0: 24, x1: 32, y0: 16, y1: 26 };
+const FIELD = { x: 28, y: 21 };
+const STAND = { x: 27, y: 28 };      // on the path just south of the field
+const PLOT = { Wheat: 'Wheat Plot', Carrot: 'Carrot Plot', Corn: 'Corn Plot', Pepper: 'Pepper Plot', Onion: 'Onion Plot', Sugarcane: 'Sugarcane Plot' };
+const IN_BOX = `r.x >= ${BOX.x0} && r.x <= ${BOX.x1} && r.y >= ${BOX.y0} && r.y <= ${BOX.y1}`;
 const CLICK_MS = 240; // the server saves the whole grid per action, one at a time: faster clicks pile up and later ones are refused or lost
 const DRAIN_MS = 6000; // let the server finish one pass before the next touches the same tiles
+
+// The Farming panel's entry for a plot: click it (works while the panel is invisible), or ask
+// whether it can be planted now.
+const plotEntry = (page, name, click) => page.evaluate(([n, doClick]) => {
+  const panel = [...document.querySelectorAll('.panel-container[data-panel-name="FarmingPanel"]')].pop();
+  const entry = panel && panel.querySelector(`[data-resource-type="${n}"] button.resource-button`);
+  if (!entry) return null;
+  const blocked = entry.disabled || /Off season/i.test(entry.innerText);
+  if (doClick && !blocked) entry.click();
+  return !blocked;
+}, [name, click]);
+
+let crops = [];   // [{ type, x, y }] to harvest and replant, set in setup
 
 export default {
   async setup(page) {
     await page.waitForSelector('.homestead canvas', { timeout: 60000 });
     await sleep(6000);
     if (await page.locator('.modal-overlay--scene').count()) throw new Error('not signed in: run `node capture.js login` first');
-    const ripe = await resources(page, "r.type === 'Wheat' && r.x >= 25 && r.x <= 30 && r.y >= 16 && r.y <= 26");
-    if (ripe.length < 20) throw new Error(`only ${ripe.length} ripe Wheat in the field: wait for it to grow`);
-    console.log('ripe wheat:', ripe.length, 'zoom:', await zoomToScale(page, 25 / 45));
+    await zoomToScale(page, 1);
+    // Stand by the field: a tap far out of range walks instead of harvesting.
+    const me = () => page.evaluate(() => window.__pixiCamera.debug().playerTile);
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const p = await me();
+      if (Math.hypot(p.x - STAND.x - 0.5, p.y - STAND.y - 0.5) < 2) break;
+      await lookAt(page, STAND.x, STAND.y, 300);
+      await clickTile(page, STAND.x, STAND.y);
+      for (let i = 0; i < 40; i++) { await sleep(500); const q = await me(); if (Math.hypot(q.x - STAND.x - 0.5, q.y - STAND.y - 0.5) < 2) break; }
+    }
+    // Only crops whose plot can be planted again now are harvested, so the layout survives.
+    await openNav(page, 'FarmingPanel');
+    await sleep(1200);
+    const plantable = {};
+    for (const [crop, plot] of Object.entries(PLOT)) plantable[crop] = !!(await plotEntry(page, plot, false));
+    await closePanel(page);
+    await sleep(900);
+    crops = (await resources(page, `${IN_BOX} && ${JSON.stringify(Object.keys(PLOT))}.includes(r.type)`))
+      .filter((r) => plantable[r.type]).sort((a, b) => a.x - b.x || a.y - b.y);
+    console.log('plantable:', JSON.stringify(plantable), '| ripe crops to harvest:', crops.length);
+    if (crops.length < 40) throw new Error(`only ${crops.length} ripe crops in the field: wait for it to grow`);
+    await zoomToScale(page, 25 / 45);
     await park(page);
     await sleep(1000);
   },
   async run(page, { mark }) {
-    // 1. Click-harvest the Wheat, column by column.
-    const ripe = (await resources(page, "r.type === 'Wheat' && r.x >= 25 && r.x <= 30 && r.y >= 16 && r.y <= 26"))
-      .sort((a, b) => a.x - b.x || a.y - b.y);
     // Open wide on the homestead, push in to the normal zoom, then settle on the field (rule:
-    // the zoom changes on camera in every video). On a phone-sized page the normal zoom shows
-    // about 10 x 17 tiles, so the six Wheat columns fill the frame.
+    // the zoom changes on camera in every video).
     mark('intro');
-    await sleep(900);
+    await sleep(1100);
     await page.keyboard.press('=');
     await sleep(1100);
     await lookAt(page, FIELD.x, FIELD.y, 800);
     await sleep(300);
-    const spots = await tiles(page, ripe);
+
+    // 1. Click-harvest the field, column by column.
+    const spots = await tiles(page, crops);
     mark('harvest');
     for (const p of spots) { await page.mouse.click(p.x, p.y); await sleep(CLICK_MS); }
     mark('harvest_end');
     await park(page);
     await sleep(DRAIN_MS);
 
-    // 2. Replant the same tiles. The panel is hidden once the plot is picked.
+    // 2. Replant every tile with the crop it had. The panel stays open but invisible; each
+    //    plot is picked through it, then its tiles are tapped.
     await openNav(page, 'FarmingPanel');
     await sleep(1000);
-    await page.locator('.panel-container').getByText('Wheat Plot', { exact: true }).click();
     await hidePanels(page, true);
     await lookAt(page, FIELD.x, FIELD.y); // opening a panel returns the view to the player
     await sleep(400);
-    const plots = await tiles(page, ripe);
+    const plots = await tiles(page, crops);
+    let planted = 0;
     mark('plant');
-    for (const p of plots) { await page.mouse.click(p.x, p.y); await sleep(CLICK_MS); }
+    for (const type of [...new Set(crops.map((c) => c.type))]) {
+      if (!(await plotEntry(page, PLOT[type], true))) { console.log('could not pick', PLOT[type]); continue; }
+      await sleep(250);
+      for (const [i, c] of crops.entries()) { if (c.type !== type) continue; await page.mouse.click(plots[i].x, plots[i].y); planted++; await sleep(CLICK_MS); }
+    }
     mark('plant_end');
     await park(page);
     await sleep(DRAIN_MS);
@@ -57,6 +101,8 @@ export default {
     await hidePanels(page, false);
     await lookAt(page, FIELD.x, FIELD.y);
     await sleep(600);
+    const now = (await resources(page, IN_BOX)).reduce((m, r) => { m[r.type] = (m[r.type] || 0) + 1; return m; }, {});
+    console.log('tapped to plant:', planted, '| field now:', JSON.stringify(now));
     mark('grow');
     await sleep(64000);
     mark('grown');
@@ -73,8 +119,8 @@ export default {
       await sleep(400);
       mark('animals');
       for (const a of ready) {
-        const [now] = await npcs(page, `n.type === '${a.type}' && Math.abs(n.position.x - ${a.x}) <= 2 && Math.abs(n.position.y - ${a.y}) <= 2 && n.state === 'processing'`);
-        if (now) await clickTile(page, now.x, now.y, -8);
+        const [here] = await npcs(page, `n.type === '${a.type}' && Math.abs(n.position.x - ${a.x}) <= 2 && Math.abs(n.position.y - ${a.y}) <= 2 && n.state === 'processing'`);
+        if (here) await clickTile(page, here.x, here.y, -8);
         await sleep(550);
       }
       await sleep(1200);
@@ -88,9 +134,8 @@ export default {
     await sleep(400);
     const [kentNow] = await npcs(page, "n.type === 'Kent'");
     await clickTile(page, kentNow.x, kentNow.y, -20);
+    await page.waitForSelector('.panel-container', { timeout: 60000 });
     await sleep(2500);
-    await page.evaluate(() => document.querySelectorAll('.panel-container div').forEach((d) => { if (!d.children.length && /Debug Refresh/.test(d.textContent)) d.style.display = 'none'; }));
-    await sleep(300);
     mark('kent');
     await sleep(1000);
     let sold = 0;

@@ -118,8 +118,12 @@ function installRecorder() {
 }
 
 async function shot(name, { headed }) {
-  const mod = await import(pathToFileURL(path.join(HERE, 'shots', `${name}.js`)).href);
-  const def = mod.default;
+  // `file@variant`: one script, several takes (shots/file.js exports a function of the variant);
+  // the take is named after the variant, in the script's folder.
+  const [file, variant] = name.split('@');
+  const mod = await import(pathToFileURL(path.join(HERE, 'shots', `${file}.js`)).href);
+  const def = typeof mod.default === 'function' ? mod.default(variant) : mod.default;
+  if (variant) { def.folder = def.folder || file; name = variant; }
   const device = def.device || DEFAULT_DEVICE;
   const { viewport } = device;
   const out1080 = { width: Math.round(viewport.width * device.scale), height: Math.round(viewport.height * device.scale) };

@@ -1809,7 +1809,7 @@ const PixiRenderer = ({
   // Handle click events - check NPCs and PCs before falling through to tile click
   // Latest props for callbacks that fire after a walk (the click closure would be stale by then)
   const latestRef = useRef(null);
-  if (process.env.NODE_ENV !== 'production') window.__npcsDebug = () => latestRef.current?.npcs; // dev hook, like __pixiCamera
+  if (process.env.NODE_ENV !== 'production') { window.__npcsDebug = () => latestRef.current?.npcs; window.__pcDebug = () => { const L = latestRef.current; const pc = L?.playersInGrid?.[L?.gridId]?.pcs?.[String(L?.currentPlayer?._id || '')] || Object.values(L?.playersInGrid?.[L?.gridId]?.pcs || {})[0]; return pc ? { hp: pc.hp, maxhp: pc.maxhp, attackrange: pc.attackrange, damage: pc.damage, position: pc.position, isinboat: !!pc.isinboat } : null; }; } // dev hooks, like __pixiCamera (the capture tool reads the live player: tools/capture)
   latestRef.current = {
     npcs, currentPlayer, playersInGrid, gridId, TILE_SIZE, masterResources, masterSkills, masterTrophies,
     globalTuning, strings, onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,

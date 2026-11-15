@@ -60,7 +60,9 @@ const takes = {};
 // A take is named `<folder>` (file of the same name) or `<folder>/<name>`.
 const takePath = (src, ext) => { const [dir, name = dir] = src.split('/'); return path.join(REPO, 'ads/video/raw', dir, `${name}.${ext}`); };
 const take = (src) => (takes[src] ||= { rec: takePath(src, 'rec'), marks: JSON.parse(fs.readFileSync(takePath(src, 'marks.json'), 'utf8')).marks, input: Object.keys(takes).length });
-const at = (label, src = edit.source) => { const m = take(src).marks.find((x) => x.label === label); if (!m) throw new Error(`no mark "${label}" in ${src}`); return m.t; };
+// A mark's label, or a number: seconds into the recording itself. (A take that stalled, at a
+// teleport say, records less time than passed, so its marks sit late: read the frames and give seconds.)
+const at = (label, src = edit.source) => { if (typeof label === 'number') { take(src); return label; } const m = take(src).marks.find((x) => x.label === label); if (!m) throw new Error(`no mark "${label}" in ${src}`); return m.t; };
 
 // Segments: pieces of the take, in output order, each optionally sped up. An edit without
 // `segments` is one segment from `from` to `to`.
@@ -89,7 +91,8 @@ await renderPngs([
 ]);
 
 // ffmpeg graph: cut and retime each segment, join them, captions over the result, end card after.
-// The recording carries no usable sound (headless), so the output is silent until music is added.
+// The recording carries no usable sound (headless). An edit's `music` ({ file (repo-relative),
+// start, volume }) is laid under the whole video, end card included, with a fade in and out.
 const nTakes = Object.keys(takes).length;
 const args = ['-y', '-v', 'error'];
 Object.values(takes).forEach((t) => args.push('-i', t.rec));
@@ -113,7 +116,14 @@ if (card) {
 } else f.push(`[${last}]null[vout]`);
 
 const outFile = path.join(REPO, 'ads/video/final', edit.output);
-args.push('-filter_complex', f.join(';'), '-map', '[vout]', '-an');
+const music = edit.music ? { start: 0, volume: 0.8, ...edit.music } : null;
+if (music) {
+  const musicInput = nTakes + caps.length + (card ? 1 : 0);
+  args.push('-ss', String(music.start), '-i', path.join(REPO, music.file));
+  f.push(`[${musicInput}:a]atrim=duration=${total.toFixed(3)},asetpts=PTS-STARTPTS,volume=${music.volume},afade=t=in:st=0:d=0.4,afade=t=out:st=${(total - 1.2).toFixed(3)}:d=1.2[aout]`);
+}
+args.push('-filter_complex', f.join(';'), '-map', '[vout]');
+if (music) args.push('-map', '[aout]', '-c:a', 'aac', '-b:a', '192k'); else args.push('-an');
 args.push('-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', String(FPS), '-movflags', '+faststart', '-t', total.toFixed(3), outFile);
 execFileSync('ffmpeg', args, { stdio: 'inherit' });
 fs.rmSync(tmp, { recursive: true, force: true });

@@ -83,7 +83,7 @@ export async function teleport(page, place) {
   await page.evaluate(() => document.querySelector('button[aria-label="Debug"]')?.click());
   const select = page.locator('.panel-container select').filter({ hasText: 'Quick Travel' }).last();
   await select.waitFor({ timeout: 15000 });
-  if (typeof place === 'number') await page.locator('.panel-container input[placeholder="Enter GridCoord"]').last().fill(String(place));
+  if (typeof place === 'number') await select.locator('xpath=following-sibling::input[1]').fill(String(place)); // the panel has a second "Enter GridCoord" box further down
   else await select.selectOption({ label: place });
   await sleep(300);
   await page.locator('.panel-container').getByRole('button', { name: 'Teleport', exact: true }).last().click();
@@ -109,4 +109,94 @@ export async function requireHealth(page, fraction = 0.8) {
   const h = await health(page);
   if (!(h.hp >= h.maxhp * fraction)) throw new Error(`health ${h.hp} / ${h.maxhp}: heal first (node capture.js shot heal)`);
   return h;
+}
+
+/** The player's tile as whole numbers. */
+export const myTile = (page) => page.evaluate(() => { const t = window.__pixiCamera.debug().playerTile; return { x: Math.floor(t.x), y: Math.floor(t.y) }; });
+
+/** A tile to tap so the player walks (or, afloat, sails: `water`) a good way and stays on screen:
+ *  the farthest tile reachable over open ground within `dx` / `dy` tiles of the player, with a
+ *  fairly direct route to it, nothing standing on it, and no enemy beside it. `toward` ({x, y},
+ *  a direction) prefers that way; `inside` ({x0, x1, y0, y1}) keeps the target in a box of tiles. Returns { x, y, steps } or null. */
+export const walkTarget = (page, { dx = 4, dy = 7, water = false, toward = null, min = 3, inside = null } = {}) => page.evaluate(([mx, my, wet, dir, least, box]) => {
+  const tiles = window.__boardTiles();
+  const me = window.__pixiCamera.debug().playerTile; const sx = Math.floor(me.x), sy = Math.floor(me.y);
+  const H = tiles.length, W = tiles[0].length, key = (x, y) => y * 64 + x;
+  const blocked = new Set(), enemy = [];
+  for (const r of window.__boardResources() || []) {
+    if (!r) continue;
+    const w = r.sizeX || r.size || 1, h = r.sizeY || r.size || 1;
+    for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) blocked.add(key(r.x + i, r.y - j));
+  }
+  for (const n of Object.values(window.__npcsDebug?.() || {})) {
+    if (!n?.position) continue;
+    blocked.add(key(Math.floor(n.position.x), Math.floor(n.position.y)));
+    if (n.action === 'attack') enemy.push(n.position);
+  }
+  const open = (x, y) => x >= 1 && y >= 1 && x < W - 1 && y < H - 1 && (wet ? tiles[y][x] === 'w' : tiles[y][x] !== 'w') && !blocked.has(key(x, y));
+  const dist = new Map([[key(sx, sy), 0]]); const queue = [[sx, sy]];
+  let best = null, bestScore = -Infinity;
+  while (queue.length) {
+    const [x, y] = queue.shift(); const d = dist.get(key(x, y));
+    const cheb = Math.max(Math.abs(x - sx), Math.abs(y - sy));
+    if (cheb >= least && d <= cheb * 2 + 3 && (!box || (x >= box.x0 && x <= box.x1 && y >= box.y0 && y <= box.y1)) && !enemy.some((e) => Math.hypot(e.x - x, e.y - y) < 2.5)) {
+      const score = cheb + (dir ? ((x - sx) * dir.x + (y - sy) * dir.y) / Math.hypot(dir.x, dir.y) : 0) - (d - cheb) * 0.3;
+      if (score > bestScore) { bestScore = score; best = { x, y, steps: d }; }
+    }
+    for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) {
+      const nx = x + ox, ny = y + oy;
+      if ((!ox && !oy) || Math.abs(nx - sx) > mx || Math.abs(ny - sy) > my || !open(nx, ny) || dist.has(key(nx, ny))) continue;
+      dist.set(key(nx, ny), d + 1); queue.push([nx, ny]);
+    }
+  }
+  return best;
+}, [dx, dy, water, toward, min, inside]);
+
+/** How many tiles fit between the player and the edge of the picture at the current zoom,
+ *  less a margin: the reach of a tap, as { dx, dy }. */
+export const tapReach = async (page, margin = 1.5) => {
+  const z = await page.evaluate(() => window.__pixiCamera.getZoom());
+  const v = page.viewportSize();
+  return { dx: Math.floor(v.width / 2 / (45 * z) - margin), dy: Math.floor(v.height / 2 / (45 * z) - margin) };
+};
+
+/** Wait until the player stands on (x, y), or has stopped moving, or `ms` has passed. */
+export async function arrive(page, x, y, ms = 4000) {
+  const until = Date.now() + ms; let last = null, still = 0;
+  while (Date.now() < until) {
+    const t = await myTile(page);
+    if (t.x === x && t.y === y) return true;
+    if (last && last.x === t.x && last.y === t.y) { if (++still > 8) return false; } else still = 0;
+    last = t;
+    await sleep(80);
+  }
+  return false;
+}
+
+/** Heal to full at Titania's Bower (a Fairy heals 75 for one Feverfew), when below `fraction`
+ *  of full health. Spends Feverfew for real. Leaves the player at Titania's Bower. */
+export async function healUp(page, fraction = 0.85) {
+  const before = await health(page);
+  if (before.hp >= before.maxhp * fraction) return before;
+  if ((await whereAmI(page)).region !== "Titania's Bower") await teleport(page, 'Titania');
+  await zoomToScale(page, 1);
+  const me = await myTile(page);
+  const [fairy] = (await npcs(page, "n.type === 'Fairy'")).sort((a, b) => Math.hypot(a.x - me.x, a.y - me.y) - Math.hypot(b.x - me.x, b.y - me.y));
+  await lookAt(page, fairy.x, fairy.y, 300);
+  await clickTile(page, fairy.x, fairy.y, -10);
+  await page.waitForSelector('.panel-container', { timeout: 60000 });
+  await sleep(1200);
+  const heal = page.locator('.panel-container button').filter({ hasText: 'Heals:' }).first();
+  for (let i = 0; i < 16; i++) {
+    const [hp, max] = await page.evaluate(() => (document.querySelector('.panel-container').innerText.match(/(\d+)\s*\/\s*(\d+)/) || []).slice(1).map(Number));
+    if (!(hp < max)) break;
+    await heal.click();
+    await sleep(900);
+  }
+  await sleep(2500);
+  await closePanel(page);
+  await sleep(1500);
+  const after = await health(page);
+  console.log('healed', JSON.stringify(before), '->', JSON.stringify(after));
+  return after;
 }
