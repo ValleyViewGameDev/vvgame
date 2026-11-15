@@ -227,7 +227,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, setInvent
 
   if (!data || !spec || !look) {
     return createPortal(
-      <div className="modal-overlay"><div className="modal-container modal-large avatar-modal"><CloseButton corner onClick={onClose} /><div className="modal-title">{strings[4130]}</div><p className="avatar-muted">{strings[3054]}</p></div></div>,
+      <div className="modal-overlay"><div className="modal-container modal-large avatar-modal"><CloseButton corner onClick={onClose} /><div className="modal-title">{currentPlayer?.username || strings[4130]}</div><p className="avatar-muted">{strings[3054]}</p></div></div>,
       document.body,
     );
   }
@@ -247,7 +247,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, setInvent
     <div className="modal-overlay">
       <div className="modal-container modal-large avatar-modal">
         <CloseButton corner onClick={onClose} />
-        <div className="modal-title">{strings[4130]}</div>
+        <div className="modal-title">{currentPlayer?.username || strings[4130]}</div>
         {intro && <p className="avatar-intro">{intro}</p>}
 
         <div className="avatar-editor">
