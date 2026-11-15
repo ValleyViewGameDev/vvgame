@@ -25,6 +25,7 @@
 /* a sign in a thumbnail's place (it takes the thumbnail's size): the female / male sign on the Body tab, the no-entry sign for a slot's None */
 .avatar-sign { display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 44px; line-height: 1; color: var(--color-text-primary, #333); } /* style-ok: a glyph used as an icon */
 .avatar-sign-none { font-size: 36px; } /* style-ok: a glyph used as an icon */
+.avatar-sign-icon { width: 48px; height: 48px; object-fit: contain; pointer-events: none; }
 
 .avatar-controls { flex: 1; min-width: 0; }
 /* the tabs are Panel.css's .tab-navigation.buy-deco-tabs > .tab-button (text, an underline on the active one); only their spacing is set here */

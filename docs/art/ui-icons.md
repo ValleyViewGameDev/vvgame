@@ -110,3 +110,13 @@ The last emoji over the board's characters, as two 4 x 3 sheets in the header's 
   golden disc with a white rim (as the old badge was), and the white check on a rounded square
   of bright emerald, the emoji's green. They replace `mark-question` and `mark-check` and the
   `question.svg` / `checkmark.svg` overlays; the atlas was rebuilt.
+
+## Body signs: male and female (`icons-r14`, owner 2026-11-15)
+
+The Avatar Editor's body choice (Skin tab) showed the plain ♂ / ♀ text glyphs; one 3 x 3
+sheet in the `system` style (refs: the chat exemplar + the r12 marks sheet) drew the Mars and
+Venus symbols twice: sky blue / rose pink, and both in honey wood (orange). The owner chose the
+honey-wood pair for both bodies; it is installed as `icon-male` / `icon-female` and the blue and
+pink takes were dropped. Cut with `icons.js --cols 3
+--rows 3`, then the magenta-hued fringe cleared (hue 280-328°) and the svg rewrapped.
+`Avatar/AvatarModal.js` shows them as a 48 px `.avatar-sign-icon` inside the thumb.

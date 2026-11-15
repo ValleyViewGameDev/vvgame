@@ -36,6 +36,45 @@ export function loadPartImage(src) {
   return p;
 }
 
+/**
+ * The colour a tinted part mostly shows untinted: the median of its opaque, light pixels (the
+ * line work and shading left out). A swatch for a multiplied tint shows `tint x base`, the colour
+ * the part is actually drawn in (the face art is peach, so a skin tone's own hex reads lighter
+ * than the skin it gives; owner 2026-11-15). Cached per src; resolves null if it can't be read.
+ */
+const baseColorCache = new Map();
+export function partBaseColor(src) {
+  if (!src) return Promise.resolve(null);
+  if (baseColorCache.has(src)) return baseColorCache.get(src);
+  const p = loadPartImage(src).then((img) => {
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth || img.width; c.height = img.naturalHeight || img.height;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0);
+    const d = ctx.getImageData(0, 0, c.width, c.height).data;
+    const px = [];
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 250) continue;
+      const l = d[i] + d[i + 1] + d[i + 2];
+      if (l >= 300) px.push([d[i], d[i + 1], d[i + 2], l]);
+    }
+    if (!px.length) return null;
+    px.sort((a, b) => a[3] - b[3]);
+    const m = px[Math.floor(px.length / 2)];
+    return [m[0], m[1], m[2]];
+  }).catch(() => null);
+  baseColorCache.set(src, p);
+  return p;
+}
+
+/** `#rrggbb` multiplied by an [r, g, b] base, as the canvas `multiply` draws it. */
+export function multiplyHex(hex, base) {
+  const h = String(hex || '').replace('#', '');
+  if (!base || h.length !== 6) return hex;
+  const out = [0, 2, 4].map((o, k) => Math.round((parseInt(h.slice(o, o + 2), 16) * base[k]) / 255));
+  return '#' + out.map((v) => v.toString(16).padStart(2, '0')).join('');
+}
+
 function makeCanvas(size) {
   const c = document.createElement('canvas');
   c.width = size; c.height = size;

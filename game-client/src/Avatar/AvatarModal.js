@@ -22,8 +22,8 @@ import '../UI/Buttons/SharedButtons.css';
 import '../UI/Buttons/ResourceButton.css'; // the price is the shared gem chip (.gem-button)
 import './AvatarModal.css';
 import { loadAvatarCatalogue } from '../Utils/TuningManager';
-import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, partsFor, bodyOf, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes, ownedBy, toBuy, randomSpec } from './avatarLook';
-import { renderLookDataUrl } from './avatarCompositor';
+import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partSrc, partsInSlot, partsFor, bodyOf, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes, ownedBy, toBuy, randomSpec } from './avatarLook';
+import { renderLookDataUrl, partBaseColor, multiplyHex } from './avatarCompositor';
 import { BLINK, breathLevel, breathDeform, breathingAllowed } from '../Render/PixiRenderer/breathing';
 import CloseButton from '../UI/Buttons/CloseButton';
 import { confirmGemSpend } from '../UI/Modals/GemSpendConfirm';
@@ -193,6 +193,18 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, setInvent
   const buying = useMemo(() => (data && spec ? toBuy(spec, data, owned) : []), [data, spec, owned]);
   const gems = buying.reduce((sum, row) => sum + (Number(row.gemcost) || 0), 0);
 
+  // the skin-tone swatches show the tone as the face is drawn in it (tint x the face art's own
+  // peach), not the bare tint hex (owner 2026-11-15)
+  const skinRow = data && spec ? data.catalogue.find((r) => r.id === spec.skin) : null;
+  const skinSrc = skinRow ? partSrc(skinRow) : null;
+  const [skinBase, setSkinBase] = useState(null);
+  useEffect(() => {
+    let live = true;
+    partBaseColor(skinSrc).then((c) => { if (live) setSkinBase(c); });
+    return () => { live = false; };
+  }, [skinSrc]);
+  const swatchColor = (colorKey, hex) => (colorKey === 'skinTone' && skinBase ? multiplyHex(hex, skinBase) : hex);
+
   const set = (key, value) => { dirtyRef.current = true; setSpec((prev) => withEyes(data.catalogue, { ...prev, [key]: value })); setProblems([]); };
 
   /** The thumbnail for one part: the current bust with just that slot swapped. */
@@ -273,9 +285,9 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, setInvent
               ))}
               {parts.map((row) => (
                 <button key={row.id} className={`avatar-part ${spec[tab] === row.id ? 'selected' : ''}`} onClick={() => set(tab, row.id)}>
-                  {/* no captions (owner 2026-11-10): a body is its sign, a None the no-entry sign, every other part its picture */}
+                  {/* no captions (owner 2026-11-10): a body is its sign (painted, icons-r14, owner 2026-11-15), a None the no-entry sign, every other part its picture */}
                   {tab === 'skin'
-                    ? <span className="avatar-thumb avatar-sign" aria-hidden="true">{row.body === 'male' ? '\u2642' : '\u2640'}</span>
+                    ? <span className="avatar-thumb avatar-sign" aria-hidden="true"><img className="avatar-sign-icon" src={`/assets/icons/icon-${row.body === 'male' ? 'male' : 'female'}.svg`} alt="" draggable="false" /></span>
                     : isNone(row)
                       ? <span className="avatar-thumb avatar-sign avatar-sign-none" aria-hidden="true">{'\u{1F6AB}'}</span>
                       : <AvatarPreview look={thumbLook(tab, row.id)} blink={false} className="avatar-thumb" crop={CROP[CROP_FOR_TAB[tab]] || CROP.head} width={72} height={72} />}
@@ -289,7 +301,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, setInvent
                 <div className="avatar-colors-label">{strings[COLOR_LABEL[colorKey]]}</div>
                 <div className="avatar-swatches">
                   {palette(data.palettes, PALETTE_OF_SPEC_KEY[colorKey]).map((sw) => (
-                    <button key={sw.id} className={`avatar-swatch ${spec[colorKey] === sw.id ? 'selected' : ''}`} style={{ background: sw.hex }} onClick={() => set(colorKey, sw.id)}>
+                    <button key={sw.id} className={`avatar-swatch ${spec[colorKey] === sw.id ? 'selected' : ''}`} style={{ background: swatchColor(colorKey, sw.hex) }} onClick={() => set(colorKey, sw.id)}>
                       {sw.tier === 'paid' && !owned.includes(sw.id) ? <span className="avatar-swatch-lock"><ResourceIcon type="Gem" /></span> : null}
                     </button>
                   ))}

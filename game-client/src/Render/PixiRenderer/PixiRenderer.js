@@ -12,6 +12,7 @@ import { getResourceOverlayStatus, getNPCOverlayStatus, OVERLAY_SVG_MAPPING, OVE
 import { handleNPCClickShared } from '../../GameFeatures/NPCs/NPCInteractionUtils';
 import { generateResourceTooltip, generateNPCTooltip } from '../RenderDynamicElements';
 import { canHover, isTouchPrimary } from '../../Utils/inputMode';
+import { isWallBlocking } from '../../Utils/GridManagement';
 import { calculateTooltipPosition } from '../../Utils/TooltipUtils';
 import { getDerivedRange, nearestFootprintTile } from '../../Utils/worldHelpers';
 import PixiRendererVFX from './PixiRendererVFX';
@@ -1984,7 +1985,15 @@ const PixiRenderer = ({
     // a resource is in range when its NEAREST tile is (a building's closest wall, not its anchor
     // corner); too far, walk toward that tile (walkTo stops beside a blocked goal)
     const nearestOf = (r) => (playerPos ? nearestFootprintTile(playerPos, r) : { x: r.x, y: r.y });
-    const resourceOutOfRange = (r) => { const t = nearestOf(r); return outOfRange(t.x, t.y); };
+    // Out of reach is also IN reach but behind a wall, door, fence or hedge (the straight line
+    // App.handleTileClick checks, string 40 "Something is in the way."): the town Bank stands in a
+    // walled courtyard, so from the street south of it the tap refused instead of walking round.
+    // Either way the tap walks toward it (the route goes round; tap again once there).
+    const resourceOutOfRange = (r) => {
+      const t = nearestOf(r);
+      if (outOfRange(t.x, t.y)) return true;
+      return !onOwnHomestead && !!playerPos && r.category !== 'npc' && isWallBlocking(playerPos, t);
+    };
     const walkToward = (r) => { const t = nearestOf(r); if (onWalkTo) onWalkTo(t.y, t.x); };
 
     // At frontier zoom during relocation, clicking on the current settlement should

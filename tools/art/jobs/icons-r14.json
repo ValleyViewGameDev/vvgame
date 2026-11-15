@@ -1,0 +1,25 @@
+{
+  "name": "icons-r14",
+  "note": "Owner 2026-11-15: male and female symbols for the Avatar Editor's body choice (replacing the plain ♂ / ♀ text glyphs), in the header's system style. One sheet, two colour takes of the pair.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "gender": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg",
+        "_candidates/icons-r12/approved/openai--system-marks-1.png"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "CONTROL: the SECOND attached sheet holds this game's approved mark glyphs: match their rendering, their thick dark outline, their soft painted fill and their SIZE IN THE CELL exactly, so the new icons are one set with them. SUBJECTS: the two standard SEX SYMBOLS for picking a character's body, in order on the 3 x 3 grid, left to right then top to bottom, ONE icon per grid cell, centred in its cell and well inside it, each the familiar symbol drawn as one bold, thick, rounded stroke shape (a fat ring with a fat stem), no thin lines, no small parts, that still reads at 20 pixels. No letters and no words. 1 MALE: the Mars symbol, a thick ring with a thick arrow pointing up and to the right from it, in a soft sky blue. 2 FEMALE: the Venus symbol, a thick ring with a thick cross hanging straight down beneath it, in a soft warm rose pink. 3 MALE ALTERNATE: the same Mars symbol in warm honey wood. 4 FEMALE ALTERNATE: the same Venus symbol in warm honey wood. Both symbols the same size and stroke weight. Cells 5 to 9 stay EMPTY, pure flat magenta, nothing drawn in them."
+    }
+  }
+}
