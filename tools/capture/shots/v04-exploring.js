@@ -1,7 +1,7 @@
 // V4 Exploring (docs/social-video-plan.md §5): a run of very different places, one take per
 // place, and the player is moving in every one of them.
 //
-//   node capture.js shot v04-exploring@<stop>     -> ads/video/raw/v04-exploring/<stop>.rec
+//   node capture.js shot v04-exploring@<stop>     -> GameDevelopment/ads/vvgame/video/raw/v04-exploring/<stop>.rec
 //
 // Every take heals first if needed (Titania's fairies), reaches its place with the developer
 // teleport (Debug panel, kept invisible), plays its beat, and parks back at Titania's Bower at

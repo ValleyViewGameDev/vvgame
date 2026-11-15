@@ -1,6 +1,6 @@
 # Social video plan: Secrets of Elsinore
 
-Written 2026-11-11 for backlog item BL-26. Assets live in `ads/` (layout in `ads/README.md`).
+Written 2026-11-11 for backlog item BL-26. Assets live in `../ads/vvgame/` (layout in `../ads/vvgame/README.md`).
 This is a plan for a first-time video maker: every step names the tool and the setting.
 
 ## 1. The short version
@@ -37,7 +37,7 @@ Where they disagree, this says so.
 | Results conflict on conversion: one developer saw many views and few installs, others got tens of thousands of wishlists. | Views are not the goal. Measure players who start and who are still playing at day 7, the same test the launch checklist already uses. |
 | A free game that opens from a link has a shorter path than a paid store page. No case study for browser games was found. | The call to action is "Play free in your browser", never "wishlist". This is an advantage, but an unproven one. |
 | Business accounts on TikTok can only use the Commercial Music Library; trending songs are not available for promotional posts. One source says the same of Instagram (unconfirmed). | Do not plan around trending sounds. Use the game's own music if it is licensed for this, see section 9. |
-| Cross-post the same video to every platform, but upload the original file each time. A TikTok watermark on a Reel reduces its reach. | One master file per video in `ads/video/final/`. |
+| Cross-post the same video to every platform, but upload the original file each time. A TikTok watermark on a Reel reduces its reach. | One master file per video in `../ads/vvgame/video/final/`. |
 | Audiences: TikTok skews 18 to 34, Instagram 25 to 44, Facebook over 30. | Farming-game players are well represented on Facebook. Do not treat it as an afterthought. |
 | Suggested cadence is 3 to 5 posts a week. | For one person, 2 to 3 a week is realistic: eight videos plus alternate hooks is about a month of posts. |
 | Paid TikTok ads rarely pay off for small games. | Keep the paid test on Meta, as the launch checklist plans. The best organic video becomes the ad. |
@@ -66,7 +66,7 @@ animation is in the cut.
 
 **On-screen text style.** Follow `docs/narrative-style.md`: plain, a little Shakespearean, no
 em-dashes. White text with a dark outline or a soft dark plate; one font throughout (use the
-game's heading font; put the font file in `ads/brand/`).
+game's heading font; put the font file in `../ads/vvgame/brand/`).
 
 ## 4. How to record
 
@@ -134,7 +134,7 @@ OBS Studio is free (`obsproject.com`). Settings for this job:
    `1080x1920`, FPS `60`.
 2. **Settings > Output > Recording**: format `MOV` or `MKV` (MKV survives a crash; OBS can remux
    to MP4 from File > Remux Recordings), encoder Apple VT H264 Hardware Encoder, bitrate about
-   30,000 kbps. Set the recording path to `ads/video/raw/`.
+   30,000 kbps. Set the recording path to `../ads/vvgame/video/raw/`.
 3. **Sources > + > macOS Screen Capture**, method Window Capture, pick the Chrome window. On
    recent macOS versions this source also carries the window's sound, so the game's music and
    effects are recorded. Check the audio meter moves; if it does not, record silent and add sound
@@ -150,8 +150,8 @@ purpose when it is.
 ### 4.5 Recording habits
 
 - **Record long, cut later.** Let each action run 2 seconds before and after.
-- **Three takes of everything.** Name them as in `ads/README.md` and move each into its
-  `ads/video/raw/<video>/` folder the same day.
+- **Three takes of everything.** Name them as in `../ads/vvgame/README.md` and move each into its
+  `../ads/vvgame/video/raw/<video>/` folder the same day.
 - **Rehearse the path once without recording.** Know where the player walks and what gets clicked.
 - **Hold still on pretty frames for 3 seconds.** These become the stills and the cover frames.
 - **Close panels** unless the panel is the subject. In the phone layout a panel covers more than
@@ -288,7 +288,7 @@ homestead decorating time-lapse; "one thing I added this week" devlog clips; a f
 
 The launch checklist already asks for ad stills at 4:5 and 9:16 from the painted parts of the
 board. Take these while recording (hold 3 seconds on each, then also press Cmd+Shift+4 and Space
-for a window screenshot into `ads/stills/raw/`):
+for a window screenshot into `../ads/vvgame/stills/raw/`):
 
 1. Hero homestead, whole grid, Fall colours.
 2. Hero homestead, closest zoom, avatar among ripe crops.
@@ -301,7 +301,7 @@ for a window screenshot into `ads/stills/raw/`):
 9. A conversation with speech bubbles and hearts.
 10. The settlement map zoom.
 
-Crop each into the four sizes in `ads/stills/final/`. Keep the avatar or the main building inside
+Crop each into the four sizes in `../ads/vvgame/stills/final/`. Keep the avatar or the main building inside
 the centre of the frame so one screenshot survives all four crops.
 
 ## 7. Editing in CapCut
@@ -312,7 +312,7 @@ but takes longer to learn.
 
 Per video:
 
-1. New project, ratio 9:16, 1080 x 1920. Save the project into `ads/video/project/`.
+1. New project, ratio 9:16, 1080 x 1920. Save the project into `../ads/vvgame/video/project/`.
 2. Import the takes. Scrub through and split out the good moments (keyboard: `Cmd+B` splits).
    Export nothing yet.
 3. Put the **best moment first**. Then lay the rest in the order of the shot table.
@@ -324,8 +324,8 @@ Per video:
 7. Text: add the caption lines from the shot table, inside the safe area, each on screen at
    least 1.2 seconds.
 8. Sound: game audio at full for effects; music under it at about 30 %. Fade the last half second.
-9. End card: 1.5 seconds, from `ads/brand/`.
-10. Export 1080p, H.264, 60 fps if offered, into `ads/video/final/`.
+9. End card: 1.5 seconds, from `../ads/vvgame/brand/`.
+10. Export 1080p, H.264, 60 fps if offered, into `../ads/vvgame/video/final/`.
 
 **Check before posting** (every video):
 
@@ -352,7 +352,7 @@ Per video:
    `game-client/public/sound/music/`. If they are licensed for commercial use including
    advertising, use them: the game's own music is the simplest and most recognisable choice. If
    not, or if unsure, buy or pick a royalty-free track with a clear commercial licence and keep
-   the licence in `ads/video/audio/music/`. Do not use trending songs.
+   the licence in `../ads/vvgame/video/audio/music/`. Do not use trending songs.
 2. **Story staging.** The statue waking, the twins' reunion and the King's Crown are the best
    story shots and all sit behind days of play. Either play `ftuetester` up to them, or add a
    developer helper that replays a scene. Until then V3 uses the opening and the cast montage.
@@ -370,13 +370,13 @@ Use one tagged link per platform in the bio, for example
 `fb` for the other two as the launch checklist names them. Links in captions are not clickable
 on TikTok or Instagram, so the caption says "link in bio".
 
-**Each post.** Write the caption in `ads/copy/<video>.md` first.
+**Each post.** Write the caption in `../ads/vvgame/copy/<video>.md` first.
 
 - Line one repeats the hook in words.
 - One line says "Free in your browser, link in bio."
 - Three to five hashtags: two broad (`#cozygames`, `#farmingsim`), two specific
   (`#indiegame`, `#shakespeare`), one for the game (`#secretsofelsinore`).
-- Choose the cover frame from `ads/video/thumbnails/`.
+- Choose the cover frame from `../ads/vvgame/video/thumbnails/`.
 - Reply to every comment in the first hour.
 
 **Rhythm.** Two or three posts a week, same video on all three platforms the same day.
@@ -432,11 +432,11 @@ stayed, and stop making the kind that did not.
 - `node capture.js login`: opens the capture browser (the installed Chrome with its own profile
   in `tools/capture/.profile`, not in git) to sign in once. It quits when the window is closed.
 - `node capture.js shot v01-zoom`: plays `shots/v01-zoom.js` headlessly at 1080 x 1920 with
-  capture mode on, records the tab, and writes `ads/video/raw/v01-zoom/v01-zoom.rec` plus
+  capture mode on, records the tab, and writes `../ads/vvgame/video/raw/v01-zoom/v01-zoom.rec` plus
   `.marks.json` (the time of each beat). Needs the local client on port 3000
   (`CAPTURE_URL` overrides).
 - `node edit.js v01-zoom`: reads `edits/v01-zoom.json` (which marks to cut between, captions
-  between marks, the end card) and writes the finished MP4 into `ads/video/final/`.
+  between marks, the end card) and writes the finished MP4 into `../ads/vvgame/video/final/`.
 
 What the proof showed: the picture is sharp; Chrome's tab recording delivers about 30 fps (the
 game itself holds 60), so finals are 30 fps; **no sound is captured in headless mode**, so music
@@ -528,7 +528,7 @@ The licence of the game's music for advertising is still unconfirmed (section 9)
 
 Owner's brief: the player moves in every place, a fight (ghosts in Golgotha), a run across Sunflower Lake's desert through the spiders at several zoom levels, a boat ride on a river past a town, two more places than version a at the same length, the valley music.
 
-- **One take per place**: `node capture.js shot v04-exploring@<stop>` (belmont, sunflower, titania, strathmoore, prospero, yorick, acheron, golgotha) writes `ads/video/raw/v04-exploring/<stop>.rec`. Each take heals first when needed, teleports in, plays its beat and parks at Titania's Bower. A bad place is re-recorded alone.
+- **One take per place**: `node capture.js shot v04-exploring@<stop>` (belmont, sunflower, titania, strathmoore, prospero, yorick, acheron, golgotha) writes `../ads/vvgame/video/raw/v04-exploring/<stop>.rec`. Each take heals first when needed, teleports in, plays its beat and parks at Titania's Bower. A bad place is re-recorded alone.
 - **Walking** is tap-to-walk: `walkTarget` (shots/lib.js) picks the farthest open tile that stays in the picture; the zoom key is pressed while he walks.
 - **Sunflower Lake** is grid 1012525 (sand, 22 spiders). He must run the moment he lands: spiders box in a player who stands. Enemies stay where a take left them, so the run ends by leading them away from the arrival tile. At the widest zoom he stays near the middle: nothing is drawn past a grid's edge.
 - **The boat** is at Strathmoore (1012154): Get in Boat from the player's own menu beside the lake, then taps on water. The menu's button needs about a second after the panel opens.
@@ -538,3 +538,7 @@ Owner's brief: the player moves in every place, a fight (ghosts in Golgotha), a 
 - **Marks can sit late.** A take that stalls (a teleport) records less time than passed, so its marks drift by a second or two. `edit.js` segments take plain numbers (seconds of the recording) for `from` / `to`; read them off a strip of frames.
 - The developer teleport's grid-number box is the input right after the Quick Travel list; the panel has a second "Enter GridCoord" box further down that does something else.
 - Music: `valley1_1.mp3` at 1.7. The licence question in the Music note above applies to it too.
+
+### Where the ad files live (owner, 2026-11-14)
+
+All ad assets moved out of the repository to `GameDevelopment/ads/vvgame/` (beside `ads/house/`), so recordings and finished videos are never committed. `tools/capture/capture.js` and `edit.js` write there (`ADS_DIR` overrides it); every `ads/...` path in this plan means that folder. The repository ignores any `ads/` folder.

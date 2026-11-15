@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sleep, teleport, whereAmI, npcs, zoomToScale, health } from './lib.js';
 
-const OUT = process.env.SCOUT_DIR || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../ads/video/raw/_prep');
+const OUT = process.env.SCOUT_DIR || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../ads/vvgame/video/raw/_prep');
 
 export default {
   folder: '_prep',

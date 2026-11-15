@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Automatic edit for a captured shot (docs/social-video-plan.md §7).
 //
-//   node edit.js <name>      reads edits/<name>.json, writes ads/video/final/<output>
+//   node edit.js <name>      reads edits/<name>.json, writes <ads>/video/final/<output> (<ads> = GameDevelopment/ads/vvgame, outside the repo)
 //
-// An edit names its source recording (ads/video/raw/<source>/<source>.rec + .marks.json, made
+// An edit names its source recording (<ads>/video/raw/<source>/<source>.rec + .marks.json, made
 // by capture.js), the marks to cut from and to, captions placed between marks, and an end
 // card. Captions and the end card are drawn by Chrome (so they use the game's own web fonts
 // and CSS) as transparent 1080x1920 PNGs and laid over the video by ffmpeg, which also sets
@@ -17,6 +17,9 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
+// Ad assets live OUTSIDE this repository (GameDevelopment/ads/vvgame/: the recordings and videos are
+// far too large for git). ADS_DIR overrides the place.
+const ADS = process.env.ADS_DIR || path.resolve(REPO, '../ads/vvgame');
 const W = 1080, H = 1920, FPS = 30;
 // Text stays inside the box every platform leaves clear (plan §3): 250 top, 450 bottom.
 const CAPTION_BOTTOM = 470;
@@ -58,7 +61,7 @@ const edit = JSON.parse(fs.readFileSync(path.join(HERE, 'edits', `${name}.json`)
 // A segment may name its own `source` take; the edit's `source` is the default.
 const takes = {};
 // A take is named `<folder>` (file of the same name) or `<folder>/<name>`.
-const takePath = (src, ext) => { const [dir, name = dir] = src.split('/'); return path.join(REPO, 'ads/video/raw', dir, `${name}.${ext}`); };
+const takePath = (src, ext) => { const [dir, name = dir] = src.split('/'); return path.join(ADS, 'video/raw', dir, `${name}.${ext}`); };
 const take = (src) => (takes[src] ||= { rec: takePath(src, 'rec'), marks: JSON.parse(fs.readFileSync(takePath(src, 'marks.json'), 'utf8')).marks, input: Object.keys(takes).length });
 // A mark's label, or a number: seconds into the recording itself. (A take that stalled, at a
 // teleport say, records less time than passed, so its marks sit late: read the frames and give seconds.)
@@ -82,7 +85,7 @@ const capTimes = (c) => {
   return [(at(c.from) - segs[0].a) / segs[0].speed, (at(c.to) - segs[0].a) / segs[0].speed];
 };
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'soe-edit-'));
-const logo = 'data:image/png;base64,' + fs.readFileSync(path.join(REPO, 'ads/brand/SoELogo.png')).toString('base64');
+const logo = 'data:image/png;base64,' + fs.readFileSync(path.join(ADS, 'brand/SoELogo.png')).toString('base64');
 const caps = (edit.captions || []).map((c, i) => { const [a, b] = capTimes(c); return { ...c, file: path.join(tmp, `cap${i}.png`), a, b }; });
 const card = edit.endCard ? { ...edit.endCard, file: path.join(tmp, 'end.png') } : null;
 await renderPngs([
@@ -115,7 +118,7 @@ if (card) {
   total += card.seconds;
 } else f.push(`[${last}]null[vout]`);
 
-const outFile = path.join(REPO, 'ads/video/final', edit.output);
+const outFile = path.join(ADS, 'video/final', edit.output);
 const music = edit.music ? { start: 0, volume: 0.8, ...edit.music } : null;
 if (music) {
   const musicInput = nTakes + caps.length + (card ? 1 : 0);

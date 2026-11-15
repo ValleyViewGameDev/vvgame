@@ -11,10 +11,8 @@ game-client/public/assets/avatar/_lab/
 # art generation candidates (docs/art-pipeline-plan.md §5): regenerable from the sidecars
 tools/art/_candidates/
 
-# advertising: raw screen recordings and editor projects are too large for git (ads/README.md)
-ads/video/raw/
-ads/video/selects/
-ads/video/project/
+# advertising assets live outside this repository: GameDevelopment/ads/vvgame/ (never add an ads/ folder here)
+ads/
 
 # capture tool: its own Chrome profile (holds a sign-in) (tools/capture/capture.js)
 tools/capture/.profile/

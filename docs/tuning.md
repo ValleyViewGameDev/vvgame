@@ -70,6 +70,14 @@ can check the current value rather than trust this page.
    L55 2,500; the closing "Find Hope" quest pays 5,000. Elbow's "Meet" stepping-stone quests are
    unchanged. A new artifact quest takes its xp from the same formula.
 
+11. **Repeatable kill quests pay Books by the fight's effort** (owner, 2026-11-14: "really hard
+   to kill ogres and dragons"; Titania's paid 1 Book and 2 to 5 xp). Books buy the combat gear
+   (5b, 20 to 300 a piece), so a fight pays toward the next fight. Size by the 5d table (kill
+   time x count, hp spent x count): about one Book per 15 s of fighting, and xp about half an
+   artifact quest of the same level (rule 10), on top of the kills' own xp. Titania: 5 Ghosts
+   (L17) 3 Books + 200 xp, 10 Ogres (L22) 10 + 500, 10 Demons (L28) 12 + 800, 1 Dragon 5 + 500.
+   The relationship buff still multiplies the Books.
+
 ## 3. The level curve (xpLevels.json)
 
 XP needed to advance (thresholds in `xpLevels.json`: row `lvl N` holds the XP that reaches

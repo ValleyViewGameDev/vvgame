@@ -11,7 +11,7 @@
 //
 // Recording is the tab recording itself (getDisplayMedia + MediaRecorder inside the page):
 // everything the tab draws, DOM panels and modals included, plus its sound, in real time.
-// Chunks are handed to Node as they arrive and written to ads/video/raw/<name>/<name>.webm;
+// Chunks are handed to Node as they arrive and written to <ads>/video/raw/<name>/<name>.rec (<ads> = GameDevelopment/ads/vvgame);
 // `edit.js` turns that into the finished MP4.
 import { chromium } from 'playwright-core';
 import fs from 'node:fs';
@@ -21,6 +21,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
+// Ad assets live OUTSIDE this repository (GameDevelopment/ads/vvgame/: the recordings and videos are
+// far too large for git). ADS_DIR overrides the place.
+const ADS = process.env.ADS_DIR || path.resolve(REPO, '../ads/vvgame');
 const PROFILE = path.join(HERE, '.profile');
 const GAME_URL = process.env.CAPTURE_URL || 'http://localhost:3000';
 // The page is PHONE-sized in CSS pixels and drawn at a high pixel density, so the game serves
@@ -127,7 +130,7 @@ async function shot(name, { headed }) {
   const device = def.device || DEFAULT_DEVICE;
   const { viewport } = device;
   const out1080 = { width: Math.round(viewport.width * device.scale), height: Math.round(viewport.height * device.scale) };
-  const outDir = path.join(REPO, 'ads/video/raw', def.folder || name);
+  const outDir = path.join(ADS, 'video/raw', def.folder || name);
   fs.mkdirSync(outDir, { recursive: true });
   const outFile = path.join(outDir, `${name}.rec`); // container is whatever the recorder chose; edit.js probes it
   const partFile = `${outFile}.part`;                // a failed take never replaces the last good one
