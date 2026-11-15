@@ -1,6 +1,6 @@
 {
   "source": "v02-farming",
-  "output": "soe_v02-farming_9x16_f.mp4",
+  "output": "soe_v02-farming_9x16_g.mp4",
   "music": {
     "file": "game-client/public/sound/music/homestead.mp3",
     "start": 0,
@@ -49,40 +49,12 @@
       "to": "end"
     }
   ],
-  "captions": [
-    {
-      "segment": 0,
-      "text": "My little farm."
-    },
-    {
-      "segment": 1,
-      "text": "Harvest it."
-    },
-    {
-      "segment": 2,
-      "text": "Plant it."
-    },
-    {
-      "segment": 3,
-      "text": "Grow it."
-    },
-    {
-      "segment": 4,
-      "text": "Milk it."
-    },
-    {
-      "segment": 5,
-      "toSegment": 6,
-      "text": "Sell it."
-    },
-    {
-      "segment": 7,
-      "text": "Then build all this."
-    }
-  ],
   "endCard": {
     "seconds": 1.6,
     "line": "Play free in your browser",
+    "url": "secretsofelsinore.com"
+  },
+  "brand": {
     "url": "secretsofelsinore.com"
   }
 }

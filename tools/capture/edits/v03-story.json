@@ -1,12 +1,23 @@
 {
   "source": "v03-story/gertrude",
-  "output": "soe_v03-story_9x16_b.mp4",
+  "output": "soe_v03-story_9x16_c.mp4",
   "music": {
     "file": "game-client/public/sound/music/valley1_2.mp3",
     "start": 0,
     "volume": 2.7
   },
   "segments": [
+    {
+      "source": "avatar",
+      "from": 0.2,
+      "to": 7.3,
+      "speed": 1.6
+    },
+    {
+      "source": "avatar",
+      "from": 9.7,
+      "to": 11.4
+    },
     {
       "source": "v03-story/gertrude",
       "from": 7.4,
@@ -72,39 +83,39 @@
   ],
   "captions": [
     {
-      "segment": 0,
+      "segment": 2,
       "text": "A storm tore every story apart."
     },
     {
-      "segment": 1,
+      "segment": 3,
       "who": "Gertrude",
       "size": 62,
       "text": "“I was stone so long, I almost forgot the feel of the sun.”"
     },
     {
-      "segment": 2,
-      "toSegment": 3,
+      "segment": 4,
+      "toSegment": 5,
       "who": "Leontes",
       "size": 62,
       "text": "“The storm turned my Queen to stone and stole my crown.”"
     },
     {
-      "segment": 4,
+      "segment": 6,
       "who": "Titania",
       "size": 62,
       "text": "“Prospero was my friend before his storm, and now I fear him.”"
     },
     {
-      "segment": 6,
-      "toSegment": 7,
+      "segment": 8,
+      "toSegment": 9,
       "text": "Take up their quests."
     },
     {
-      "segment": 8,
+      "segment": 10,
       "text": "And the magician?"
     },
     {
-      "segment": 9,
+      "segment": 11,
       "who": "Prospero",
       "size": 62,
       "text": "“I raised the storm, and I have repented it every day since.”"

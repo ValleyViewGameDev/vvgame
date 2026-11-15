@@ -1,29 +1,90 @@
 {
   "source": "v04-exploring/belmont",
-  "output": "soe_v04-exploring_9x16_b.mp4",
-  "music": { "file": "game-client/public/sound/music/valley1_1.mp3", "start": 0, "volume": 1.7 },
+  "output": "soe_v04-exploring_9x16_c.mp4",
+  "music": {
+    "file": "game-client/public/sound/music/valley1_1.mp3",
+    "start": 0,
+    "volume": 1.7
+  },
   "segments": [
-    { "source": "v04-exploring/belmont", "from": 5.6, "to": 8.6, "speed": 1.6 },
-    { "source": "v04-exploring/sunflower", "from": 1.6, "to": 8.6, "speed": 2.3 },
-    { "source": "v04-exploring/titania", "from": 4.9, "to": 7.7, "speed": 1.6 },
-    { "source": "v04-exploring/strathmoore", "from": 9.4, "to": 13.7, "speed": 1.6 },
-    { "source": "v04-exploring/prospero", "from": 5.5, "to": 8.3, "speed": 1.6 },
-    { "source": "v04-exploring/yorick", "from": 5.6, "to": 8.2, "speed": 1.5 },
-    { "source": "v04-exploring/acheron", "from": 5.5, "to": 6.9, "speed": 1.4 },
-    { "source": "v04-exploring/acheron", "from": 7.9, "to": 9.3, "speed": 1.4 },
-    { "source": "v04-exploring/golgotha", "from": 5.0, "to": 6.8, "speed": 1.5 },
-    { "source": "v04-exploring/golgotha", "from": 12.6, "to": 14.8 }
+    {
+      "source": "avatar",
+      "from": 0.2,
+      "to": 7.3,
+      "speed": 1.6
+    },
+    {
+      "source": "avatar",
+      "from": 9.7,
+      "to": 11.4
+    },
+    {
+      "source": "v04-exploring/belmont",
+      "from": 5.6,
+      "to": 8.6,
+      "speed": 1.6
+    },
+    {
+      "source": "v04-exploring/sunflower",
+      "from": 1.6,
+      "to": 8.6,
+      "speed": 2.3
+    },
+    {
+      "source": "v04-exploring/titania",
+      "from": 4.9,
+      "to": 7.7,
+      "speed": 1.6
+    },
+    {
+      "source": "v04-exploring/strathmoore",
+      "from": 9.4,
+      "to": 13.7,
+      "speed": 1.6
+    },
+    {
+      "source": "v04-exploring/prospero",
+      "from": 5.5,
+      "to": 8.3,
+      "speed": 1.6
+    },
+    {
+      "source": "v04-exploring/yorick",
+      "from": 5.6,
+      "to": 8.2,
+      "speed": 1.5
+    },
+    {
+      "source": "v04-exploring/acheron",
+      "from": 5.5,
+      "to": 6.9,
+      "speed": 1.4
+    },
+    {
+      "source": "v04-exploring/acheron",
+      "from": 7.9,
+      "to": 9.3,
+      "speed": 1.4
+    },
+    {
+      "source": "v04-exploring/golgotha",
+      "from": 5.0,
+      "to": 6.8,
+      "speed": 1.5
+    },
+    {
+      "source": "v04-exploring/golgotha",
+      "from": 12.6,
+      "to": 14.8
+    }
   ],
-  "captions": [
-    { "segment": 0, "text": "I left the farm to see the world." },
-    { "segment": 1, "text": "Sunflower Lake." },
-    { "segment": 2, "text": "Titania's Bower." },
-    { "segment": 3, "text": "Strathmoore." },
-    { "segment": 4, "text": "Prospero's Peak." },
-    { "segment": 5, "text": "Yorick's Hollow." },
-    { "segment": 6, "toSegment": 7, "text": "Acheron." },
-    { "segment": 8, "text": "Golgotha." },
-    { "segment": 9, "text": "How far will you go?" }
-  ],
-  "endCard": { "seconds": 1.6, "line": "Play free in your browser", "url": "secretsofelsinore.com" }
+  "endCard": {
+    "seconds": 1.6,
+    "line": "Play free in your browser",
+    "url": "secretsofelsinore.com"
+  },
+  "brand": {
+    "url": "secretsofelsinore.com",
+    "fromSegment": 2
+  }
 }

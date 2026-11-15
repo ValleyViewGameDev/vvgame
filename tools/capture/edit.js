@@ -39,6 +39,15 @@ const captionHtml = (c) => `<!doctype html><html><head>${FONTS}<style>
      -webkit-text-stroke:7px #1d2b06;paint-order:stroke fill}
 </style></head><body><div class="c">${c.who ? `<span class="w">${esc(c.who)}</span>` : ''}${esc(c.text)}</div></body></html>`;
 
+// `brand` ({ url }): the logo on its cream panel with the address under it, in the caption's place
+// for the whole video (owner 2026-11-15: no captions on the gameplay videos, the name instead).
+const brandHtml = (b, logo) => `<!doctype html><html><head>${FONTS}<style>
+  html,body{margin:0;width:${W}px;height:${H}px;background:transparent}
+  .b{position:absolute;left:70px;right:140px;bottom:${CAPTION_BOTTOM - 10}px;display:flex;flex-direction:column;align-items:center;gap:22px}
+  img{width:${b.width || 470}px;padding:22px 30px;border-radius:26px;background:#fffbb3;box-shadow:0 8px 20px rgba(0,0,0,.45)}
+  .u{font:700 46px/1 'Lora',serif;color:#fff;letter-spacing:.01em;-webkit-text-stroke:8px #1d2b06;paint-order:stroke fill;text-shadow:0 4px 10px rgba(0,0,0,.55)}
+</style></head><body><div class="b"><img src="${logo}">${b.url ? `<div class="u">${esc(b.url)}</div>` : ''}</div></body></html>`;
+
 const endCardHtml = (card, logo) => `<!doctype html><html><head>${FONTS}<style>
   html,body{margin:0;width:${W}px;height:${H}px;background:#77ac0d}
   .w{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:56px;
@@ -90,10 +99,12 @@ const capTimes = (c) => {
 };
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'soe-edit-'));
 const logo = 'data:image/png;base64,' + fs.readFileSync(path.join(ADS, 'brand/SoELogo.png')).toString('base64');
-const caps = (edit.captions || []).map((c, i) => { const [a, b] = capTimes(c); return { ...c, file: path.join(tmp, `cap${i}.png`), a, b }; });
+const caps = (edit.captions || []).map((c, i) => { const [a, b] = capTimes(c); return { ...c, html: captionHtml(c), file: path.join(tmp, `cap${i}.png`), a, b }; });
+// `brand.fromSegment`: the band starts with that segment (an opening that fills the frame, the avatar editor, goes without it)
+if (edit.brand) { const a = edit.brand.fromSegment ? segs[edit.brand.fromSegment].start : 0; caps.push({ html: brandHtml(edit.brand, logo), file: path.join(tmp, 'brand.png'), a, b: body + 1, always: !a }); }
 const card = edit.endCard ? { ...edit.endCard, file: path.join(tmp, 'end.png') } : null;
 await renderPngs([
-  ...caps.map((c) => ({ html: captionHtml(c), file: c.file, transparent: true })),
+  ...caps.map((c) => ({ html: c.html, file: c.file, transparent: true })),
   ...(card ? [{ html: endCardHtml(card, logo), file: card.file, transparent: false }] : []),
 ]);
 
@@ -111,8 +122,8 @@ segs.forEach((g, i) => f.push(`[s${i}]trim=start=${g.a.toFixed(3)}:end=${g.b.toF
 f.push(`${segs.map((_, i) => `[g${i}]`).join('')}concat=n=${segs.length}:v=1:a=0[v0]`);
 let last = 'v0';
 caps.forEach((c, i) => {
-  f.push(`[${i + nTakes}:v]format=rgba,fade=t=in:st=${c.a.toFixed(3)}:d=0.2:alpha=1,fade=t=out:st=${(c.b - 0.2).toFixed(3)}:d=0.2:alpha=1[c${i}]`);
-  f.push(`[${last}][c${i}]overlay=0:0:enable='between(t,${c.a.toFixed(3)},${c.b.toFixed(3)})'[v${i + 1}]`);
+  f.push(c.always ? `[${i + nTakes}:v]format=rgba[c${i}]` : `[${i + nTakes}:v]format=rgba,fade=t=in:st=${c.a.toFixed(3)}:d=0.2:alpha=1,fade=t=out:st=${(c.b - 0.2).toFixed(3)}:d=0.2:alpha=1[c${i}]`);
+  f.push(`[${last}][c${i}]overlay=0:0${c.always ? '' : `:enable='between(t,${c.a.toFixed(3)},${c.b.toFixed(3)})'`}[v${i + 1}]`);
   last = `v${i + 1}`;
 });
 let total = body;

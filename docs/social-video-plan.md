@@ -563,3 +563,17 @@ The tale told by four of its characters in their own first speeches (strings 160
 - The big dungeon (d001_Large, entered from valley 1011132; Belmont's entrance is across water) was tried first and dropped: its first door did not open and a demon stands in the entry room. `@dungeon` and `@scout` are left in the script for another try; they bail out when health falls below 55 %.
 
 **V1 Zoom c** (`soe_v01-zoom_9x16_c.mp4`, 14.0 s): re-recorded on the redecorated homestead, starting in front of the farmhouse at its middle (the Home signpost leaves him at the west edge, where the empty area past the edge shows), out through every level to the **Settlement view** (owner: all the way out), then back in. The Settlement view shows the neighbours' usernames and net worth, and Oberon's homestead is in the settlement's top row, so the top of that frame is empty.
+
+## No captions, the logo instead; the avatar editor opening (2026-11-15)
+
+Owner: the gameplay videos (Zoom, Farming, Exploring) carry no captions. In the caption's place sits
+the logo on its cream panel with `secretsofelsinore.com` under it, for the whole video: an edit's
+`brand: { url, fromSegment? }` (`edit.js` `brandHtml`). Story keeps its captions (the characters' words).
+
+Exploring and Story open on the avatar editor: `shots/avatar.js` (take `avatar`). The Woman with long
+wavy blonde hair goes through the outfits to the black queen's coat, then the Face tab, then the man
+as he is saved. Nothing is saved in the take: the editor is closed and opened again, and the edit cuts
+between the two Face tabs. The modal's thumbnails sit where the band would, so on Exploring the band
+starts with the first gameplay segment (`fromSegment: 2`).
+
+Finals: `soe_v01-zoom_9x16_d`, `soe_v02-farming_9x16_g`, `soe_v04-exploring_9x16_c` (26.0 s), `soe_v03-story_9x16_c` (36.1 s).

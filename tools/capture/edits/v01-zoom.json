@@ -1,16 +1,26 @@
 {
   "source": "v01-zoom",
-  "output": "soe_v01-zoom_9x16_c.mp4",
+  "output": "soe_v01-zoom_9x16_d.mp4",
   "segments": [
-    { "from": 0.05, "to": 5.58 },
-    { "from": 5.58, "to": 8.3 },
-    { "from": 9.18, "to": 13.3 }
+    {
+      "from": 0.05,
+      "to": 5.58
+    },
+    {
+      "from": 5.58,
+      "to": 8.3
+    },
+    {
+      "from": 9.18,
+      "to": 13.3
+    }
   ],
-  "captions": [
-    { "segment": 0, "start": 0, "end": 1.85, "text": "One little farmhouse." },
-    { "segment": 0, "start": 3.9, "end": 5.45, "text": "One big farm." },
-    { "segment": 1, "start": 0.5, "text": "Neighbours all around." },
-    { "segment": 2, "start": 1.6, "text": "Build yours." }
-  ],
-  "endCard": { "seconds": 1.6, "line": "Play free in your browser", "url": "secretsofelsinore.com" }
+  "endCard": {
+    "seconds": 1.6,
+    "line": "Play free in your browser",
+    "url": "secretsofelsinore.com"
+  },
+  "brand": {
+    "url": "secretsofelsinore.com"
+  }
 }
