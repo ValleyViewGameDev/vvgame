@@ -2575,9 +2575,10 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       const effectiveBuildOptions = cursorMode.getEffectiveBuildOptions
         ? cursorMode.getEffectiveBuildOptions()
         : cursorMode.buildOptions;
-      // Phones (placement mode): one building, animal or deco per pick; placement mode ends the
-      // moment it lands on the board, not when the server answers
-      const onPlaced = isTouchPrimary() ? () => setCursorMode(null) : undefined;
+      // Phones (placement mode): like desktop, the pick stays armed so more can be placed, until
+      // Cancel; except a building (BuildPanel's endsOnPlace), whose placement mode ends the moment
+      // it lands on the board, not when the server answers
+      const onPlaced = cursorMode.endsOnPlace && isTouchPrimary() ? () => setCursorMode(null) : undefined;
 
       // Check if this is a gem-modified purchase (modifiedRecipe is present)
       if (cursorMode.modifiedRecipe) {

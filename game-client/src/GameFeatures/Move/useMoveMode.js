@@ -56,7 +56,8 @@ export function cancelMove({ cursorMode, setCursorMode, setResources }) {
  *   placement mode (a Build, Buy, deco, Pets, Farming or Tools pick): "Placing <item>. Tap a spot
  *   to put it there. [Cancel]". On a phone the panel has closed and the item waits, ghosted, in the
  *   middle of the board (PixiRenderer); on desktop the panel stays open and the preview follows the
- *   mouse as before. Cancel just lets go of the cursor.
+ *   mouse as before. Either way the pick stays armed to place more, until Cancel; on a phone a
+ *   building (BuildPanel, endsOnPlace) ends it when it lands. Cancel just lets go of the cursor.
  */
 export function PlacementBanner({ cursorMode, setCursorMode, setResources }) {
   const strings = useStrings();

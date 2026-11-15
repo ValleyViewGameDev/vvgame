@@ -212,10 +212,13 @@ export const handleConstruction = async ({
   }
   const before = resources;
   const finalResources = [...resources, enriched];
-  // Shadow placeholders for multi-tile objects in LOCAL STATE ONLY (never saved)
+  // Shadow placeholders for multi-tile objects in LOCAL STATE ONLY (never saved): exactly the
+  // footprint, fw x fh, as AppInit.enrichGridResources makes them on a load. (Looping to the AREA,
+  // fw * fh, left a 2x2 building 15 shadows over a 4x4 block: phantom impassable tiles beside it
+  // that blocked placing and walking until a refresh rebuilt the list.)
   if (resourceSize > 1) {
-    for (let dx = 0; dx < resourceSize; dx++) {
-      for (let dy = 0; dy < resourceSize; dy++) {
+    for (let dx = 0; dx < fw; dx++) {
+      for (let dy = 0; dy < fh; dy++) {
         if (dx === 0 && dy === 0) continue;
         finalResources.push({ type: 'shadow', x: x + dx, y: y - dy, parentAnchorKey: enriched.anchorKey, passable: enriched.passable });
       }

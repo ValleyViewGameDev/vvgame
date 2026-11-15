@@ -68,6 +68,7 @@ const BuildPanel = ({
       filename: item.filename || null,
       size: item.size || 1, sizeX: item.sizeX, sizeY: item.sizeY,
       buildOptions: buildOptions,
+      endsOnPlace: true, // phones: a building ends placement mode when it lands (App.js)
     });
   };
 
@@ -240,6 +241,7 @@ const BuildPanel = ({
         size: item.size || 1, sizeX: item.sizeX, sizeY: item.sizeY,
         buildOptions: buildOptions,
         modifiedRecipe: modifiedRecipe, // Include the gem-modified recipe for cursor placement
+        endsOnPlace: true, // phones: a building ends placement mode when it lands (App.js)
       });
       return;
     }
