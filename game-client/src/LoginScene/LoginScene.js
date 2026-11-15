@@ -14,7 +14,7 @@ import axios from 'axios';
 import API_BASE from '../config';
 import PixiRenderer from '../Render/PixiRenderer/PixiRenderer';
 import PixiCamera from '../Render/PixiRenderer/PixiCamera';
-import { loadAtlas } from '../Render/PixiRenderer/AtlasTextures';
+import { loadAtlas, prepareAtlasForGrid, gridTypes } from '../Render/PixiRenderer/AtlasTextures';
 import ambientVFXManager from '../VFX/AmbientVFXManager';
 import { createSceneDriver } from './sceneDriver';
 import './LoginScene.css';
@@ -63,7 +63,8 @@ export default function LoginScene({ masterResources, TILE_SIZE, strings }) {
     let alive = true;
     let fadeTimer = null;
     const frame = () => PixiCamera.setZoom(zoomForViewport());
-    Promise.all([PixiCamera.whenReady(), loadAtlas()]).then(() => {
+    // the core sheets and the pages this scene draws from (AtlasTextures.js, BL-24), before the fade-in
+    Promise.all([PixiCamera.whenReady(), loadAtlas(), prepareAtlasForGrid(gridTypes(scene?.resources, scene?.npcs), masterResources)]).then(() => {
       if (!alive) return;
       frame();
       ambientVFXManager.onGridEnter({ gtype: 'loginScene' }, 64, 64);
@@ -75,7 +76,7 @@ export default function LoginScene({ masterResources, TILE_SIZE, strings }) {
       clearTimeout(fadeTimer);
       window.removeEventListener('resize', frame);
     };
-  }, [rendererMounted]);
+  }, [rendererMounted]); // eslint-disable-line react-hooks/exhaustive-deps -- once, when the scene first mounts
 
   if (!rendererMounted) return null;
   return (

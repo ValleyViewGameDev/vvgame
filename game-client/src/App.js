@@ -1209,8 +1209,8 @@ useEffect(() => {
         return;
       }
 
-      // The sprite sheets (2.4 MB) download now, alongside the boot requests, so the first grid
-      // fades up with its art; PixiRenderer's own loadAtlas() at mount then finds them loading
+      // The core sprite sheets download now, alongside the boot requests (the grid's own pages follow
+      // in seedGridFromBundle, AtlasTextures.js BL-24); PixiRenderer's loadAtlas() at mount finds them loading
       loadAtlas();
 
       // Start fade-to-black for logged-in players ONLY

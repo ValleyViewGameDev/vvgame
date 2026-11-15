@@ -43,10 +43,25 @@
  * Frames are packed by MaxRects (best short side fit) and each sheet is cropped to the height
  * it uses, so GPU memory follows the art's real area (2026-10-30: 11 sheets of 2048 -> 7).
  *
+ * Sheets by USE, loaded per grid (BL-24, 2026-11-14). Loading every sheet up front held ~150 MB of
+ * GPU memory on a phone, yet one grid draws a few dozen of the ~800 frames. So the frames go two ways:
+ *   CORE    what can appear on any grid at any moment: ground tiles, edges, walls, overlays, the
+ *           painted glyphs, avatar parts, every small frame (a doober, a growing plot, an NPC's head
+ *           crop, a small emoji). Packed into 2048 px sheets that load at boot.
+ *   PAGES   everything else (buildings, trees, NPC figures, deco, big emoji, old player icons), on
+ *           PAGE_SIZE px pages packed by CO-OCCURRENCE: the layouts under game-server/layouts/gridLayouts
+ *           say which grids each frame appears on (plus one virtual grid per category a player can place
+ *           on a homestead), and a page is seeded with the most-used frame left and filled with the frames
+ *           whose grids best match the seed's (weighted Jaccard; a town counts most, it is visited most).
+ *           The client loads only the pages the grid it enters needs (AtlasTextures.prepareAtlasForGrid).
+ * Grouping only decides what loads together, never whether a frame exists: a frame on a page the grid
+ * did not predict is still served (getAtlasTexture awaits its page). The build prints the per-grid cost.
+ * Sheet files are named by content hash (sheets/<name>-<hash>.webp), so they can be cached forever
+ * (render.yaml); only the manifest world.json is revalidated.
+ *
  * Output (committed; Render's `npm run build` does not run this)
- *   public/assets/atlas/world-N.png, world-N.webp   the sheets
- *   public/assets/atlas/world-N.json                Pixi spritesheet JSON per sheet
- *   public/assets/atlas/world.json                  manifest: sheets, frame -> sheet index, source hash
+ *   public/assets/atlas/sheets/<core-N|page-N>-<hash>.{png,webp,json}   the sheets and their Pixi JSON
+ *   public/assets/atlas/world.json                  manifest: sheets (core or page), frame -> sheet index, source hash
  *
  * Usage
  *   node scripts/build-atlas.js            build (skips when nothing changed)
@@ -76,7 +91,19 @@ const RESOURCES_JSON = path.resolve(CLIENT_ROOT, '..', 'game-server', 'tuning', 
 const PLAYER_ICONS_JSON = path.join(CLIENT_ROOT, 'src', 'Authentication', 'PlayerIcons.json');
 const AVATAR_PARTS_JSON = path.resolve(CLIENT_ROOT, '..', 'game-server', 'tuning', 'avatarParts.json');
 
-const SHEET_SIZE = 2048;
+const SHEET_SIZE = 2048;            // a CORE sheet
+const PAGE_SIZE = Number(process.env.ATLAS_PAGE) || 1024;             // a PAGE: small, so a grid loads little it does not draw
+// a page seeded with a BIG frame (a 768 px building or figure) is wider, so two of them sit side by side
+// instead of each leaving a quarter of a 1024 page empty (the town is mostly big buildings)
+const BIG_PAGE = Number(process.env.ATLAS_BIG_PAGE) || 1552;
+const SHEETS_DIR = 'sheets';
+const LAYOUTS = path.resolve(CLIENT_ROOT, '..', 'game-server', 'layouts', 'gridLayouts');
+// what a player can place on a homestead: each is one virtual grid for the co-occurrence packing
+const PLACEABLE = ['crafting', 'station', 'deco', 'farmplot', 'pet', 'training', 'shop', 'trainingAndShop', 'farmhouse', 'source'];
+const CORE_NAMESPACES = ['tiles/', 'edges/', 'walls/', 'overlays/', 'icons/', 'avatar/'];
+const SMALL_CELL = 128;             // a frame this small or smaller is core wherever it is used
+const isCore = (item) => CORE_NAMESPACES.some((ns) => item.key.startsWith(ns))
+  || ((item.key.startsWith('resources/') || item.key.startsWith('emoji/')) && item.cell <= SMALL_CELL);
 const PADDING = 2;                 // transparent gutter inside each slot (stops linear-filter bleed)
 const BASE_CELL = 256;             // one tile's worth of art, enough for DPR 2 at the "closer" zoom (75 px)
 const OVERLAY_CELL = 128;
@@ -301,12 +328,10 @@ async function opaqueBox(buf) {
  * (`pad` on every side). Items go largest-side first; a box that fits no free rectangle opens a
  * new sheet. Returns sheets of placed boxes { ...item, bx, by } (box top-left).
  */
-function pack(items) {
-  const sorted = [...items].sort((a, b) => Math.max(b.bw, b.bh) - Math.max(a.bw, a.bh) || (b.bw * b.bh) - (a.bw * a.bh) || a.key.localeCompare(b.key));
-  const sheets = [];
-  const newSheet = () => { const sh = { index: sheets.length, free: [{ x: 0, y: 0, w: SHEET_SIZE, h: SHEET_SIZE }], frames: [], usedH: 0 }; sheets.push(sh); return sh; };
+const newSheet = (sheets, size, kind) => { const sh = { index: sheets.length, size, kind, free: [{ x: 0, y: 0, w: size, h: size }], frames: [], usedH: 0 }; sheets.push(sh); return sh; };
 
-  const place = (sh, w, h) => {
+/** MaxRects: put a w x h box on sheet `sh` (best short side fit); its top-left, or null when it does not fit. */
+function place(sh, w, h) {
     let best = null;
     for (const r of sh.free) {
       if (w > r.w || h > r.h) continue;
@@ -327,18 +352,107 @@ function pack(items) {
     // drop free rectangles contained in another
     sh.free = next.filter((a, i) => !next.some((b, j) => j !== i && a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h && (j < i || a.w !== b.w || a.h !== b.h || a.x !== b.x || a.y !== b.y)));
     return used;
-  };
+}
 
+function put(sheet, item, spot) {
+  sheet.frames.push({ ...item, bx: spot.x, by: spot.y });
+  sheet.usedH = Math.max(sheet.usedH, spot.y + item.bh);
+}
+
+/** The core frames: largest side first into SHEET_SIZE sheets, first sheet with room. */
+function packCore(items, sheets) {
+  const sorted = [...items].sort((a, b) => Math.max(b.bw, b.bh) - Math.max(a.bw, a.bh) || (b.bw * b.bh) - (a.bw * a.bh) || a.key.localeCompare(b.key));
+  const mine = [];
   for (const item of sorted) {
     let spot = null; let sheet = null;
-    for (const sh of sheets) { spot = place(sh, item.bw, item.bh); if (spot) { sheet = sh; break; } }
-    if (!spot) { sheet = newSheet(); spot = place(sheet, item.bw, item.bh); }
+    for (const sh of mine) { spot = place(sh, item.bw, item.bh); if (spot) { sheet = sh; break; } }
+    if (!spot) { sheet = newSheet(sheets, SHEET_SIZE, 'core'); mine.push(sheet); spot = place(sheet, item.bw, item.bh); }
     if (!spot) throw new Error(`${item.key} (${item.bw}x${item.bh}) does not fit a ${SHEET_SIZE} px sheet`);
-    sheet.frames.push({ ...item, bx: spot.x, by: spot.y });
-    sheet.usedH = Math.max(sheet.usedH, spot.y + item.bh);
+    put(sheet, item, spot);
   }
-  return sheets;
 }
+
+/**
+ * The paged frames, by co-occurrence: `uses` maps a frame key to the grids it appears on, `weight`
+ * says how much a grid counts. A page is seeded with the heaviest frame left, then offered every
+ * other frame that shares a grid with the seed, most similar first (weighted Jaccard of their
+ * grids), until nothing more fits; then the next page.
+ */
+function packPages(items, sheets, uses, weight) {
+  const W = (set) => { let t = 0; for (const g of set) t += weight(g); return t; };
+  const left = new Map(items.map((i) => [i.key, i]));
+  const heft = new Map(items.map((i) => [i.key, W(uses.get(i.key))]));
+  while (left.size) {
+    let seed = null;
+    for (const it of left.values()) {
+      const a = heft.get(it.key), b = seed && heft.get(seed.key);
+      if (!seed || a > b || (a === b && (it.bw * it.bh > seed.bw * seed.bh || (it.bw * it.bh === seed.bw * seed.bh && it.key < seed.key)))) seed = it;
+    }
+    const page = newSheet(sheets, Math.max(seed.bw, seed.bh) > PAGE_SIZE / 2 ? BIG_PAGE : PAGE_SIZE, 'page');
+    const spot = place(page, seed.bw, seed.bh);
+    if (!spot) throw new Error(`${seed.key} (${seed.bw}x${seed.bh}) does not fit a ${page.size} px page`);
+    put(page, seed, spot);
+    left.delete(seed.key);
+    const sg = uses.get(seed.key);
+    const ranked = [];
+    for (const it of left.values()) {
+      const g = uses.get(it.key);
+      let shared = 0;
+      for (const x of g) if (sg.has(x)) shared += weight(x);
+      if (!shared) continue;
+      const all = new Set([...g, ...sg]);
+      ranked.push({ it, score: shared / W(all) });
+    }
+    ranked.sort((a, b) => b.score - a.score || (b.it.bw * b.it.bh) - (a.it.bw * a.it.bh) || a.it.key.localeCompare(b.it.key));
+    for (const { it } of ranked) {
+      const at = place(page, it.bw, it.bh);
+      if (at) { put(page, it, at); left.delete(it.key); }
+    }
+  }
+}
+
+/** The frame keys a resource row draws: its file(s), or its emoji when it has no file. */
+function rowFrameKeys(r) {
+  const keys = [r.filename, r.blinkFile, ...String(r.artVariants || '').split(';').map((p) => p.split('=')[0].trim())].filter(Boolean).map((f) => `resources/${f}`);
+  if (!r.filename && looksLikeEmoji(r.symbol)) { const k = emojiKey(r.symbol); if (k) keys.push(`emoji/${k}`); }
+  return keys;
+}
+
+/**
+ * Which grids each frame appears on: every layout under gridLayouts (its resource grid and its
+ * resourceDistribution), a spawner bringing the NPC it spawns, plus one virtual grid per placeable
+ * category. Returns { uses: Map<frameKey, Set<gridId>>, grids: Map<gridId, Set<frameKey>> }.
+ */
+function gridUses() {
+  const raw = readJson(RESOURCES_JSON);
+  const rows = Array.isArray(raw) ? raw : (raw.resources || Object.values(raw));
+  const byKey = new Map(rows.filter((r) => r.layoutkey).map((r) => [r.layoutkey, r]));
+  const byType = new Map(rows.map((r) => [r.type, r]));
+  const grids = new Map();
+  const addGrid = (id, types) => {
+    for (const t of [...types]) { const r = byType.get(t); if (r && r.action === 'spawn' && byType.has(r.requires)) types.add(r.requires); }
+    const keys = new Set();
+    for (const t of types) for (const k of rowFrameKeys(byType.get(t))) keys.add(k);
+    grids.set(id, keys);
+  };
+  for (const dir of ['town', 'dungeon', 'homestead', 'miniTemplates', 'valleyFixedCoord']) {
+    const full = path.join(LAYOUTS, dir);
+    if (!fs.existsSync(full)) continue;
+    for (const f of fs.readdirSync(full).filter((x) => x.endsWith('.json'))) {
+      let d; try { d = readJson(path.join(full, f)); } catch (e) { continue; }
+      const types = new Set();
+      for (const row of Array.isArray(d.resources) ? d.resources : []) for (const k of row || []) { const r = byKey.get(k); if (r) types.add(r.type); }
+      for (const [t, n] of Object.entries(d.resourceDistribution || {})) if (n && byType.has(t)) types.add(t);
+      addGrid(`${dir}/${f}`, types);
+    }
+  }
+  for (const c of PLACEABLE) addGrid(`placeable/${c}`, new Set(rows.filter((r) => r.category === c).map((r) => r.type)));
+  const uses = new Map();
+  for (const [id, keys] of grids) for (const k of keys) { if (!uses.has(k)) uses.set(k, new Set()); uses.get(k).add(id); }
+  return { uses, grids };
+}
+// how much a grid counts in the packing: roughly how often it is entered
+const gridWeight = (id) => (id.startsWith('town/') ? 400 : id.startsWith('homestead/') || id.startsWith('placeable/') ? 100 : id.startsWith('dungeon/') ? 20 : 1);
 
 function sourceHash(items) {
   const h = crypto.createHash('sha1');
@@ -346,7 +460,7 @@ function sourceHash(items) {
     const stat = fs.statSync(item.src);
     h.update(`${item.key}:${item.cell}:${stat.size}:${Math.floor(stat.mtimeMs)}\n`);
   }
-  h.update(`v9:trim:maxrects:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}:${TILE_PAD}`);
+  h.update(`v10:trim:maxrects:paged:${SHEET_SIZE}:${PAGE_SIZE}:${BIG_PAGE}:${SMALL_CELL}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}:${TILE_PAD}`);
   return h.digest('hex');
 }
 
@@ -393,14 +507,24 @@ async function main() {
     const fw = trim ? trim.w : px; const fh = trim ? trim.h : px;
     rastered.push({ ...item, pad, px, buf, trim, fw, fh, bw: fw + 2 * pad, bh: fh + 2 * pad });
   }
-  const sheets = pack(rastered);
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-  for (const f of fs.readdirSync(OUT_DIR)) if (/^world-\d+\.(png|webp|json)$/.test(f)) fs.unlinkSync(path.join(OUT_DIR, f));
+  const { uses, grids } = gridUses();
+  const sheets = [];
+  packCore(rastered.filter(isCore), sheets);
+  const paged = rastered.filter((i) => !isCore(i));
+  for (const i of paged) if (!uses.has(i.key)) uses.set(i.key, new Set(['rare'])); // on no grid (player icons, story art): together
+  packPages(paged, sheets, uses, gridWeight);
+  const sheetsDir = path.join(OUT_DIR, SHEETS_DIR);
+  fs.mkdirSync(sheetsDir, { recursive: true });
+  for (const f of fs.readdirSync(OUT_DIR)) if (/^world-\d+\.(png|webp|json)$/.test(f)) fs.unlinkSync(path.join(OUT_DIR, f)); // the pre-BL-24 names
+  for (const f of fs.readdirSync(sheetsDir)) fs.unlinkSync(path.join(sheetsDir, f));
+  const shortHash = (buf) => crypto.createHash('sha1').update(buf).digest('hex').slice(0, 10);
 
-  const manifest = { version: 1, sourceHash: hash, sheetSize: SHEET_SIZE, sheets: [], frames: {} };
+  const manifest = { version: 2, sourceHash: hash, sheetSize: SHEET_SIZE, pageSize: PAGE_SIZE, sheets: [], frames: {} };
+  let coreN = 0, pageN = 0;
 
   for (const sheet of sheets) {
-    const sheetH = Math.min(SHEET_SIZE, Math.ceil(sheet.usedH / 16) * 16); // cropped to what it uses
+    const sheetW = sheet.size;
+    const sheetH = Math.min(sheet.size, Math.ceil(sheet.usedH / 16) * 16); // cropped to what it uses
     const composites = [];
     for (const frame of sheet.frames) {
       frame.x = frame.bx + frame.pad;
@@ -418,14 +542,14 @@ async function main() {
       manifest.frames[frame.key] = sheet.index;
     }
     const base = sharp({
-      create: { width: SHEET_SIZE, height: sheetH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+      create: { width: sheetW, height: sheetH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
     }).composite(composites);
-    const pngName = `world-${sheet.index}.png`;
-    const webpName = `world-${sheet.index}.webp`;
-    const jsonName = `world-${sheet.index}.json`;
     const png = await base.clone().png({ compressionLevel: 9, palette: false }).toBuffer();
-    fs.writeFileSync(path.join(OUT_DIR, pngName), png);
     const webp = await sharp(png).webp({ quality: WEBP_QUALITY, alphaQuality: 100, effort: 6 }).toBuffer();
+    const stem = sheet.kind === 'core' ? `core-${coreN++}` : `page-${pageN++}`;
+    const pngName = `${SHEETS_DIR}/${stem}-${shortHash(png)}.png`;
+    const webpName = `${SHEETS_DIR}/${stem}-${shortHash(webp)}.webp`;
+    fs.writeFileSync(path.join(OUT_DIR, pngName), png);
     fs.writeFileSync(path.join(OUT_DIR, webpName), webp);
 
     // Pixi 7 spritesheet JSON (TexturePacker "hash" format); a trimmed frame keeps its full
@@ -442,15 +566,37 @@ async function main() {
     }
     const sheetJson = {
       frames,
-      meta: { app: 'vvgame build-atlas', version: '1', image: pngName, format: 'RGBA8888', size: { w: SHEET_SIZE, h: sheetH }, scale: '1' },
+      meta: { app: 'vvgame build-atlas', version: '1', image: path.basename(pngName), format: 'RGBA8888', size: { w: sheetW, h: sheetH }, scale: '1' },
     };
-    fs.writeFileSync(path.join(OUT_DIR, jsonName), JSON.stringify(sheetJson));
-    manifest.sheets.push({ json: jsonName, png: pngName, webp: webpName, frames: sheet.frames.length });
-    console.log(`  ${pngName}: ${SHEET_SIZE}x${sheetH}, ${sheet.frames.length} frames, png ${(png.length / 1024).toFixed(0)} KB, webp ${(webp.length / 1024).toFixed(0)} KB`);
+    const jsonText = JSON.stringify(sheetJson);
+    const jsonName = `${SHEETS_DIR}/${stem}-${shortHash(jsonText)}.json`;
+    fs.writeFileSync(path.join(OUT_DIR, jsonName), jsonText);
+    manifest.sheets.push({ json: jsonName, png: pngName, webp: webpName, core: sheet.kind === 'core', w: sheetW, h: sheetH, frames: sheet.frames.length });
+    console.log(`  ${stem}: ${sheetW}x${sheetH}, ${sheet.frames.length} frames, png ${(png.length / 1024).toFixed(0)} KB, webp ${(webp.length / 1024).toFixed(0)} KB`);
   }
 
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
   console.log(`Done in ${((Date.now() - t0) / 1000).toFixed(1)} s: ${sheets.length} sheets, ${items.length} frames -> ${path.relative(CLIENT_ROOT, OUT_DIR)}/`);
+  report(manifest, grids);
+}
+
+/** What a grid costs in GPU memory: the core sheets plus the pages its frames are on (4 bytes a pixel). */
+function report(manifest, grids) {
+  const mb = (i) => (manifest.sheets[i].w * manifest.sheets[i].h * 4) / 1e6;
+  const core = manifest.sheets.map((s, i) => (s.core ? mb(i) : 0)).reduce((a, b) => a + b, 0);
+  const all = manifest.sheets.map((s, i) => mb(i)).reduce((a, b) => a + b, 0);
+  const rows = [];
+  for (const [id, keys] of grids) {
+    if (id.startsWith('placeable/')) continue;
+    const pages = new Set([...keys].map((k) => manifest.frames[k]).filter((i) => i !== undefined && !manifest.sheets[i].core));
+    rows.push({ id, pages: pages.size, mb: [...pages].reduce((t, i) => t + mb(i), 0) });
+  }
+  rows.sort((a, b) => a.mb - b.mb);
+  const at = (q) => rows[Math.min(rows.length - 1, Math.floor(rows.length * q))];
+  const town = rows.filter((r) => r.id.startsWith('town/'));
+  console.log(`GPU memory: everything ${all.toFixed(0)} MB; core ${core.toFixed(0)} MB, always loaded; a grid adds its pages:`
+    + ` median ${at(0.5).mb.toFixed(0)} MB (${at(0.5).pages} pages), p90 ${at(0.9).mb.toFixed(0)} MB, max ${rows[rows.length - 1].mb.toFixed(0)} MB (${rows[rows.length - 1].id});`
+    + ` the town ${town.length ? Math.max(...town.map((r) => r.mb)).toFixed(0) : '?'} MB.`);
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });

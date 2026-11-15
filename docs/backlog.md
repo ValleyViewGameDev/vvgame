@@ -11,8 +11,6 @@ item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
 
 - **BL-2.** Real session auth: built 2026-11-11 (signed session tokens); left: switch
   enforcement on (`SESSION_ENFORCE=on` on Render) once the new client is live.
-- **BL-24.** Optimize Sprite Sheets: all nine atlas sheets load before the first grid (~9.4 MB,
-  ~150 MB of GPU memory on phones); group them by where art is used and load per grid.
 - **BL-25.** Test a season reset end to end before launch (it relocates every player and
   rewrites every grid, and has not run since the single-player refactor).
 
@@ -92,6 +90,15 @@ attack with rigged arms (the Ogre swings a club), the Coyote lurches, the Spider
 fliers hover and flap, and the Ogre's leap crouches from the legs. What was left of BL-27, the
 player's own lunge, is part of BL-23 (`docs/equipment-plan.md` §3.4).
 
+BL-24 (optimize the sprite sheets, a launch blocker) closed 2026-11-14: the atlas is grouped by use
+and loaded per grid (`game-client/scripts/build-atlas.js`, `Render/PixiRenderer/AtlasTextures.js`;
+CLAUDE.md, the atlas paragraph). Core sheets 35 MB of GPU memory, always loaded; a grid adds its
+pages, median 14 MB, the town 55 MB (was every sheet, ~150 MB, before the first grid). Not done,
+by choice: the 0.75x sheet set for small screens (measure on an iPhone first), and releasing a page's
+decoded IMAGE (only its GPU copy is released; Pixi uploads it again if it is drawn). The cache rule
+for `/assets/atlas/sheets/*` is in `render.yaml`; if the client service is not Blueprint-managed, add
+it in the Render dashboard (Headers): `Cache-Control: public, max-age=31536000, immutable`.
+
 BL-29 (four Dragons with no room for their 3 x 3 body) closed 2026-11-14: the trees were cleared
 round each one in the valley layouts, the Dragons left where they stand (owner: "don't move the
 dragons"). In `valleyFixedCoord/1012274.json` (54,59) and `1013320.json` (6,31 / 5,37 / 11,44)
@@ -154,49 +161,6 @@ piece, the guard and a slash) for the owner to approve. The player's body move i
 of each weapon category's attack clip (`CombatFX.playerAttack`), so the old "review the combat
 animations" item (BL-27) has no player half left. The feed exists: `equipFor` / `lookFor` in
 `game-client/src/Avatar/avatarLook.js` read `settings.equippedWeapon` and the rows' `avatarHand`.
-
-### BL-24: Optimize Sprite Sheets (LAUNCH BLOCKER)
-
-Added 2026-11-10. Launch blocker (owner 2026-11-10).
-
-**Problem.** `AtlasTextures.loadSheets` loads all nine atlas sheets (2048 x 2048 each, ~9.4 MB
-of WebP, 727 frames after the 2026-11-10 rebuild) before the first grid draws. The real cost is
-memory: ~16 MB of GPU memory per decoded sheet, ~150 MB held for the whole session, the kind of
-load that gets an iOS Safari tab killed (the audience is iOS-heavy). Loading fewer sheets does
-not help today because `scripts/build-atlas.js` packs by SIZE, not by use: town buildings,
-valley trees, NPC figures and pickups are spread over sheets 0-8 and the ground tiles share
-sheet 7 with the emoji, so any grid touches 7-8 of the 9. Constraint (owner): no missing icons
-that visibly lazy-load (the speech-bubble fallback glyphs of 2026-11-10 were exactly that).
-
-**Plan.**
-1. Group sheets by use (build script only): a CORE sheet always loaded (ground tiles, edges,
-   walls/fences, overlays, the `icons/` glyphs, NPC head crops, doobers, the avatar parts, the
-   conversation and topic emoji: everything that can appear on any grid at any moment), AREA
-   sheets (town-only, valley-only, dungeon-only, homestead + everything craftable/placeable,
-   derived from `layouts/gridLayouts` and resources.json) and a RARE sheet (one-off story art,
-   seasonal).
-2. Load per grid (client): the manifest (`world.json`) already maps every frame to its sheet.
-   On a grid change (`changePlayerLocation`, the one path) list the frames of what is actually
-   on the grid (resources, NPCs, the player) and await their sheets behind the existing
-   transition fade, so nothing on screen arrives late; after the first frame, idle-load the rest
-   one at a time; the edge prefetch (`maybePrefetchAcrossEdge`) also prefetches the next grid's
-   sheets. A frame still asked for before its sheet is in awaits that sheet (as
-   `getAtlasTexture` already can) rather than drawing a fallback glyph.
-3. Optionally release area sheets for areas the player has left (back to ~50-70 MB on phones);
-   decide after measuring on an iPhone.
-
-**Safety.** `check:atlas` fails when a board-visible frame is in no sheet; a dev hook reports
-time-to-first-grid and GPU memory before and after; ship in two steps: the regrouping first
-with everything still loaded up front (no visible change, proves the groups), then turn on
-per-grid loading and the idle loader.
-
-**Cheap wins either way.** Content-hash the sheet file names and serve `/assets/atlas/*` with
-`Cache-Control: public, max-age=31536000, immutable` in `render.yaml` (today only `/static/*`
-has it). A 0.75x sheet set for small or low-memory screens roughly halves GPU memory with no
-visible loss at board zoom.
-
-**Size.** About a day: half for the regrouping in `build-atlas.js`, half for the awaiting, idle
-loading and release in `AtlasTextures.js` and the grid change.
 
 ### BL-25: Test a season reset (LAUNCH BLOCKER)
 

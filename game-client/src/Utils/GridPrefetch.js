@@ -1,5 +1,7 @@
 import axios from 'axios';
 import API_BASE from '../config';
+import { loadMasterResources } from './TuningManager';
+import { warmAtlasForGrid, gridTypes } from '../Render/PixiRenderer/AtlasTextures';
 
 /**
  * Neighbour-grid prefetch cache (docs/phase-3-contract.md §4.3).
@@ -57,6 +59,8 @@ export function prefetchNeighbour(playerId, gridCoord) {
       };
       cache.set(key, entry);
       refused.delete(key);
+      // its atlas pages too, so the crossing does not wait on them (AtlasTextures.js, BL-24)
+      loadMasterResources().then((master) => warmAtlasForGrid(gridTypes(grid.resources, grid.NPCsInGrid?.npcs || grid.NPCsInGrid), master)).catch(() => {});
       return entry;
     })
     .catch((error) => {

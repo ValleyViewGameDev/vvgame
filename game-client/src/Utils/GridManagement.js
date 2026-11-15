@@ -18,6 +18,7 @@ import soundManager from '../Sound/SoundManager';
 import { loadMasterResources, loadMasterTrophies, loadGlobalTuning } from './TuningManager';
 import { worldMapCell } from './WorldMap';
 import { canViewHomesteadSnapshots, isViewOnly, enterViewOnly, leaveViewOnly } from './viewOnly';
+import { prepareAtlasForGrid, gridTypes } from '../Render/PixiRenderer/AtlasTextures';
 
 export const updateGridResource = async (
   gridId,
@@ -237,6 +238,10 @@ export async function seedGridFromBundle(grid, player, opts = {}) {
   const npcData = grid.NPCsInGrid && typeof grid.NPCsInGrid === 'object' && 'npcs' in grid.NPCsInGrid
     ? grid.NPCsInGrid
     : { npcs: grid.NPCsInGrid || {}, lastUpdated: grid.NPCsInGridLastUpdated || 0 };
+  // The atlas pages this grid draws from (buildings, trees, NPC figures: AtlasTextures.js, BL-24),
+  // loaded before the grid is shown so nothing pops in after the fade; pages it does not use are released
+  const ownHomestead = grid.gridType === 'homestead' && String(grid.ownerId?._id ?? grid.ownerId ?? '') === playerId;
+  await prepareAtlasForGrid(gridTypes(GlobalGridStateTilesAndResources.getResources(), npcData.npcs), masterResources, { homestead: ownHomestead });
   await NPCsInGridManager.initializeFromData(String(grid._id), npcData);
   // The PC record comes from the Player (location.x/y, hp, maxhp, base stats + powers), not the bundle
   await playersInGridManager.initializeForPlayer(String(grid._id), { ...player, _id: playerId });
