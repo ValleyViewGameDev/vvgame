@@ -20,7 +20,7 @@ import { GridCanvas } from '../layouts/GridCanvas.js';
 
 const DIRS = ['valleyFixedCoord', 'town', 'dungeon', 'homestead', 'miniTemplates'];
 const GRID_TYPES = ['valley0', 'valley1', 'valley2', 'valley3', 'town', 'homestead', 'dungeon'];
-const SHORTCUT_HELP = 'Click: select. Letter keys paint the tile with the brush (g grass, d dirt, s slate, w water, p pavement, l lava, n sand, o snow, x cobblestone, k step stones, y dungeon, z moss, c clay, v/u tbd). Delete: remove resource, else clear tile. Arrows move. ⌘C/⌘V copy/paste resource. ⌘Z / ⇧⌘Z undo/redo. ⌘S save.';
+const SHORTCUT_HELP = 'Click: select. Letter keys paint the tile with the brush (g grass, d dirt, s slate, w water, p pavement, l lava, n sand, o snow, x cobblestone, k step stones, y dungeon, z moss, c clay, v/u tbd). Delete: remove resource, else clear tile (Tree Thinning on: Oak/Pine/Palm Trees only). Arrows move. ⌘C/⌘V copy/paste resource. ⌘Z / ⇧⌘Z undo/redo. ⌘S save.';
 
 const T = {
   idx: null, canvas: null, history: new History(50),
@@ -28,7 +28,7 @@ const T = {
   state: null, loaded: null,         // state = { grid, tileDistribution, resourceDistribution, enemiesDistribution }; loaded = snapshot at load
   selected: null, copied: null,
   tileSize: 14, art: true, paintedTiles: true, resFilter: { category: '', group: '' }, brush: { size: 1, shape: 'square', scatter: 20 }, clump: { ...M.DEFAULT_CLUMP },
-  deleteTypes: Object.fromEntries(M.TILE_KEYS.map((k) => [k, true])),
+  deleteTypes: Object.fromEntries(M.TILE_KEYS.map((k) => [k, true])), thinTrees: false,
   templates: [], miniTemplates: [], dirs: {},
   els: {},
 };
@@ -128,7 +128,12 @@ function onKey(e) {
     return;
   }
   const cells = () => M.brushTiles(row, col, T.brush.size, T.brush.shape, T.brush.scatter);
-  if (key === 'backspace' || key === 'delete') { e.preventDefault(); commit({ grid: M.eraseCells(T.state.grid, cells()) }); return; }
+  if (key === 'backspace' || key === 'delete') {
+    e.preventDefault();
+    // Tree Thinning: the brush's cells lose only their Oak / Pine / Palm Trees, never a tile
+    commit({ grid: T.thinTrees ? M.thinTrees(T.state.grid, cells()) : M.eraseCells(T.state.grid, cells()) });
+    return;
+  }
   const tile = T.idx.tileByType.get(key);
   if (tile) { e.preventDefault(); commit({ grid: M.paintType(T.state.grid, cells(), tile.layoutkey) }); }
 }
@@ -262,7 +267,12 @@ function renderTools() {
 
   // selected tile
   T.els.selectedBox = el('div');
-  t.appendChild(section('Selected tile', [T.els.selectedBox]));
+  t.appendChild(section('Selected tile', [
+    T.els.selectedBox,
+    el('label', { class: 'row', title: `While checked, Delete (with the brush's size and shape) removes only ${M.THIN_TREES.join(', ')}; no other resource and no tile` }, [
+      el('input', { type: 'checkbox', checked: !!T.thinTrees, onchange: (e) => { T.thinTrees = e.target.checked; } }), ' Tree Thinning (DEL key)',
+    ]),
+  ]));
   renderSelectedTile();
 
   // templates + quick generate

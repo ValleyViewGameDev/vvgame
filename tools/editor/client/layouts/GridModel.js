@@ -104,6 +104,13 @@ export function eraseCells(grid, cells) {
   for (const { row, col } of cells) { if (g[row][col].resource) g[row][col].resource = ''; else g[row][col].type = '**'; }
   return g;
 }
+/** Tree Thinning (owner 2026-11-16): the Delete key removes only these trees; tiles stay. */
+export const THIN_TREES = ['Oak Tree', 'Pine Tree', 'Palm Tree'];
+export function thinTrees(grid, cells) {
+  const g = cloneGrid(grid);
+  for (const { row, col } of cells) { if (THIN_TREES.includes(g[row][col].resource)) g[row][col].resource = ''; }
+  return g;
+}
 export function setResource(grid, row, col, resourceType) {
   const g = cloneGrid(grid);
   g[row][col].resource = resourceType || '';
