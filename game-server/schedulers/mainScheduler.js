@@ -13,6 +13,7 @@ const dungeonScheduler = require("./dungeonScheduler");
 // Add more logic-only schedulers as needed...
 
 // Helper: Advance to the next phase for a given system
+const { nextSeason, seasonLengthMs } = require('../utils/seasonPlan');
 const getNextPhaseData = (currentPhase, phases) => {
   const keys = Object.keys(phases);
   const currentIndex = keys.indexOf(currentPhase);
@@ -104,7 +105,11 @@ async function scheduleTimedFeature(frontierOrId, featureKey, tuningData) {
       }
       
       try {
-        const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
+        const { nextPhase, durationMs: phaseMs } = getNextPhaseData(phase, tuningData.phases);
+        // a new season's length can be its own (globalTuning.seasons.schedule, utils/seasonPlan.js)
+        const durationMs = featureKey === "seasons" && nextPhase === "onSeason"
+          ? seasonLengthMs((frontier.seasons?.seasonNumber || 0) + 1)
+          : phaseMs;
         const startTime = new Date();
         const nextEndTime = new Date(Date.now() + durationMs);
 
@@ -113,12 +118,8 @@ async function scheduleTimedFeature(frontierOrId, featureKey, tuningData) {
           console.log("🕓 Updating phase to offSeason BEFORE running season logic (for client modal)...");
 
           // Calculate next season type for accurate modal display
-          const seasons = require('../tuning/seasons.json');
           const currentSeasonType = frontier.seasons?.seasonType || "Spring";
-          const currentIndex = seasons.findIndex(s => s.seasonType === currentSeasonType);
-          const nextSeasonType = currentIndex !== -1
-            ? seasons[(currentIndex + 1) % seasons.length].seasonType
-            : "Spring";
+          const { seasonType: nextSeasonType } = nextSeason(currentSeasonType, frontier.seasons?.seasonNumber);
 
           console.log(`🌸 Transitioning from ${currentSeasonType} to ${nextSeasonType}`);
 

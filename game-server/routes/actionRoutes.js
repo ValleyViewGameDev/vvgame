@@ -1,4 +1,5 @@
 const { footprintOf, recordFootprint } = require('../utils/footprint');
+const { noBuildReason, cellsOf } = require('../utils/buildRules');
 /**
  * Action routes (docs/refactor-plan.md Phase 5, "Transaction hardening"; started 2026-11-04).
  *
@@ -1333,6 +1334,7 @@ router.post('/action/place', async (req, res) => {
     if (!econ.growsInRegion(def, grid.region)) return answer(403, `region-${def.growregion}`);
 
     const isNPC = def.category === 'npc'; // a pet is a board resource (its panel works on its tile)
+    { const fp = footprintOf(def); const why = noBuildReason(grid, cellsOf(x, y, fp.w, fp.h)); if (why) return answer(403, why); } // utils/buildRules.js
     const onGrid = gridResourceManager.getResources(grid) || [];
     if (!isNPC) {
       const taken = new Set();
@@ -1396,6 +1398,7 @@ router.post('/action/plant', async (req, res) => {
     const answer = (status, reason) => fail(res, status, reason, { player: econ.playerDelta(player), seq: econ.nextSeq() });
     const def = econ.resourceDef(type);
     if (!def || def.category !== 'farmplot') return answer(400, 'not-plantable');
+    { const why = noBuildReason(grid, [{ x, y }]); if (why) return answer(403, why); } // utils/buildRules.js
     if ((gridResourceManager.getResources(grid) || []).some((r) => r && r.x === x && r.y === y)) return answer(409, 'occupied');
     const tile = gridTileManager.getTile(grid, x, y);
     if (!tile || def[`validon${tile}`] !== true) return answer(409, 'bad-tile');
@@ -1437,6 +1440,7 @@ router.post('/action/terraform', async (req, res) => {
     if (!econ.ownsGrid(grid, player)) return fail(res, 403, 'not-your-grid');
     const def = econ.resourceDef(tileType);
     if (!def || def.category !== 'tile') return fail(res, 400, 'not-a-tile');
+    { const why = noBuildReason(grid, [{ x, y }]); if (why) return fail(res, 403, why); } // utils/buildRules.js
     const dev = isDeveloper(player.username);
     if (def.requires === 'devonly' && !dev) return fail(res, 403, 'devonly');
     if (def.requires && def.requires !== 'devonly' && !econ.hasSkillOrPower(player, def.requires)) return fail(res, 403, `needs-${def.requires}`);
@@ -1813,7 +1817,7 @@ router.post('/action/respawn', async (req, res) => {
     const { player } = ctx;
     const combat = globalTuning.combat || {};
     const maxhp = econ.derivedMaxhp(player);
-    const respawnHp = player.accountStatus === 'Gold' ? Math.floor(maxhp * (combat.respawnHpGoldFraction ?? 0.5)) : (combat.respawnHpFree ?? 40);
+    const respawnHp = combat.respawnHpFree ?? 40;
     player.backpack = (player.backpack || []).filter((i) => i && (i.type === 'Tent' || i.type === 'Boat'));
     player.markModified('backpack');
     player.hp = Math.min(respawnHp, maxhp);

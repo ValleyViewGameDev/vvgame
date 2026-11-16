@@ -1,34 +1,45 @@
-const axios = require('axios');
+/**
+ * The season change (docs/season-reset.md, owner 2026-11-16). In order:
+ *   1. every player goes home
+ *   2. snow or melt on homesteads and the template grids (player copies catch up on entry)
+ *   3. every player's Valley3 copy is deleted: the next entry builds a fresh one from the template
+ *   4. the Quest for Hope begins again for every player (utils/hopeReset.js)
+ * Town and Valley1/2 copies are NOT rebuilt: on their first entry of the new season
+ * (gridResolver.applySeasonCatchUp) Wood left lying is cleared, the Quest for Hope's guardians come
+ * back and the snow follows; whatever players built there stays. No other quest is touched.
+ *
+ * `{ dryRun: true }` (scripts/season-reset-dry-run.js) writes nothing and returns what it would do.
+ */
 const Frontier = require("../models/frontier");
-const Settlement = require("../models/settlement");
 const Grid = require("../models/grid");
 const Player = require("../models/player");
-const globalTuning = require("../tuning/globalTuning.json");
-const masterResources = require("../tuning/resources.json");
-const fs = require("fs");
-const shuffle = (array) => array.sort(() => Math.random() - 0.5);
 const { relocatePlayersHome } = require('./relocatePlayersHome');
-  
+const { hopeItems, hopeQuestTitles, hopeResetFor } = require('./hopeReset');
 
-async function seasonReset(frontierId, nextSeasonType = null) {
+async function seasonReset(frontierId, nextSeasonType = null, { dryRun = false } = {}) {
+    const report = { dryRun, nextSeasonType, relocated: 0, snowGrids: 0, valley3CopiesDeleted: 0, hopeReset: { players: 0, artifactsTaken: 0, questsRemoved: 0, oracleBack: 0 } };
     try {
       const startTime = Date.now();
       console.group("↩️↩️↩️↩️↩️ STARTING seasonReset for frontier: ",frontierId);
 
       const frontier = await Frontier.findById(frontierId);
       if (!frontier) return console.error("❌ Frontier not found");
-      const settlements = await Settlement.find({ frontierId });
       const currentSeasonNumber = frontier.seasons?.seasonNumber;
       const allPlayers = await Player.find({ frontierId });
   
       // ✅ STEP 1: Relocate players back home
       console.log("🏠 STEP 1: Invoking relocatePlayersHome with frontierId:", frontierId);
-      const relocatedCount = await relocatePlayersHome(frontierId);
+      const relocatedCount = dryRun
+        ? allPlayers.filter((p) => p.gridId && String(p.location?.g || '') !== String(p.gridId)).length
+        : await relocatePlayersHome(frontierId);
+      report.relocated = relocatedCount;
       console.log("✅ relocatePlayersHome completed. Players relocated:", relocatedCount);
 
       // 🔁 Update the seasonlog
       console.log("Updating seasonlog...");
-      if (currentSeasonNumber !== undefined) {
+      if (dryRun) {
+        // nothing written
+      } else if (currentSeasonNumber !== undefined) {
         const logIndex = frontier.seasonlog?.findIndex(log => log.seasonnumber === currentSeasonNumber);
         if (logIndex !== -1) {
           frontier.seasonlog[logIndex].playersrelocated = relocatedCount;
@@ -43,8 +54,8 @@ async function seasonReset(frontierId, nextSeasonType = null) {
         console.warn("⚠️ Current season number missing; cannot update playersrelocated in log.");
       }
 
-// STEP 2 (tree top-up on valleys) is now applied lazily per player copy on next entry
-// (utils/gridResolver.applySeasonCatchUp), keyed on Grid.seasonNumber vs frontier.seasons.seasonNumber.
+// Valley1/2 and Town copies catch up lazily on their next entry (utils/gridResolver.applySeasonCatchUp),
+// keyed on Grid.seasonNumber vs frontier.seasons.seasonNumber.
 
       // ✅ STEP 2.5: Apply seasonal tile changes (snow/melt) based on new season
       if (nextSeasonType) {
@@ -104,9 +115,10 @@ async function seasonReset(frontierId, nextSeasonType = null) {
 
                 // Save if modified
                 if (gridModified) {
-                  const encodedTiles = TileEncoder.encode(tiles);
-                  grid.tiles = encodedTiles;
-                  await grid.save();
+                  if (!dryRun) {
+                    grid.tiles = TileEncoder.encode(tiles);
+                    await grid.save();
+                  }
 
                   tilesModifiedCount += gridTileCount;
                   gridsModifiedCount++;
@@ -126,61 +138,52 @@ async function seasonReset(frontierId, nextSeasonType = null) {
             }
           }
 
+          report.snowGrids = gridsModifiedCount;
           console.log(`✅ Seasonal tile changes complete. Modified ${tilesModifiedCount} tiles across ${gridsModifiedCount}/${allGridsForSeasonalChange.length} grids.`);
         }
       }
 
  
-// ✅ STEP 3: Reset Gold status
+// ✅ STEP 2.75: Valley3 is rebuilt for everyone (docs/season-reset.md): every player copy goes,
+// and the next entry makes a fresh one from the template. Players were sent home in step 1.
 
-      console.log("🔁 STEP 3: Resetting Gold Status...");
-      const goldPlayersResetCount = allPlayers.filter(p => p.accountStatus === "Gold").length;
+      const valley3Copies = { frontierId, gridType: 'valley3', ownerId: { $ne: null }, isTemplate: { $ne: true } };
+      report.valley3CopiesDeleted = dryRun
+        ? await Grid.countDocuments(valley3Copies)
+        : (await Grid.deleteMany(valley3Copies)).deletedCount;
+      console.log(`🏔️ STEP 2.75: ${dryRun ? 'would delete' : 'deleted'} ${report.valley3CopiesDeleted} Valley3 copies`);
+      if (!dryRun && currentSeasonNumber !== undefined) {
+        await Frontier.updateOne(
+          { _id: frontierId, 'seasonlog.seasonnumber': currentSeasonNumber },
+          { $set: { 'seasonlog.$.gridsreset': report.valley3CopiesDeleted } }
+        );
+      }
 
-      if (goldPlayersResetCount > 0) {
-        console.log(`🔄 Resetting ${goldPlayersResetCount} Gold players to Free...`);
+// ✅ STEP 4: The Quest for Hope begins again (utils/hopeReset.js). No other quest is touched.
 
-        // Batch update all Gold players at once
-        const bulkOps = allPlayers
-          .filter(player => player.accountStatus === "Gold")
-          .map(player => ({
-            updateOne: {
-              filter: { _id: player._id },
-              update: { $set: { accountStatus: "Free" } }
-            }
-          }));
-
-        if (bulkOps.length > 0) {
-          const result = await Player.bulkWrite(bulkOps);
-          console.log(`✅ Reset ${result.modifiedCount} players from Gold to Free`);
-        }
+      console.log("🔁 STEP 4: Resetting the Quest for Hope...");
+      const items = hopeItems();
+      const titles = hopeQuestTitles();
+      const hopeOps = [];
+      for (const player of allPlayers) {
+        const { update, summary } = hopeResetFor(player.toObject(), items, titles);
+        if (!update) continue;
+        hopeOps.push({ updateOne: { filter: { _id: player._id }, update } });
+        report.hopeReset.players++;
+        report.hopeReset.artifactsTaken += summary.taken.length;
+        report.hopeReset.questsRemoved += summary.questsRemoved;
+        if (summary.returned) report.hopeReset.oracleBack++;
+      }
+      if (hopeOps.length && !dryRun) {
+        const hopeResult = await Player.bulkWrite(hopeOps);
+        console.log(`✅ Quest for Hope reset for ${hopeResult.modifiedCount} players`);
       } else {
-        console.log("ℹ️ No Gold players to reset");
+        console.log(`ℹ️ Quest for Hope: ${hopeOps.length} players ${dryRun ? 'would be' : 'were'} reset`);
       }
 
-// ✅ STEP 4: Wipe active and completed quests
-
-      console.log("🔁 STEP 4: Wiping quests...");
-      console.log(`🧹 Wiping quests for ${allPlayers.length} players...`);
-
-      // Batch update all players' quests at once
-      const questBulkOps = allPlayers.map(player => ({
-        updateOne: {
-          filter: { _id: player._id },
-          update: {
-            $set: {
-              activeQuests: [],
-              completedQuests: []
-            }
-          }
-        }
-      }));
-
-      if (questBulkOps.length > 0) {
-        const questResult = await Player.bulkWrite(questBulkOps);
-        console.log(`✅ Wiped quests for ${questResult.modifiedCount} players`);
-      }
-
-      console.log(`⏱️ Total seasonReset (including STEP 7) took ${Date.now() - startTime}ms`);
+      console.log(`⏱️ Total seasonReset took ${Date.now() - startTime}ms`);
+      console.groupEnd();
+      return report;
 
   } catch (error) {
     console.error("❌ Error in seasonReset:", error);

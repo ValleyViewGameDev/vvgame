@@ -142,7 +142,7 @@ Tabs and the endpoints each one reads:
 | Monetization | `/api/purchases`, `/api/sub-dau` | `purchases`, `players.accountStatus`, `analytics_activity` |
 | Demographics | `/api/demographics`, `/api/language` | `players.ftueFeedback`, `players.client_info`, `players.language`, `analytics_activity` |
 
-Schema mapping from House: subscriber = `accountStatus === 'Gold'`; device,
+Schema mapping from House: subscriber = `accountStatus === 'Gold'` (the Gold Pass and `accountStatus` were removed 2026-11-16; there are no subscribers now); device,
 browser, OS, timezone, screen and connection = `ftueFeedback.*` (captured at
 signup, present on most accounts); acquisition = `client_info.acquisition`
 (new accounts only; everything older reads Unknown); language =

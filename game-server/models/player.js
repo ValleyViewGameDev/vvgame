@@ -22,7 +22,6 @@ const playerSchema = new mongoose.Schema({
   welcome_email_sent_at: { type: Date, default: null },     // atomic once-only stamp (utils/emailNotifications.js)
   email_prompt_seen_at: { type: Date, default: null },      // the in-game ask is shown once
   survey_prompt_seen_at: { type: Date, default: null },     // the survey nudge (SurveyPromptModal) is shown once
-  subscription_thanks_email_sent_at: { type: Date, default: null },
   // Google sign-in (routes/auth.js /login-google): one account per Google id; partial index so the nulls don't collide
   googleId: { type: String, default: null, index: { unique: true, partialFilterExpression: { googleId: { $type: 'string' } } } },
   google_picture: { type: String, default: null },
@@ -105,11 +104,6 @@ const playerSchema = new mongoose.Schema({
   warehouseCapacity: { type: Number, default: 1000 }, // Warehouse capacity (base 1000 at level 0)
   warehouseLevel: { type: Number, default: 0 }, // Warehouse upgrade level
   backpackCapacity: { type: Number, default: 20 }, // Initial capacity for Backpack
-  accountStatus: {
-    type: String,
-    enum: ['Free', 'Bronze', 'Silver', 'Gold'],
-    default: 'Free',
-  },
   // The parts-based bust (docs/avatar-plan.md §2.1): catalogue ids (tuning/avatarParts.json) and
   // palette ids (tuning/avatarPalettes.json), written only by POST /api/player/avatar.
   // `null` = the player has never set one (the client draws the default look). avatarParts = paid part / swatch ids this player has bought.

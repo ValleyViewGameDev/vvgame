@@ -4,7 +4,6 @@
     "attackCooldownMaxMs": 800,
     "attackCooldownPerSpeedMs": 100,
     "respawnHpFree": 40,
-    "respawnHpGoldFraction": 0.5,
     "magicSlotsBase": 5,
     "magicSlotGemCosts": [250, 500, 1000, 1750, 2500]
   },
@@ -20,8 +19,6 @@
   "maxTownBuildings": 800,
   "maxCraftingStationsPerType": 4,
   "doctorsPerHospital": 10,
-  "warehouseCapacityGold": 100000,
-  "backpackCapacityGold": 4000,
   "harvestDropRate": 0.1,
   "warehouseDropRate": 0.07,
   "warehouseDropOdds": { "common": 55, "uncommon": 28, "rare": 17 },
@@ -83,7 +80,6 @@
     { "itemBought": "Gold", "qtyMin": 2, "qtyMax": 2 }
   ],
   "seasonMoneyNerf": 0.9,
-  "seasonMoneyNerfGold": 0.75,
   "baseHoursForTrain": 16,
   "kentRefreshTimerSeconds": 20,
   "kentCardCooldownSeconds": 30,
@@ -137,32 +133,28 @@
       "maxAmount": 10,
       "sellWaitTime": 300000,
       "unlocked": true,
-      "unlockCost": 5,
-      "requiresGoldPass": false
+      "unlockCost": 5
     },
     {
       "slotIndex": 1,
       "maxAmount": 50,
       "sellWaitTime": 28800000,
       "unlocked": false,
-      "unlockCost": 50,
-      "requiresGoldPass": false
+      "unlockCost": 50
     },
     {
       "slotIndex": 2,
       "maxAmount": 75,
       "sellWaitTime": 86400000,
       "unlocked": false,
-      "unlockCost": 500,
-      "requiresGoldPass": false
+      "unlockCost": 500
     },
     {
       "slotIndex": 3,
       "maxAmount": 100,
       "sellWaitTime": 86400000,
       "unlocked": false,
-      "unlockCost": 1000,
-      "requiresGoldPass": false
+      "unlockCost": 1000
     }
   ],
   "tradeStallRequests": [
@@ -170,8 +162,7 @@
       "slotIndex": 0,
       "maxAmount": 10,
       "unlocked": true,
-      "unlockCost": 5,
-      "requiresGoldPass": false
+      "unlockCost": 5
     }
   ],
   "taxes": {
@@ -183,10 +174,14 @@
   },
   "seasons": {
     "phases": {
-      "onSeason": 129585,
-      "offSeason": 25
+      "onSeason": 129600,
+      "offSeason": 2
     },
-    "startPhase": "onSeason"
+    "startPhase": "onSeason",
+    "schedule": {
+      "39": { "seasonType": "Fall", "days": 60 },
+      "40": { "seasonType": "Winter", "days": 30 }
+    }
   },
   "elections": {
     "phases": {

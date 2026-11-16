@@ -11,8 +11,6 @@ import { canAfford, isCurrency, getPlayerQuantity } from '../../Utils/InventoryM
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 import soundManager from '../../Sound/SoundManager';
-// import { handlePurchase } from '../../Store/Store'; // COMMENTED OUT - Gold Pass
-// import GoldPassBenefitsModal from '../../UI/Modals/GoldPassBenefitsModal'; // COMMENTED OUT - Gold Pass
 import './WarehousePanel.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
@@ -40,7 +38,6 @@ const WarehousePanel = ({
   const [currentLevel, setCurrentLevel] = useState(0);
   const [nextLevel, setNextLevel] = useState(null);
   const [needsLevelMigration, setNeedsLevelMigration] = useState(false);
-  // const [showBenefitsModal, setShowBenefitsModal] = useState(false); // COMMENTED OUT - Gold Pass
 
   // Calculate current warehouse level and handle backward compatibility
   useEffect(() => {
@@ -115,9 +112,6 @@ const WarehousePanel = ({
   // Get current capacity info
   const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources, globalTuning);
   
-  // Get Gold bonus from globalTuning prop
-  const warehouseGoldBonus = globalTuning?.warehouseCapacityGold || 100000;
-  
   // Calculate total quantity in warehouse (excluding currencies)
   const calculateTotalQuantity = (inventory) => {
     if (!inventory || !Array.isArray(inventory)) return 0;
@@ -151,15 +145,10 @@ const WarehousePanel = ({
         <div className="warehouse-capacity-display">
           <h3>
             {strings[183]} {currentUsage} / {" "}
-            <span style={currentPlayer?.accountStatus === "Gold" ? {color: "var(--color-text-title)"} : {}}>
+            <span>
               {finalCapacities.warehouse}
             </span>
           </h3>
-          {currentPlayer?.accountStatus === "Gold" && (
-            <p style={{fontSize: "var(--text-md)", color: "var(--color-text-secondary)", margin: "5px 0"}}>
-              (+{warehouseGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
-            </p>
-          )}
         </div>
 
         <div className="shared-buttons">
@@ -210,50 +199,10 @@ const WarehousePanel = ({
           </div>
         )}
 
-        {/* Gold Pass promotion for non-Gold users - COMMENTED OUT
-        {currentPlayer?.accountStatus !== 'Gold' && (
-          <>
-            <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', margin: '20px 0' }}>
-              <button
-                className="btn-basic btn-gold"
-                onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
-              >
-                {strings[9061]}
-              </button>
-            </div>
-            <div className="gold-pass-info text-hint" style={{ textAlign: 'center', marginBottom: '20px' }}>
-              {strings[199]}
-            </div>
-          </>
-        )}
-        */}
 
-        {/* Link to view Gold Pass benefits - COMMENTED OUT
-        <div style={{ textAlign: 'center', marginTop: '10px' }}>
-          <button
-            onClick={() => setShowBenefitsModal(true)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--color-text-title)',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              fontSize: 'var(--text-md)',
-            }}
-          >
-            {strings[10131] || "Gold Pass Benefits"}
-          </button>
-        </div>
-        */}
 
       </div>
 
-      {/* Gold Pass Benefits Modal - COMMENTED OUT
-      <GoldPassBenefitsModal
-        isOpen={showBenefitsModal}
-        onClose={() => setShowBenefitsModal(false)}
-      />
-      */}
     </Panel>
   );
 };

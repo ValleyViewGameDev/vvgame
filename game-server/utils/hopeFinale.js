@@ -212,4 +212,4 @@ function applyHopeGrid(grid, player, { dropGems = false, avoid = [] } = {}) {
 
 const SNUG_SPOT = { x: CLEARING.npcs[0].x, y: CLEARING.npcs[0].y };
 
-module.exports = { HOPE_COORD, SNUG_SPOT, ORACLE, HOPE, MOUNTAIN, GEM_COUNT, isHopeReturned, holdsHope, reconcileRelationships, applyHopeGrid };
+module.exports = { HOPE_COORD, SNUG_SPOT, ORACLE, HOPE, MOUNTAIN, GEM_COUNT, isHopeReturned, holdsHope, reconcileRelationships, applyHopeGrid, occupiedTiles, spotNear, claim };

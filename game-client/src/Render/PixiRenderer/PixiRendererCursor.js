@@ -1,6 +1,7 @@
 // @refresh reset
 // ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
 import { useEffect, useRef, useState } from 'react';
+import { noBuildReason } from '../../Utils/buildRules';
 import { Graphics, Container, Sprite, Texture } from 'pixi.js-legacy';
 import { TILES_PER_GRID } from './UnifiedCamera';
 import { footprintOf, footprintCells } from '../../Utils/footprint';
@@ -45,10 +46,11 @@ function rowFor(cursorMode, masterResources) {
 }
 
 /** Whether `row` cannot be put down with its anchor at (col, rowY). */
-function isBlocked(cursorMode, row, col, rowY, resources, tileTypes) {
+function isBlocked(cursorMode, row, col, rowY, resources, tileTypes, gridType) {
   const { w, h } = footprintOf(row || cursorMode);
   const cells = footprintCells(col, rowY, w, h);
   if (cells.some((c) => c.x < 0 || c.y < 0 || c.x >= TILES_PER_GRID || c.y >= TILES_PER_GRID)) return true;
+  if (noBuildReason(gridType, cells)) return true; // Valley3, homestead columns 1-10 (Utils/buildRules.js)
   if (row?.category === 'npc') return false; // an animal is spawned, not laid on tiles
   if (cursorMode.type === 'terraform') return false; // ground changes under whatever stands on it
   // a Move ignores the cells the picked-up thing already covers
@@ -104,6 +106,7 @@ const PixiRendererCursor = ({
   masterResources,
   resources,        // the grid's resources (with shadow tiles), for the blocked check
   tileTypes,        // [row][col] ground letters, for a farm plot's validon check
+  gridType,         // the grid's type, for the no-build rules (Utils/buildRules.js)
 }) => {
   const highlightRef = useRef(null);
   const previewRef = useRef(null);
@@ -194,7 +197,7 @@ const PixiRendererCursor = ({
       && anchorRow >= 0 && anchorRow < TILES_PER_GRID && anchorCol >= 0 && anchorCol < TILES_PER_GRID;
     if (!on) { g.visible = false; sprite.visible = false; return; }
 
-    const blocked = isBlocked(cursorMode, row, anchorCol, anchorRow, resources, tileTypes);
+    const blocked = isBlocked(cursorMode, row, anchorCol, anchorRow, resources, tileTypes, gridType);
     const colour = blocked ? BLOCKED : OK;
     const { w: fw, h: fh } = footprintOf(row || cursorMode);
     g.visible = true;
@@ -231,7 +234,7 @@ const PixiRendererCursor = ({
     sprite.height = box.h;
     sprite.tint = blocked ? 0xff9a9a : 0xffffff;
     sprite.visible = true;
-  }, [hoveredTile, cursorMode, row, anchorCol, anchorRow, wallSet, TILE_SIZE, gridOffset, resources, tileTypes, masterResources, swatch, textureTick]);
+  }, [hoveredTile, cursorMode, row, anchorCol, anchorRow, wallSet, TILE_SIZE, gridOffset, resources, tileTypes, gridType, masterResources, swatch, textureTick]);
 
   return null;
 };

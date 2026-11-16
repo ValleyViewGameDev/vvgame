@@ -2537,6 +2537,7 @@ const PixiRenderer = ({
         pcs={pcs}
         currentPlayer={currentPlayer}
         TILE_SIZE={TILE_SIZE}
+        gridType={currentPlayer?.location?.gtype}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
         hidden={actorsHidden}
       />

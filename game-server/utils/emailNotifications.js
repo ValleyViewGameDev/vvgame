@@ -14,7 +14,6 @@ const LANGS = ['EN', 'ES', 'FR', 'DE'];
 const TEMPLATES = {
   welcome: Object.fromEntries(LANGS.map((l) => [l, process.env[`LOOPS_TID_WELCOME_${l}`]])),
   event_announce: Object.fromEntries(LANGS.map((l) => [l, process.env[`LOOPS_TID_EVENT_${l}`]])),
-  sub_thanks: Object.fromEntries(LANGS.map((l) => [l, process.env[`LOOPS_TID_SUB_THANKS_${l}`]])),
 };
 
 function templateFor(kind, language) {
@@ -51,15 +50,6 @@ async function sendWelcomeEmail(player) {
   }));
 }
 
-// "Thanks for the Gold Pass": once, when the Gold upgrade is recorded (routes/paymentRoutes.js).
-async function sendSubscriptionThanksEmail(player) {
-  return sendOnce(player, 'subscription_thanks_email_sent_at', () => sendTemplateEmail({
-    to: player.email,
-    transactionalId: templateFor('sub_thanks', player.language),
-    dataVariables: { username: player.username, signinUrl: signinUrlFor(player, 'gold') },
-  }));
-}
-
 // Event announcement (marketing; phase D runner owns per-campaign idempotency via models/emailSend.js).
 async function sendEventAnnouncementEmail(player, { eventName, eventDates, eventCloses, eventHook, ctaUrl }) {
   if (!player || !player.email) return false;
@@ -74,4 +64,4 @@ async function sendEventAnnouncementEmail(player, { eventName, eventDates, event
   });
 }
 
-module.exports = { sendWelcomeEmail, sendSubscriptionThanksEmail, sendEventAnnouncementEmail, signinUrlFor };
+module.exports = { sendWelcomeEmail, sendEventAnnouncementEmail, signinUrlFor };

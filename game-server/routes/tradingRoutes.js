@@ -90,12 +90,8 @@ const checkWarehouseCapacity = async (player, itemType, itemQuantity) => {
   // Calculate warehouse and backpack capacities with skills
   const baseWarehouse = player.warehouseCapacity || 0;
   const baseBackpack = player.backpackCapacity || 0;
-  const isGold = player.accountStatus === "Gold";
-  const warehouseBonus = isGold ? (globalTuning?.warehouseCapacityGold || 100000) : 0;
-  const backpackBonus = isGold ? (globalTuning?.backpackCapacityGold || 5000) : 0;
-
-  let warehouseCapacity = baseWarehouse + warehouseBonus;
-  let backpackCapacity = baseBackpack + backpackBonus;
+  let warehouseCapacity = baseWarehouse;
+  let backpackCapacity = baseBackpack;
 
   // Add skill bonuses
   (player.skills || []).forEach(skill => {

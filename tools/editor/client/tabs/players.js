@@ -25,7 +25,6 @@ const COLUMNS = [
   { key: 'language', label: 'Language' },
   { key: 'netWorth', label: 'Net Worth' },
   { key: 'money', label: 'Money' },
-  { key: 'accountStatus', label: 'Account Status' },
   { key: 'role', label: 'Role' },
   { key: 'browser', label: 'Browser' },
   { key: 'os', label: 'OS' },
@@ -116,7 +115,6 @@ function derivedBackpack(p) {
   return base + bonus;
 }
 
-function statusBadge(p) { const s = p.accountStatus || 'Free'; return el('span', { class: `badge pstatus ${s.toLowerCase()}` }, s); }
 function roleBadge(p) { const r = p.role || 'Citizen'; return el('span', { class: `badge prole ${r.toLowerCase()}` }, r); }
 
 function diagTable(f) {
@@ -495,7 +493,6 @@ function renderTable(root) {
     el('td', {}, p.language || 'Unknown'),
     el('td', { class: 'num' }, num(p.netWorth)),
     el('td', { class: 'num' }, num(money(p))),
-    el('td', {}, statusBadge(p)),
     el('td', {}, roleBadge(p)),
     el('td', {}, p.ftueFeedback?.browser || ''),
     el('td', {}, p.ftueFeedback?.os || ''),
@@ -603,7 +600,7 @@ function renderInspector(root, p) {
   root.appendChild(el('div', { class: 'toolbar' }, [
     el('button', { onclick: () => selectPlayer(null) }, '← All players'),
     el('strong', {}, p.username),
-    statusBadge(p), roleBadge(p),
+    roleBadge(p),
     el('span', { class: 'mono muted', title: 'Player id' }, String(p._id)),
     el('span', { class: 'spacer' }),
     P.els.pendingBadge, P.els.btnDiscard, P.els.btnSave,

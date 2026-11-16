@@ -101,7 +101,6 @@ router.post('/action/stall-unlock', wrap('stall-unlock', async (req, res) => {
   const stalls = stallsOf(player);
   if (!cfg || !stalls.listings[slotIndex]) return refuse(400, 'no-slot');
   if (!stalls.listings[slotIndex].locked) return refuse(409, 'unlocked');
-  if (cfg.requiresGoldPass && player.accountStatus !== 'Gold') return refuse(403, 'needs-gold');
   if (!spendCosts({ ingredient1: 'Wood', ingredient1qty: cfg.unlockCost || 0 }, player.inventory, player.backpack)) return refuse(409, 'short-Wood');
   player.markModified('inventory'); player.markModified('backpack');
   stalls.listings[slotIndex] = { ...stalls.listings[slotIndex], locked: false };
@@ -209,7 +208,6 @@ router.post('/action/request-unlock', wrap('request-unlock', async (req, res) =>
   const stalls = stallsOf(player);
   if (!cfg || !stalls.requests[slotIndex]) return refuse(400, 'no-slot');
   if (!stalls.requests[slotIndex].locked) return refuse(409, 'unlocked');
-  if (cfg.requiresGoldPass && player.accountStatus !== 'Gold') return refuse(403, 'needs-gold');
   if (!spendCosts({ ingredient1: 'Wood', ingredient1qty: cfg.unlockCost || 0 }, player.inventory, player.backpack)) return refuse(409, 'short-Wood');
   player.markModified('inventory'); player.markModified('backpack');
   stalls.requests[slotIndex] = { ...stalls.requests[slotIndex], locked: false };

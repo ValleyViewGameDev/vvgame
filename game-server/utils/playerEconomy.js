@@ -85,12 +85,11 @@ const cropCapReached = (def, gridResources) => {
   return max > 0 && cropCountOnGrid(def, gridResources) >= max;
 };
 
-/** { warehouse, backpack } capacity: base + Gold bonus + capacity skills. */
+/** { warehouse, backpack } capacity: base + capacity skills. */
 function capacityOf(player) {
-  const isGold = player.accountStatus === 'Gold';
   const acc = {
-    warehouse: (player.warehouseCapacity || 0) + (isGold ? (globalTuning.warehouseCapacityGold || 100000) : 0),
-    backpack: (player.backpackCapacity || 0) + (isGold ? (globalTuning.backpackCapacityGold || 5000) : 0),
+    warehouse: player.warehouseCapacity || 0,
+    backpack: player.backpackCapacity || 0,
   };
   for (const skill of player.skills || []) {
     const def = skill && resourceDef(skill.type);

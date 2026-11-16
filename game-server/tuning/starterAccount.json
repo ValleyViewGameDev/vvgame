@@ -16,7 +16,6 @@
       "warehouseCapacity": 300,
       "warehouseLevel": 0,
       "backpackCapacity": 10,
-      "accountStatus": "Free",
       "role": "Citizen",
       "iscamping": false,
       "relocations": 2,

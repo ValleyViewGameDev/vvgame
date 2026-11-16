@@ -130,7 +130,6 @@ import SocialPanel from './GameFeatures/Social/SocialPanel';
 import CombatPanel from './GameFeatures/Combat/CombatPanel';
 import HopeFound from './GameFeatures/Social/HopeFound';
 import { startHopeFinale, setHopeFinaleHooks, isHopeReturned, holdsHope, isHopeFinaleRunning, HOPE_COORD as HOPE_FINALE_COORD } from './GameFeatures/Story/hopeFinale';
-import GoldBenefitsPanel from './UI/Panels/GoldBenefitsPanel';
 import ShareModal from './UI/Modals/ShareModal';
 import AvatarFace from './Avatar/AvatarFace';
 import { usePanelContext } from './UI/Panels/PanelContext';
@@ -181,7 +180,8 @@ import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
 import { useHeldValue } from './UI/FlyToTarget';
 import { confirmGemSpend, setGemConfirmResources } from './UI/Modals/GemSpendConfirm';
-import { coversTile, isMultiTile } from './Utils/footprint';
+import { coversTile, isMultiTile, footprintOf, footprintCells } from './Utils/footprint';
+import { noBuildReason, NO_BUILD_STRING } from './Utils/buildRules';
 import { clearSession } from './Authentication/session'; // importing it sets the session header and interceptors (BL-2)
 
 // Phone layout media list; must match UI/Styles/mobile.css and UI/Panels/PanelContext.js
@@ -321,29 +321,10 @@ useEffect(() => {
         console.log("📬 Purchase reward sent successfully.");
         if (!res.data?.alreadyFulfilled && res.data?.amountCents > 0) trackPurchase(playerId, res.data.amountCents / 100);
 
-        /// If Gold Pass was purchased, show modal and panel
-        if (String(offerId) === "1") {
-          updateStatus && updateStatus("Congratulations on purchasing a Gold Pass!");
-          // Re-fetch player to get updated accountStatus
-          axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {            
-          openPanel('GoldBenefitsPanel');
-          setModalContent({
-              title: strings["5060"],
-              message: strings["5061"],
-              message2: strings["5062"],
-              size: "small",
-            });
-          setIsModalOpen(true);
-          setPasswordAskAfterPurchase(true); // Add Password once the Gold modal is closed
-          }).catch((err) => {
-            console.error("❌ Failed to refresh player data after Gold purchase:", err);
-          });
-        /// If anything else was purchased, open Mailbox
-        } else {
-          updateStatus && updateStatus("✅ Purchase successful! Check your Inbox.");
-          openMailbox && openMailbox();
-          setPasswordAskAfterPurchase(true); // Add Password once the Mailbox is closed
-        }
+        // every store offer is delivered to the Mailbox (the Gold Pass is gone, 2026-11-16)
+        updateStatus && updateStatus("✅ Purchase successful! Check your Inbox.");
+        openMailbox && openMailbox();
+        setPasswordAskAfterPurchase(true); // Add Password once the Mailbox is closed
       }).catch((err) => {
         console.error("❌ Failed to fulfill purchase:", err);
         updateStatus && updateStatus("⚠️ Purchase may not have been fulfilled. Contact support if missing.");
@@ -2493,6 +2474,20 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   // Placing from a cursor (Move, plant, terraform, build) has no range check anywhere: in the
   // Town and the valley it works as on the homestead (owner, 2026-11-15)
 
+  // Nothing is built in Valley3 or in homestead columns 0-7 (Utils/buildRules.js; the server refuses too)
+  if (['move', 'plant', 'terraform', 'build'].includes(cursorMode?.type)) {
+    const placing = cursorMode.type === 'move' || cursorMode.type === 'terraform' || cursorMode.type === 'plant'
+      ? cursorMode
+      : (typeof cursorMode.item === 'object' ? cursorMode.item : masterResources.find((r) => r.type === cursorMode.item)) || cursorMode;
+    const { w, h } = cursorMode.type === 'move' || cursorMode.type === 'build' ? footprintOf(placing) : { w: 1, h: 1 };
+    const why = noBuildReason(currentPlayer?.location?.gtype, footprintCells(colIndex, rowIndex, w, h));
+    if (why) {
+      updateStatus(strings[NO_BUILD_STRING[why]]);
+      isProcessing = false;
+      return;
+    }
+  }
+
   // Move (GameFeatures/Move): put the picked-up thing down here
   if (cursorMode?.type === 'move') {
     const { placeMovedResource } = await import('./GameFeatures/Move/moveMode');
@@ -4076,14 +4071,6 @@ return (
       )}
       {activePanel === 'HowToGemsPanel' && (
         <HowToGemsPanel 
-          currentPlayer={currentPlayer}
-          updateStatus={updateStatus}
-          onOpen={openPanel}
-          onClose={closePanel}
-        />
-      )}
-      {activePanel === 'GoldBenefitsPanel' && (
-        <GoldBenefitsPanel 
           currentPlayer={currentPlayer}
           updateStatus={updateStatus}
           onOpen={openPanel}

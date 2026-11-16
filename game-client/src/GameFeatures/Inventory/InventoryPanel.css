@@ -89,12 +89,6 @@
   font-size: var(--text-xs);
 }
 
-/* Gold Pass promotion text: an aside; the JSX adds .text-hint (theme.css) for the look */
-.gold-pass-info {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
 /* Scrollable content for inventory modal */
 .inventory-modal-scroll {
   max-height: 400px;

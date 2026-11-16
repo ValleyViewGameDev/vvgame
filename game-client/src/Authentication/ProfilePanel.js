@@ -1,6 +1,5 @@
 import API_BASE from '../config';
 import React, { useState, useEffect, useContext } from 'react';
-// import GoldPassBenefitsModal from '../UI/Modals/GoldPassBenefitsModal'; // COMMENTED OUT
 import axios from 'axios';
 import '../UI/Panels/Panel.css'; // Use the standardized styles
 import '../UI/Buttons/SharedButtons.css'; // Use the standardized buttons
@@ -27,11 +26,9 @@ import { savePassword, MIN_PASSWORD_LENGTH } from './savePassword';
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
 
-  // const [showGoldBenefitsModal, setShowGoldBenefitsModal] = useState(false); // COMMENTED OUT
 
   const [formData, setFormData] = useState({
     username: '',
-    accountStatus: 'Free',
     role: 'Citizen',
   });
   // Secure your profile: a passwordless profile sets its first password with no current-password
@@ -98,7 +95,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
   
       setFormData({
         username: currentPlayer.username || '',
-        accountStatus: currentPlayer.accountStatus || 'Free',
         role: currentPlayer.role || 'Citizen',
       });
   
@@ -167,7 +163,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
       // Prepare updates payload
       const updates = {
         username: formData.username.trim(),
-        accountStatus: formData.accountStatus,
         role: formData.role,
         // Use dot notation to update specific settings fields without replacing the entire object
         "settings.isStateMachineEnabled": localSettings.isStateMachineEnabled,
@@ -193,7 +188,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           ...currentPlayer,
           settings: { ...currentPlayer.settings, ...localSettings },
           username: formData.username.trim(),
-          accountStatus: formData.accountStatus,
           role: formData.role,
         };
 
@@ -388,17 +382,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <br />
 
-        {isDeveloper && (
-          <div className="form-group profile-field">
-            <label>{strings[4055]}</label>
-            <select name="accountStatus" value={formData.accountStatus} onChange={handleInputChange}>
-              <option value="Free">Free</option>
-              <option value="Bronze">Bronze</option>
-              <option value="Silver">Silver</option>
-              <option value="Gold">Gold</option>
-            </select>
-          </div>
-        )}
         
         <div className="shared-buttons">
           <button className="btn-basic btn-success" onClick={handleSave} disabled={isSaving}>
@@ -408,13 +391,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <br />
 
-        {/* Gold Pass Benefits button - COMMENTED OUT
-        <div className="shared-buttons">
-          <button className="btn-basic btn-gold" onClick={() => setShowGoldBenefitsModal(true)}>
-            {formData.accountStatus === 'Gold' ? strings[10130] : strings[10131]}
-          </button>
-        </div>
-        */}
       
         <br/>
 
@@ -627,12 +603,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         <br />
         <FeedbackLinks />
 
-        {/* Gold Pass Benefits Modal - COMMENTED OUT
-        <GoldPassBenefitsModal
-          isOpen={showGoldBenefitsModal}
-          onClose={() => setShowGoldBenefitsModal(false)}
-        />
-        */}
       </div>
     </Panel>
     

@@ -15,7 +15,6 @@ import { getPlayerQuantity, mergeHoldings, ensureRoomFor } from '../../Utils/Inv
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { isACrop } from '../../Utils/ResourceHelpers';
-// import { handlePurchase } from '../../Store/Store'; // COMMENTED OUT - Gold Pass
 import GlobalMarketModal from './GlobalMarketModal';
 import SaleBurst, { runCardReturn, CARD_CYCLE } from '../../UI/SaleBurst';
 import FloatingTextManager from '../../UI/FloatingText';

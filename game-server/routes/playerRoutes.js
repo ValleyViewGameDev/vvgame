@@ -338,13 +338,13 @@ router.get('/get-player-by-username/:username', async (req, res) => {
 // Endpoint to update the player's profile
 // Identity and billing fields never travel through this generic route: the password has its own
 // route (/player/change-password), the subscription tier is set by the Stripe webhook, the role by the
-// election scheduler. Developers (x-player-id) may still set accountStatus/role from the Profile panel.
+// election scheduler. Developers (x-player-id) may still set the role from the Profile panel.
 // The full allowlist is refactor-plan Phase 5; this is the denylist that phase A needs.
 // The Caravan (`train`) is the server's: routes/caravanRoutes.js makes its orders, fills them and mails the rewards.
 const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token', 'train', 'kentOffers', 'kentCooldowns', 'hpSavedAt'];
 // Combat stats are DERIVED on the server (utils/combatStats.js) from base stats + powers; the
 // base stats, hp and maxhp are never set from the client (hp goes through /player/state).
-const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamage', 'baseAttackbonus', 'baseArmorclass', 'baseSpeed', 'baseAttackrange', 'hp', 'maxhp', 'magicSlots',
+const PROFILE_DEVELOPER_ONLY = ['role', 'baseMaxhp', 'baseDamage', 'baseAttackbonus', 'baseArmorclass', 'baseSpeed', 'baseAttackrange', 'hp', 'maxhp', 'magicSlots',
   // Phase 5 (2026-11-04): everything an action route owns. Gameplay changes these only through
   // /action/* (routes/actionRoutes.js and friends); the editor's Players tab (a developer) may still.
   'inventory', 'backpack', 'skills', 'powers', 'xp', 'activeQuests', 'completedQuests', 'trophies',
@@ -1611,7 +1611,7 @@ router.post('/update-last-active', async (req, res) => {
 router.get('/players', async (req, res) => {
   try {
     const players = await Player.find({})
-      .select('username settlementId accountStatus role created location language netWorth activeQuests completedQuests skills powers lastActive inventory ftuestep firsttimeuser aspiration warehouseCapacity backpackCapacity ftueFeedback xp warehouseLevel')
+      .select('username settlementId role created location language netWorth activeQuests completedQuests skills powers lastActive inventory ftuestep firsttimeuser aspiration warehouseCapacity backpackCapacity ftueFeedback xp warehouseLevel')
       .sort({ lastActive: -1 }); // Sort by most recently active first
 
     console.log(`📋 Editor: Found ${players.length} players`);
@@ -1741,15 +1741,11 @@ router.post('/transfer-inventory', async (req, res) => {
     const resourcesPath = path.join(__dirname, '../tuning/resources.json');
     const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'));
     
-    // Calculate proper capacity with Gold bonuses and skill bonuses
+    // Calculate capacity with skill bonuses
     const baseWarehouse = player.warehouseCapacity || 0;
     const baseBackpack = player.backpackCapacity || 0;
-    const isGold = player.accountStatus === "Gold";
-    const warehouseBonus = isGold ? (globalTuning?.warehouseCapacityGold || 100000) : 0;
-    const backpackBonus = isGold ? (globalTuning?.backpackCapacityGold || 5000) : 0;
-
-    let warehouseCapacity = baseWarehouse + warehouseBonus;
-    let backpackCapacity = baseBackpack + backpackBonus;
+    let warehouseCapacity = baseWarehouse;
+    let backpackCapacity = baseBackpack;
 
     // Add skill bonuses
     (player.skills || []).forEach(skill => {

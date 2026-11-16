@@ -1,6 +1,6 @@
 const Frontier = require("../models/frontier");
 const globalTuning = require("../tuning/globalTuning.json");
-const seasons = require("../tuning/seasons.json");
+const { nextSeason } = require("../utils/seasonPlan");
 const seasonFinalizer = require('../utils/seasonFinalizer');
 const seasonReset = require('../utils/seasonReset');
 
@@ -22,10 +22,7 @@ async function seasonScheduler(frontierId, phase, frontier = null) {
 
         // ✅ If we're just finishing onSeason, figure out next seasonType
         if (phase === "offSeason") {
-            const currentIndex = seasons.findIndex(s => s.seasonType === currentSeasonType);
-            nextSeasonType = currentIndex !== -1
-            ? seasons[(currentIndex + 1) % seasons.length].seasonType
-            : "Spring";
+            nextSeasonType = nextSeason(currentSeasonType, currentSeasonNumber).seasonType; // utils/seasonPlan.js
 
             await seasonFinalizer(frontierId, currentSeasonType, currentSeasonNumber);
             await seasonReset(frontierId, nextSeasonType);  

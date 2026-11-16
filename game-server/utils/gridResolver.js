@@ -4,7 +4,8 @@ const { recordFootprint } = require('./footprint');
  *
  * The shared world is Frontier -> Settlement -> cells {gridCoord, gridType, gridId}. Homesteads are
  * one shared Grid per cell (ownerId = owner). Towns, valleys and dungeons are one Grid COPY per
- * player, created from the layout templates on first visit and caught up lazily (season trees/snow,
+ * player, created from the layout templates on first visit and caught up lazily (season Wood cleanup /
+ * Quest for Hope guardians / snow,
  * dungeon resets). This module turns "player + where" into "the Grid document to load".
  */
 const Grid = require('../models/grid');
@@ -15,7 +16,7 @@ const Settlement = require('../models/settlement');
 const gridResourceManager = require('./GridResourceManager');
 const gridTileManager = require('./GridTileManager');
 const { performGridCreation } = require('./createGridLogic');
-const { plantNewTrees } = require('./plantNewTreesLogic');
+const { restoreHopeGuardians } = require('./hopeReset');
 const { applySeasonTiles } = require('./seasonTiles');
 const { createDungeonGrid, resetDungeonGrid, FTUE_TEMPLATE, FTUE_KEY } = require('./dungeonUtils');
 const { markGridVisited } = require('./gridsVisitedUtils');
@@ -58,9 +59,12 @@ async function applySeasonCatchUp(grid, frontier) {
   const seasonType = frontier.seasons?.seasonType;
   let fresh = grid;
   if (/^valley/.test(grid.gridType)) {
-    // Same semantics as the old season-end sweep: drop Wood doobers, top trees back up.
-    await plantNewTrees(grid._id.toString(), grid.gridCoord);
-    fresh = await Grid.findById(grid._id);
+    // docs/season-reset.md: Wood left lying is cleared, NO new trees (what players built stays),
+    // and the Quest for Hope's guardians come back (utils/hopeReset.js)
+    const resources = gridResourceManager.getResources(fresh);
+    const kept = resources.filter((r) => r.type !== 'Wood');
+    if (kept.length !== resources.length) fresh.resources = gridResourceManager.encodeResourcesV2(kept);
+    restoreHopeGuardians(fresh);
   }
   applySeasonTiles(fresh, seasonType);
   fresh.seasonNumber = current;

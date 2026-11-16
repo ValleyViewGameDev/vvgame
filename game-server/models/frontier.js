@@ -107,7 +107,7 @@ const FrontierSchema = new mongoose.Schema({
           networth: { type: Number, required: true }
         }
       ],
-      winningsettlement: { type: String, required: true },
+      winningsettlement: { type: String, default: null }, // none since season rewards ended (2026-11-16)
       gridsreset: { type: Number, required: true },
       playersrelocated: { type: Number, required: true },
     }

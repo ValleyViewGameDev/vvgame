@@ -91,7 +91,6 @@ async function createPlayerAccount({ username, silent, hashedPassword, ipHash, l
     powers,
     warehouseCapacity,
     backpackCapacity,
-    accountStatus,
     role,
     iscamping,
     relocations,
@@ -166,7 +165,6 @@ async function createPlayerAccount({ username, silent, hashedPassword, ipHash, l
     regionsVisited: [], // valley regions entered, for the Discover quest goal (utils/regionsVisited.js)
     warehouseCapacity,
     backpackCapacity,
-    accountStatus,
     role,
     relationships: [...relationships],
     tradeStall: [...tradeStall],
@@ -397,7 +395,6 @@ router.post('/login', async (req, res) => {
         maxhp: player.maxhp,
         inventory: player.inventory,
         skills: player.skills,
-        accountStatus: player.accountStatus,
         role: player.role,
         tradeStall: player.tradeStall,
         frontierId: player.frontierId,

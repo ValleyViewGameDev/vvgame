@@ -11,6 +11,7 @@ item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
 
 - **BL-2.** Real session auth: built 2026-11-11 (signed session tokens); left: switch
   enforcement on (`SESSION_ENFORCE=on` on Render) once the new client is live.
+- **BL-30.** Season reset redesign, live before the 2026-11-20 reset (`docs/season-reset.md`).
 - **BL-25.** Test a season reset end to end before launch (it relocates every player and
   rewrites every grid, and has not run since the single-player refactor).
 
@@ -147,6 +148,17 @@ finds a developer's id can call the admin routes. Replace it with a signed sessi
 (issued at login / silent signup, verified server-side), and derive the caller from it rather
 than from the header or a `playerId` in the body. Found while closing the open admin routes
 (commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
+
+### BL-30: Season reset redesign (LAUNCH BLOCKER)
+
+Added 2026-11-16 (owner). Plan: `docs/season-reset.md`. Must be live before the reset on
+2026-11-20 20:51 UTC. Fall #39 for 60 days, then Winter #40 for 30 days, then 90-day seasons;
+builds in the Town and Valley1/2 are never touched (Wood cleanup only, no new trees); Valley3 is
+unbuildable and rebuilt for everyone each season; the Quest for Hope resets (artifacts, Hope,
+`hopeFound`, `hopeReturned`, Elbow's Find quests, guardians), keeping keys, skills, relationships
+and woken characters; no season-end rewards (competition moves to the Harvest Fair); homestead
+columns 0-7 unbuildable. Next, not for this reset: a `placedBy` mark so Reset for Everyone can
+keep player builds.
 
 ### BL-25: Test a season reset (LAUNCH BLOCKER)
 

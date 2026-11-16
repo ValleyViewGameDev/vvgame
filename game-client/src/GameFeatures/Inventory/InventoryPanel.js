@@ -42,10 +42,6 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
     const hasBackpackSkill = currentPlayer?.skills?.some(item => item.type === 'Backpack');
     const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources, globalTuning);
     
-    // Get Gold bonuses from globalTuning prop
-    const warehouseGoldBonus = globalTuning?.warehouseCapacityGold || 100000;
-    const backpackGoldBonus = globalTuning?.backpackCapacityGold || 5000;
-    
     const calculateTotalQuantity = (inventory) =>
         inventory.filter((item) => !isCurrency(item.type)).reduce((total, item) => total + item.quantity, 0);
     
@@ -328,7 +324,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 {hasBackpackSkill && (
                     <div className="capacity-info">
                         {calculateTotalQuantity(backpack)} / {" "}
-                        <span style={currentPlayer?.accountStatus === "Gold" ? {color: "var(--color-text-title)"} : {}}>
+                        <span>
                             {finalCapacities.backpack}
                         </span>
                     </div>
@@ -337,11 +333,6 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
             {hasBackpackSkill ? (
               <>
-                {currentPlayer?.accountStatus === "Gold" && (
-                    <div style={{fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginTop: "-5px", textAlign: "center", marginBottom: "8px"}}>
-                        (+{backpackGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
-                    </div>
-                )}
 
                 {backpack.length > 0 && (
                 <div className="shared-buttons" style={{ display: 'flex', gap: '8px' }}>
@@ -398,17 +389,12 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 <h3>{strings[181]}</h3>
                 <div className="capacity-info">
                     {calculateTotalQuantity(inventory)} / {" "}
-                    <span style={currentPlayer?.accountStatus === "Gold" ? {color: "var(--color-text-title)"} : {}}>
+                    <span>
                         {finalCapacities.warehouse}
                     </span>
                 </div>
             </div>
 
-            {currentPlayer?.accountStatus === "Gold" && (
-                <div style={{fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginTop: "-5px", textAlign: "center", marginBottom: "8px"}}>
-                    (+{warehouseGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
-                </div>
-            )}
 
             <div className="shared-buttons" style={{ display: 'flex', gap: '8px' }}>
                 {inventory.length > 0 && (

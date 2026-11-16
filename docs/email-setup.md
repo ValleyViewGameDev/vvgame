@@ -166,10 +166,9 @@ and the cron from double-sending; no player gets more than one marketing email p
 Measure it like House did: compare D1 return of recipients against the same players on a
 placebo date with no email, and read reactivation of lapsed recipients separately.
 
-### 3.2 Gold Pass thanks (transactional)
+### 3.2 Gold Pass thanks (retired 2026-11-16)
 
-Template per language with `username` and `signinUrl`; IDs in `LOOPS_TID_SUB_THANKS_<LANG>`.
-Sent once per player when the Gold upgrade is recorded, only when an email is on file.
+The Gold Pass is gone, and with it this email; the `LOOPS_TID_SUB_THANKS_<LANG>` env vars can be deleted on Render.
 
 ### 3.3 Google sign-in
 

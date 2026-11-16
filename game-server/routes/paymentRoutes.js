@@ -140,15 +140,6 @@ router.post('/purchase-store-offer', async (req, res) => {
       }
     }
 
-    // 🎖️ Special case: Gold Pass upgrade
-    if (String(offerId) === "1") {
-      if (!(await logPurchase(player, offer, paidSessionId))) return res.status(200).json({ success: true, alreadyFulfilled: true });
-      player.accountStatus = "Gold";
-      await player.save();
-      require('../utils/emailNotifications').sendSubscriptionThanksEmail(player).catch(() => {}); // once, needs an email on file
-      return res.status(200).json({ success: true, amountCents: paidSessionId ? offer.priceInCents : 0, message: "Gold account upgraded." });
-    }
-
     // ✅ Send via Mailbox
     const rewards = offer.rewards || [];
     console.log("📨 Sending mailbox message with rewards:", rewards);

@@ -1,4 +1,5 @@
 const { recordFootprint, footprintKeys } = require('../utils/footprint');
+const { noBuildReason } = require('../utils/buildRules');
 const { heldQuantity, takeFromHoldings, recipeCosts, canAffordCosts, spendCosts } = require('../utils/playerHoldings');
 const offerEligibility = require('../utils/offerEligibility');
 const mongoose = require('mongoose');
@@ -1726,7 +1727,6 @@ router.post('/farm-animal/collect', requireDeveloper, async (req, res) => {
     const collectedItem = npcDefinition.output;
 
     // Don't add items to inventory on server - let client handle with gainIngredients
-    // This ensures Gold Pass warehouse bonus is properly respected
 
     // Update NPC state to 'emptystall'
     npc.state = 'emptystall';
@@ -1824,6 +1824,8 @@ router.post('/move-resource', async (req, res) => {
     if (target.some((c) => { const [x, y] = c.split(',').map(Number); return x < 0 || y < 0 || x >= SIZE || y >= SIZE; })) {
       return res.status(400).json({ error: 'Off the grid', code: 'OUT_OF_BOUNDS' });
     }
+    const why = noBuildReason(grid, target.map((c) => { const [x, y] = c.split(',').map(Number); return { x, y }; })); // utils/buildRules.js
+    if (why) return res.status(403).json({ error: 'Nothing can be built there', code: why });
     const taken = new Set();
     resources.forEach((r, i) => { if (i !== idx && r.type) { const s = shapeOf(r); footprint(r.x, r.y, s.w, s.h).forEach((c) => taken.add(c)); } });
     if (target.some((c) => taken.has(c))) {
@@ -2053,12 +2055,8 @@ router.post('/bulk-harvest', requireDeveloper, async (req, res) => {
     // Match the client-side logic from deriveWarehouseAndBackpackCapacity
     const baseWarehouse = player.warehouseCapacity || 0;
     const baseBackpack = player.backpackCapacity || 0;
-    const isGold = player.accountStatus === "Gold";
-    const warehouseBonus = isGold ? (globalTuning?.warehouseCapacityGold || 100000) : 0;
-    const backpackBonus = isGold ? (globalTuning?.backpackCapacityGold || 5000) : 0;
-
-    let warehouseCapacity = baseWarehouse + warehouseBonus;
-    let backpackCapacity = baseBackpack + backpackBonus;
+    let warehouseCapacity = baseWarehouse;
+    let backpackCapacity = baseBackpack;
 
     // Add skill bonuses
     (player.skills || []).forEach(skill => {

@@ -117,7 +117,7 @@ router.post('/action/kent-sell', async (req, res) => {
     const shadow = {
       inventory: JSON.parse(JSON.stringify(player.inventory || [])),
       backpack: JSON.parse(JSON.stringify(player.backpack || [])),
-      skills: player.skills, location: player.location, accountStatus: player.accountStatus,
+      skills: player.skills, location: player.location,
       warehouseCapacity: player.warehouseCapacity, backpackCapacity: player.backpackCapacity,
     };
     spendCosts(recipe, shadow.inventory, shadow.backpack);

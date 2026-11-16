@@ -116,14 +116,11 @@ export const handlePlayerDeath = async (
   console.log('⚰️ Handling player death for', player.username);
 
   try {
-    // Respawn hp from tuning (globalTuning.combat): a flat value for free accounts, a fraction
-    // of max hp for Gold. Max hp is re-derived from base + powers so no bonus is lost.
+    // Respawn hp from tuning (globalTuning.combat.respawnHpFree). Max hp is re-derived from
+    // base + powers so no bonus is lost.
     const combat = globalTuning?.combat || {};
     const properMaxHp = derivedMaxhp(player, masterResources);
-    let restoredHp = combat.respawnHpFree ?? 40;
-    if (player.accountStatus === "Gold") {
-      restoredHp = Math.floor(properMaxHp * (combat.respawnHpGoldFraction ?? 0.5));
-    }
+    const restoredHp = combat.respawnHpFree ?? 40;
 
     // Keep only Tent and Boat in the backpack
     const filteredBackpack = (player.backpack || []).filter((item) => item.type === "Tent" || item.type === "Boat");

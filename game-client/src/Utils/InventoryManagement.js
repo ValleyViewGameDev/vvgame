@@ -73,11 +73,6 @@ export function applySkillMultiplier(baseQuantity, multiplier) {
 export function deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources, globalTuning) {
   const baseWarehouse = currentPlayer?.warehouseCapacity || 0;
   const baseBackpack = currentPlayer?.backpackCapacity || 0;
-  const isGold = currentPlayer?.accountStatus === "Gold";
-  
-  // Get Gold bonuses from globalTuning parameter
-  const warehouseBonus = isGold ? (globalTuning?.warehouseCapacityGold || 100000) : 0;
-  const backpackBonus = isGold ? (globalTuning?.backpackCapacityGold || 5000) : 0;
 
   return (currentPlayer?.skills || []).reduce(
     (acc, skill) => {
@@ -92,7 +87,7 @@ export function deriveWarehouseAndBackpackCapacity(currentPlayer, masterResource
       }
       return acc;
     },
-    { warehouse: baseWarehouse + warehouseBonus, backpack: baseBackpack + backpackBonus }
+    { warehouse: baseWarehouse, backpack: baseBackpack }
   );
 }
 
