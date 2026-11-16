@@ -5,7 +5,6 @@ import { Container, Text, Sprite, Texture, Rectangle } from 'pixi.js-legacy';
 import { renderPositions, getPlayerFacing, onPlayerFacingChange, isPlayerWalkingSideways } from '../../PlayerMovement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import PixiCamera from './PixiCamera';
-import playerIconsData from '../../Authentication/PlayerIcons.json';
 import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import CombatFX from './CombatFX';
@@ -19,12 +18,13 @@ import { avatarRig, armFigure, weaponSrc } from './heldWeapon';
 import { loadAvatarCatalogue } from '../../Utils/TuningManager';
 import { lookFor, byId, specFor } from '../../Avatar/avatarLook';
 import { renderLook } from '../../Avatar/avatarCompositor';
+import { AVATAR_FALLBACK } from '../../Avatar/AvatarFace';
 
 // The saved parts avatar on the board (docs/avatar-plan.md v2 P5): composed at 512 px (the figure
-// square every part is drawn in), drawn 1.8 tiles tall like the figure icons, its head ending where
+// square every part is drawn in), drawn 1.8 tiles tall like the NPC figures, its head ending where
 // its body's does (tools/art/parts.js eyes on the two faces)
 const AVATAR_PX = 512;
-const AVATAR_SPAN = 1.8;
+export const AVATAR_SPAN = 1.8;
 // the boat the player turns into afloat: 1.8x the 0.9-tile state art, centred on the tile (owner 2026-11-12)
 const BOAT_SPAN = 1.62;
 // the tent the player turns into while camping (owner 2026-11-12): fills the tile and spills a little
@@ -40,39 +40,13 @@ const BOAT_RIM = 0.445;
 const RIDER_WAIST = 0.56;
 const AVATAR_BREATH_TOP = { female: 0.345, male: 0.294 };
 
-// Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
-const normalizeEmoji = (emoji) => {
-  if (!emoji) return emoji;
-  return emoji.replace(/\uFE0F/g, '');
-};
-
-// Build a static lookup map from emoji value to SVG filename (created once at module load)
-const iconToSvgMap = new Map();
-// A full-body figure icon (docs/avatar-plan.md v2, the Phase 1 figures used wholesale) carries
-// `artSpan` 1.5: its square is drawn that many tiles wide and tall, standing on the tile's
-// bottom edge, like artSpan art on the world layer; the busts and emoji keep the 0.9 square
-const iconToBreathTop = new Map(); // where a figure icon's head ends (PlayerIcons.json breathTop): the breath leaves it rigid
-const iconToBlinkMap = new Map(); // a figure icon's blink frame (PlayerIcons.json blinkFilename: the same art, eyes closed)
-const iconToSpanMap = new Map();
-/** The art span of a player icon (0 for a bust or emoji). */
-export const playerIconSpan = (icon) => iconToSpanMap.get(normalizeEmoji(icon)) || 0;
 // Where the drawn player's head ends, in tiles below its tile's top edge (negative: above it),
-// measured from the art the board shows NOW (the saved avatar, a figure icon, a state picture),
+// measured from the art the board shows NOW (the saved avatar or a state picture),
 // as npcHeadTops.js measures an NPC's: the speech bubble's tail stops just above it (owner
 // 2026-11-10: the bubble used the icon's span, 0 for the avatar, and sat on its chest)
 let liveHeadTop = null;
 /** The local player's measured head top (tiles below the tile's top edge), or null before the first draw. */
 export const getPlayerHeadTop = () => liveHeadTop;
-['free', 'paid', 'platinum'].forEach(tier => {
-  (playerIconsData[tier] || []).forEach(icon => {
-    if (icon.filename) {
-      iconToSvgMap.set(normalizeEmoji(icon.value), icon.filename);
-      if (Number(icon.artSpan) > 0) iconToSpanMap.set(normalizeEmoji(icon.value), Number(icon.artSpan));
-      if (icon.blinkFilename) iconToBlinkMap.set(normalizeEmoji(icon.value), icon.blinkFilename);
-      if (Number(icon.breathTop) > 0) iconToBreathTop.set(normalizeEmoji(icon.value), Number(icon.breathTop));
-    }
-  });
-});
 
 /**
  * PixiRendererPCs - Player Character rendering for PixiJS renderer
@@ -133,7 +107,6 @@ const PixiRendererPCs = ({
   const atlasTextureCacheRef = useRef(new Map());
   const svgLoadingPromisesRef = useRef(new Map());
   const isMountedRef = useRef(true);
-  const blinkRequestedRef = useRef(new Set()); // blink frames already asked for
 
   // The player's avatar (player.avatar, written by the avatar editor): composed from the
   // catalogue's parts into two textures, eyes open and the blink frame, and drawn INSTEAD of the
@@ -193,7 +166,7 @@ const PixiRendererPCs = ({
     if (pc.hp < 100) return '🤢';
     if (pc.iscamping) return '🏕️';
     if (pc.isinboat) return '🛶';
-    return pc.icon || '🧑';
+    return AVATAR_FALLBACK; // only while the saved avatar loads (the old `icon` emoji is gone, BL-28)
   }, []);
 
   /**
@@ -207,14 +180,6 @@ const PixiRendererPCs = ({
     if (pc.iscamping) return 'resources:item-tent.svg';
     if (pc.isinboat) return 'resources:item-boat.svg';
     return null;
-  }, []);
-
-  /**
-   * Get SVG filename for an emoji icon (if available)
-   */
-  const getSvgFilename = useCallback((emoji) => {
-    if (!emoji) return null;
-    return iconToSvgMap.get(normalizeEmoji(emoji));
   }, []);
 
   /**
@@ -253,17 +218,17 @@ const PixiRendererPCs = ({
         const resourceFile = isResourceArt ? filename.slice('resources:'.length) : null;
         const atlasTexture = isEmojiKey
           ? await getAtlasTexture('emoji', filename.slice('emoji:'.length))
-          : await getAtlasTexture(isResourceArt ? 'resources' : 'playerIcons', resourceFile || filename);
+          : await getAtlasTexture('resources', resourceFile);
         if (atlasTexture) {
           if (isMountedRef.current) atlasTextureCache.set(filename, atlasTexture);
           return atlasTexture;
         }
-        if (isEmojiKey) return null;
+        if (isEmojiKey || !isResourceArt) return null;
 
         // Fetch SVG text so we can modify its dimensions
-        const response = await fetch(isResourceArt ? `/assets/resources/${resourceFile}` : `/assets/playerIcons/${filename}`);
+        const response = await fetch(`/assets/resources/${resourceFile}`);
         if (!response.ok) {
-          console.warn(`Failed to load player icon SVG: ${filename}`);
+          console.warn(`Failed to load player state art: ${filename}`);
           return null;
         }
         let svgText = await response.text();
@@ -301,7 +266,7 @@ const PixiRendererPCs = ({
             resolve(tex);
           };
           img.onerror = () => {
-            console.warn(`Failed to load player icon SVG image: ${filename}`);
+            console.warn(`Failed to load player state art image: ${filename}`);
             URL.revokeObjectURL(url);
             resolve(null);
           };
@@ -533,7 +498,7 @@ const PixiRendererPCs = ({
     const displayIcon = getDisplayIcon(pc);
 
     // A state's painted art (tent, boat), else the icon's SVG, else its Twemoji atlas frame
-    const svgFilename = getStateArt(pc) || getSvgFilename(displayIcon) || getEmojiCacheKey(displayIcon);
+    const svgFilename = getStateArt(pc) || getEmojiCacheKey(displayIcon);
     const svgTextureCache = svgTextureCacheRef.current;
     const atlasTextureCache = atlasTextureCacheRef.current;
 
@@ -556,8 +521,8 @@ const PixiRendererPCs = ({
       // Use SVG sprite
       const sprite = getSprite();
       sprite.texture = texture;
-      // a figure (the saved avatar or a figure icon) stands on the tile: its square's bottom edge is the tile's bottom edge
-      const span = avatarTex ? AVATAR_SPAN : (!getStateArt(pc) && iconToSpanMap.get(normalizeEmoji(displayIcon)));
+      // the saved avatar stands on the tile: its square's bottom edge is the tile's bottom edge
+      const span = avatarTex ? AVATAR_SPAN : 0;
       const stateArt = !avatarTex ? getStateArt(pc) : null;
       const isTent = stateArt === 'resources:item-tent.svg';
       const flatSize = isTent ? TENT_SPAN : (stateArt && pc.isinboat ? BOAT_SPAN : 0.9); // non-figure art, drawn centred
@@ -566,23 +531,21 @@ const PixiRendererPCs = ({
       sprite.height = TILE_SIZE * (span || flatSize);
       sprite.x = xPos;
       // a figure is anchored at its FEET (the square's bottom-centre on the tile's bottom edge), so the
-      // idle breath (breathing.js) stretches it up from the ground; a bust or emoji stays centred
+      // idle breath (breathing.js) stretches it up from the ground; state art or an emoji stays centred
       if (span) { sprite.anchor.set(0.5, 1); sprite.y = yPos + TILE_SIZE / 2; }
       else { sprite.anchor.set(0.5, 0.5); sprite.y = yPos + flatDrop; }
       const artTop = opaqueTopFraction(app?.renderer, texture);
       liveHeadTop = span ? 1 - span * (1 - artTop) : 0.5 - flatSize / 2 + flatSize * artTop + flatDrop / TILE_SIZE;
       sprite.__artTop = artTop; // CombatFX centres the cooldown ring on the drawn figure, not its feet
-      // a standing figure casts a ground shadow (actorShadows.js); the tent, the boat and a bust do not
+      // a standing figure casts a ground shadow (actorShadows.js); the tent, the boat and an emoji do not
       if (span) trackShadow(sprite, pcContainerRef.current, { feet: opaqueFeet(app?.renderer, texture), size: TILE_SIZE * span, anchorY: 1, tile: TILE_SIZE });
       else untrackShadow(sprite);
       sprite.__breathes = !!span; // only a figure breathes (the ticker below sets sprite.breath)
       if (!span) sprite.breath = 0;
       else if (avatarTex) sprite.breathTop = AVATAR_BREATH_TOP[av.body] || AVATAR_BREATH_TOP.female;
-      else if (iconToBreathTop.has(normalizeEmoji(displayIcon))) sprite.breathTop = iconToBreathTop.get(normalizeEmoji(displayIcon));
-      // blinking: the ticker swaps between this texture and the blink frame (the avatar's own, or the icon's once it is loaded)
-      const blinkFile = !avatarTex && span ? iconToBlinkMap.get(normalizeEmoji(displayIcon)) : null;
+      // blinking: the ticker swaps between this texture and the avatar's blink frame
       sprite.__openTex = texture;
-      sprite.__blinkTex = avatarTex ? av.blink : (blinkFile ? (atlasTextureCache.get(blinkFile) || svgTextureCache.get(blinkFile) || null) : null);
+      sprite.__blinkTex = avatarTex ? av.blink : null;
       // The weapon in the hand (docs/equipment-plan.md; heldWeapon.js): while it is out the figure is
       // drawn as its body with the sword arm cut away and that arm as an ArmRig holding the weapon in
       // the guard. Put away, the arm eases back to the drawing and the plain picture returns.
@@ -601,12 +564,8 @@ const PixiRendererPCs = ({
           if (!disarmTimerRef.current) disarmTimerRef.current = setTimeout(() => { disarmTimerRef.current = null; renderPCsRef.current?.(); }, 280);
         }
       } else if (sprite.armRig) syncArmRig(sprite, null, null);
-      if (blinkFile && !sprite.__blinkTex && !blinkRequestedRef.current.has(blinkFile)) {
-        blinkRequestedRef.current.add(blinkFile);
-        loadSvgTexture(blinkFile).then((tex) => { if (tex && spriteRef.current) spriteRef.current.__blinkTex = tex; });
-      }
-      // A figure icon is drawn turned a little to the viewer's right and mirrors when the player's
-      // facing says so (PlayerMovement: set by horizontal steps and by facing an NPC; D1); busts
+      // The avatar is drawn turned a little to the viewer's right and mirrors when the player's
+      // facing says so (PlayerMovement: set by horizontal steps and by facing an NPC; D1); state art
       // and emoji never flip. Sizing above leaves scale.x positive, so the sign is applied after it.
       if (span) sprite.scale.x = Math.abs(sprite.scale.x) * getPlayerFacing();
       else if (sprite.scale.x < 0) sprite.scale.x = Math.abs(sprite.scale.x);
@@ -653,7 +612,7 @@ const PixiRendererPCs = ({
         });
       }
     }
-  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, hideRider, getRider, getPCRenderPosition, loadSvgTexture, avatarVersion, hidden, heldWeapon]);
+  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, hideRider, getRider, getPCRenderPosition, loadSvgTexture, avatarVersion, hidden, heldWeapon]);
   renderPCsRef.current = renderPCs;
   useEffect(() => () => { if (disarmTimerRef.current) clearTimeout(disarmTimerRef.current); }, []);
 
@@ -730,7 +689,7 @@ const PixiRendererPCs = ({
   // so no render pass follows it: the figure is mirrored here, the moment the facing changes.
   useEffect(() => onPlayerFacingChange((dir) => {
     const sprite = spriteRef.current;
-    if (sprite && !sprite.destroyed && sprite.visible && sprite.__breathes) sprite.scale.x = Math.abs(sprite.scale.x) * dir; // __breathes: a figure (busts and emoji never flip)
+    if (sprite && !sprite.destroyed && sprite.visible && sprite.__breathes) sprite.scale.x = Math.abs(sprite.scale.x) * dir; // __breathes: a figure (state art and emoji never flip)
   }), []);
 
   // Cleanup animation loop on unmount

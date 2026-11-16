@@ -85,7 +85,6 @@ function buildOwnPCData(currentPlayer) {
   return {
     playerId: currentPlayer._id,
     username: currentPlayer.username,
-    icon: currentPlayer.icon,
     hp: currentPlayer.hp || 100,
     position: { x: 0, y: 0 }, // Position not needed for own profile
     iscamping: currentPlayer.iscamping || false,

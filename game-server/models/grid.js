@@ -50,13 +50,6 @@ const GridSchema = new mongoose.Schema({
         x: { type: Number, required: true }, 
         y: { type: Number, required: true } 
       },
-      icon: {
-        type: String,
-        validate: {
-          validator: (value) => /^[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}]+$/u.test(value),
-          message: 'Invalid icon format. Expected an emoji.'
-        }
-      },
       hp: { type: Number, default: 25 },
       maxhp: { type: Number, default: 25 },
       attackbonus: { type: Number, required: true },

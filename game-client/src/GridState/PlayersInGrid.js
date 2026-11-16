@@ -51,7 +51,6 @@ function buildPCRecord(playerId, pcData = {}, now = Date.now()) {
     playerId: String(pcData.playerId || playerId),
     username: pcData.username,
     type: 'pc',
-    icon: pcData.icon,
     position: pcData.position || { x: 0, y: 0 },
     hp: pcData.hp ?? DEFAULT_PC_RECORD_FIELDS.hp,
     maxhp: pcData.maxhp ?? DEFAULT_PC_RECORD_FIELDS.maxhp,
@@ -385,7 +384,6 @@ class GridStatePCManager {
 
     const pc = buildPCRecord(playerId, {
       username: player.username,
-      icon: player.icon,
       position,
       hp,
       maxhp,

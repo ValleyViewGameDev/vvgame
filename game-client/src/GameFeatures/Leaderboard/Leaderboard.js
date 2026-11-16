@@ -59,8 +59,7 @@ function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalO
 
             return {
               username: fullPlayer.username || player.username,
-              icon: fullPlayer.icon || '🙂',
-              avatar: fullPlayer.avatar || null, // a saved parts avatar: its head shows instead of the icon (Avatar/AvatarFace.js)
+              avatar: fullPlayer.avatar || null, // a saved parts avatar: its head (Avatar/AvatarFace.js)
               netWorth: player.netWorth || 0,
               xp: fullPlayer.xp || 0,
               inventory: fullPlayer.inventory || [],
@@ -71,7 +70,6 @@ function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalO
             // Return partial data if fetch fails
             return {
               username: player.username,
-              icon: '🙂',
               netWorth: player.netWorth || 0,
               xp: 0,
               inventory: [],

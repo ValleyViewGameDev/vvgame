@@ -50,21 +50,6 @@ async function signupRateLimited(ipHash) {
   }
 }
 
-// Free avatars a new profile may pick: game-client/src/Authentication/PlayerIcons.json `free[].value`
-// (the server reads the client's file when the repo is checked out whole; on a server-only deploy it
-// falls back to "any short string", i.e. one emoji). Anything else gets the starter icon.
-let freeIcons = null;
-function isFreeIcon(icon) {
-  if (typeof icon !== 'string' || !icon || icon.length > 8) return false;
-  if (freeIcons === null) {
-    try {
-      const icons = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../game-client/src/Authentication/PlayerIcons.json'), 'utf8'));
-      freeIcons = new Set((icons.free || []).map((i) => i.value).filter(Boolean));
-    } catch (_) { freeIcons = false; }
-  }
-  return freeIcons ? freeIcons.has(icon) : true;
-}
-
 // POST /check-username {username} -> { available, reason } (reason: TAKEN or a validateUsername code)
 router.post('/check-username', async (req, res) => {
   const username = String(req.body?.username || '').trim();
@@ -88,11 +73,10 @@ router.post('/check-username', async (req, res) => {
 // rows and the welcome mailbox gift. Shared by /register-new-player (typed and silent) and
 // /login-google (a brand-new Google identity). `extra` lands on the document last
 // (googleId, email, email_source...). Returns the saved player.
-async function createPlayerAccount({ username, silent, hashedPassword, ipHash, icon, language, frontierId, browser, os, diagnostics, clientInfo, extra = {} }, io) {
+async function createPlayerAccount({ username, silent, hashedPassword, ipHash, language, frontierId, browser, os, diagnostics, clientInfo, extra = {} }, io) {
 
   // Step 3: Load starter attributes
   const {
-    icon: defaultIcon,
     range,
     baseHp,
     baseMaxhp,
@@ -139,7 +123,6 @@ async function createPlayerAccount({ username, silent, hashedPassword, ipHash, i
     named_at: silent ? null : new Date(),
     password: hashedPassword,
     signup_ip_hash: ipHash,
-    icon: isFreeIcon(icon) ? icon : defaultIcon,
     language,
     firsttimeuser,
     ftuestep,
@@ -278,7 +261,7 @@ router.post('/register-new-player', async (req, res) => {
     // Hash the password when one was given; otherwise the profile is passwordless
     const hashedPassword = password ? await bcrypt.hash(password, 10) : NO_PASSWORD;
     const newPlayer = await createPlayerAccount({
-      username, silent, hashedPassword, ipHash, icon: req.body.icon, language, frontierId, browser, os, diagnostics, clientInfo,
+      username, silent, hashedPassword, ipHash, language, frontierId, browser, os, diagnostics, clientInfo,
     }, req.app.get('socketio'));
 
     res.status(201).json({ success: true, player: publicPlayer(newPlayer), sessionToken: signSession(newPlayer._id) });
@@ -342,7 +325,7 @@ router.post('/login-google', async (req, res) => {
       if (!frontierId) return res.status(500).json({ success: false, error: 'No frontier to start in.', code: 'NO_FRONTIER' });
       const username = await generateUniqueRandomUsername(Player);
       player = await createPlayerAccount({
-        username, silent: true, hashedPassword: NO_PASSWORD, ipHash, icon: null,
+        username, silent: true, hashedPassword: NO_PASSWORD, ipHash,
         language: req.body.language || 'en', frontierId, browser: req.body.browser, os: req.body.os, diagnostics: req.body.diagnostics,
         clientInfo: sanitizeClientInfo(req.body.clientInfo || null),
         extra: { googleId, google_picture: picture, email, email_source: 'oauth', email_prompt_seen_at: new Date() },
@@ -409,7 +392,6 @@ router.post('/login', async (req, res) => {
         playerId: player._id,
         username: player.username,
         language: player.language,
-        icon: player.icon,
         location: player.location,
         hp: player.hp,
         maxhp: player.maxhp,

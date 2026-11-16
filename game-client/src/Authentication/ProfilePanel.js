@@ -31,7 +31,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
   const [formData, setFormData] = useState({
     username: '',
-    icon: '',
     accountStatus: 'Free',
     role: 'Citizen',
   });
@@ -99,7 +98,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
   
       setFormData({
         username: currentPlayer.username || '',
-        icon: currentPlayer.icon || '',
         accountStatus: currentPlayer.accountStatus || 'Free',
         role: currentPlayer.role || 'Citizen',
       });
@@ -161,7 +159,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     setErrorMessage('');
   
     try {
-      // Validate username and icon inputs
+      // Validate the username
       if (!formData.username.trim()) {
         throw new Error('Username cannot be empty.');
       }
@@ -169,7 +167,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
       // Prepare updates payload
       const updates = {
         username: formData.username.trim(),
-        icon: formData.icon.trim(),
         accountStatus: formData.accountStatus,
         role: formData.role,
         // Use dot notation to update specific settings fields without replacing the entire object
@@ -196,7 +193,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           ...currentPlayer,
           settings: { ...currentPlayer.settings, ...localSettings },
           username: formData.username.trim(),
-          icon: formData.icon.trim(),
           accountStatus: formData.accountStatus,
           role: formData.role,
         };
@@ -316,7 +312,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
               const currentPC = {
                 playerId: currentPlayer._id,
                 username: currentPlayer.username,
-                icon: currentPlayer.icon,
                 hp: currentPlayer.hp || 100,
                 position: { x: 0, y: 0 }, // Position not needed for own profile
                 iscamping: currentPlayer.iscamping,

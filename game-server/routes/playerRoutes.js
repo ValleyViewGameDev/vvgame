@@ -348,7 +348,7 @@ const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamag
   // Phase 5 (2026-11-04): everything an action route owns. Gameplay changes these only through
   // /action/* (routes/actionRoutes.js and friends); the editor's Players tab (a developer) may still.
   'inventory', 'backpack', 'skills', 'powers', 'xp', 'activeQuests', 'completedQuests', 'trophies',
-  'messages', 'warehouseCapacity', 'backpackCapacity', 'warehouseLevel', 'avatarsUnlocked', 'range',
+  'messages', 'warehouseCapacity', 'backpackCapacity', 'warehouseLevel', 'range',
   'tradeStall', 'tradeStallRequests', 'relationships', 'hopeFound', 'storyFlags', 'regionsVisited',
   'lastTransactionIds', 'activeTransactions', 'relocations', 'moments'];
 
@@ -749,7 +749,7 @@ router.post('/npc-relationship', async (req, res) => {
 // that was not saved, and never wears what was not paid for. Without it such a look is refused.
 router.post('/player/avatar', async (req, res) => {
   const { playerId, avatar } = req.body || {};
-  // `avatar: null` clears the saved look (the board goes back to the icon): choosing an icon does it
+  // `avatar: null` clears the saved look (the board goes back to the default look)
   if (!playerId || avatar === undefined || (avatar !== null && typeof avatar !== 'object')) return res.status(400).json({ error: 'playerId and avatar are required.' });
   try {
     const player = await Player.findById(playerId);
@@ -1611,7 +1611,7 @@ router.post('/update-last-active', async (req, res) => {
 router.get('/players', async (req, res) => {
   try {
     const players = await Player.find({})
-      .select('username settlementId accountStatus role created location icon language netWorth activeQuests completedQuests skills powers lastActive inventory ftuestep firsttimeuser aspiration warehouseCapacity backpackCapacity ftueFeedback xp warehouseLevel')
+      .select('username settlementId accountStatus role created location language netWorth activeQuests completedQuests skills powers lastActive inventory ftuestep firsttimeuser aspiration warehouseCapacity backpackCapacity ftueFeedback xp warehouseLevel')
       .sort({ lastActive: -1 }); // Sort by most recently active first
 
     console.log(`📋 Editor: Found ${players.length} players`);

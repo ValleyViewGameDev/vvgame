@@ -51,11 +51,6 @@ const playerSchema = new mongoose.Schema({
     webglSupported: { type: Boolean, default: null },
     timezone: { type: String, default: null },
   },
-  icon: {
-    type: String,
-    required: true, // This might cause issues if `icon` is missing
-    default: '😀', // Ensure a sensible default is provided
-  },
   xp: { type: Number, default: 0 },
   range: { type: Number, default: 0 },
   // Current combat state (Phase 3: lives here, not on the grid; docs/phase-3-contract.md)
@@ -115,11 +110,9 @@ const playerSchema = new mongoose.Schema({
     enum: ['Free', 'Bronze', 'Silver', 'Gold'],
     default: 'Free',
   },
-  avatarsUnlocked: { type: Boolean, default: false }, // Premium avatars unlocked via gem purchase
   // The parts-based bust (docs/avatar-plan.md §2.1): catalogue ids (tuning/avatarParts.json) and
   // palette ids (tuning/avatarPalettes.json), written only by POST /api/player/avatar.
-  // `null` = the player has never set one (the client draws the starter look, or the legacy
-  // `icon` until slice D). avatarParts = paid part / swatch ids this player has bought.
+  // `null` = the player has never set one (the client draws the default look). avatarParts = paid part / swatch ids this player has bought.
   avatar: {
     type: new mongoose.Schema({
       v: { type: Number, default: 1 },

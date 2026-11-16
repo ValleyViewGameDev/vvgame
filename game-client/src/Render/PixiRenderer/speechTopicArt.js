@@ -7,7 +7,7 @@
  *       tools/art/headcrop.js), drawn as a portrait in the avatar ring (kind 'portrait')
  *   the player's own picture (topicTokens.js PLAYER_FACE) -> the saved avatar's head, the default
  *       look's when the player has made none (`setSpeechPlayer`; the header's crop, AvatarFace.js)
- *       (kind 'portrait'). An old PlayerIcons figure emoji still shows that figure's face.
+ *       (kind 'portrait')
  *   a resource's symbol (a doober, Money, ...)          -> its painted art, `iconFile` or
  *       `filename`, as ResourceIcon shows it in panels (kind 'art')
  *   a feeling or a mark (a heart, a smiling face, a thumb) -> its painted glyph, GLYPH_ART below
@@ -19,12 +19,11 @@
  * Textures load once and are cached; `topicArt` is synchronous and returns null while a texture
  * is still loading, calling `onReady` when it lands so the caller redraws.
  */
-import { Texture, Rectangle } from 'pixi.js-legacy';
+import { Texture } from 'pixi.js-legacy';
 import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import { getMasterResources } from '../../Utils/TuningManager';
 import RelationshipMatrix from '../../GameFeatures/Relationships/RelationshipMatrix.json';
-import PlayerIcons from '../../Authentication/PlayerIcons.json';
 import { PLAYER_FACE } from '../../GameFeatures/Relationships/topicTokens';
 import { loadAvatarCatalogue } from '../../Utils/TuningManager';
 import { lookFor, specFor } from '../../Avatar/avatarLook';
@@ -80,12 +79,6 @@ function resolveTopic(topic) {
     return { key: `npc:${npcRow.type}`, kind: 'portrait', load: () => resourceTexture(npcRow.iconFile) };
   }
 
-  // the player's own icon: a full-body figure, cropped to its face
-  const icon = Object.values(PlayerIcons).flat().find((i) => strip(i?.value) === sym);
-  if (icon?.filename && Number(icon.artSpan) > 0) {
-    return { key: `pc:${icon.filename}`, kind: 'portrait', load: () => figureFace(icon.filename) };
-  }
-
   // a resource (not a skill or power: those show no picture anywhere, by the owner's rule)
   const row = rows.find((r) => strip(r.symbol) === sym && r.category !== 'npc' && r.category !== 'skill'
     && r.category !== 'power' && (r.iconFile || r.filename));
@@ -112,14 +105,6 @@ async function resourceTexture(file) {
 async function glyphTexture(rel) {
   const [ns, file] = rel.split('/');
   return (await getAtlasTexture(ns, file)) || urlTexture(`/assets/${rel}`);
-}
-
-/** A player figure's face, cut from its 512 px PNG. */
-async function figureFace(filename) {
-  const full = await urlTexture(`/assets/playerIcons/${filename.replace(/\.svg$/, '.png')}`);
-  if (!full) return null;
-  const k = full.baseTexture.width / FACE.art;
-  return new Texture(full.baseTexture, new Rectangle(FACE.x * k, FACE.y * k, FACE.size * k, FACE.size * k));
 }
 
 /** The local player's head: the composed look (the default one when none is saved), cut to the face box on a canvas of its own. */

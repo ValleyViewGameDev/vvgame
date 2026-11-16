@@ -420,7 +420,7 @@ let relationshipMatrix = null;
 function loadRelationshipMatrix() {
   if (!relationshipMatrix) {
     // the client owns this table (GameFeatures/Relationships/RelationshipMatrix.json); the whole
-    // repo is deployed, as auth.js reads PlayerIcons.json from the client too
+    // repo is deployed
     try { relationshipMatrix = JSON.parse(fs.readFileSync(path.join(__dirname, '../../game-client/src/GameFeatures/Relationships/RelationshipMatrix.json'), 'utf-8')); }
     catch (e) { relationshipMatrix = []; }
   }

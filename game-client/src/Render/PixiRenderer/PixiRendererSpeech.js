@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Graphics, Container, Text, Sprite } from 'pixi.js-legacy';
 import ConversationManager from '../../GameFeatures/Relationships/ConversationManager';
-import { playerIconSpan, getPlayerHeadTop } from './PixiRendererPCs';
+import { AVATAR_SPAN, getPlayerHeadTop } from './PixiRendererPCs';
 import { getNpcHeadTop } from './npcHeadTops';
 import { topicArt, setSpeechPlayer, isTopicToken, topicArtLoading, warmTopicArt } from './speechTopicArt';
 import { AVATAR_FALLBACK } from '../../Avatar/AvatarFace';
@@ -112,7 +112,7 @@ const PixiRendererSpeech = ({
    * NPCs are identified by type; the only PC speaker is the local player (by playerId)
    */
   // The speaker's tile position plus `span`: a full-body figure (resources.json artSpan, or the
-  // player's figure icon) stands span tiles tall on its tile, so its bubble sits (span - 1) tiles
+  // player's avatar) stands span tiles tall on its tile, so its bubble sits (span - 1) tiles
   // higher than a one-tile sprite's (docs/avatar-plan.md v2; owner 2026-11-09)
   const findEntityPosition = useCallback((speakerId) => {
     // Check if it's the current player (the only PC that can speak)
@@ -120,9 +120,9 @@ const PixiRendererSpeech = ({
       const list = Array.isArray(pcs) ? pcs : Object.values(pcs || {});
       const currentPC = list.find(pc => pc && String(pc.playerId) === String(currentPlayer._id));
       if (currentPC?.position) {
-        // headTop: the drawn figure's measured head (the saved avatar is 1.8 tiles tall whatever
-        // the icon says), so the player's bubble sits at the NPC's height, back and forth
-        return { ...currentPC.position, span: playerIconSpan(currentPC.icon || currentPlayer.icon), headTop: getPlayerHeadTop() };
+        // headTop: the drawn figure's measured head (the span is the saved avatar's until the
+        // first draw measures it), so the player's bubble sits at the NPC's height, back and forth
+        return { ...currentPC.position, span: AVATAR_SPAN, headTop: getPlayerHeadTop() };
       }
     }
 

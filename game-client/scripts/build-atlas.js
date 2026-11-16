@@ -18,7 +18,6 @@
  *                (the panel icon when the board art is something else) is NOT packed: panels load it raw;
  *                except an NPC's head crop, 128 px, drawn in the conversation bubbles (speechTopicArt.js)
  *                (a size-5 building is 375 CSS px at the closest zoom, 750 px on a 2x screen)
- *   playerIcons/ every `filename` in src/Authentication/PlayerIcons.json   slot = 256 px
  *   overlays/    every .svg in public/assets/overlays                      slot = 128 px
  *   icons/       the painted feelings and marks the conversation bubbles and outcomes draw
  *                (public/assets/icons/mark-*.png + the few icon-*.png GLYPH_ART borrows,
@@ -77,7 +76,7 @@ const { emojiKey, looksLikeEmoji } = require('../src/Utils/emojiKey.js'); // ESM
 
 const TWEMOJI_DIR = path.join(__dirname, '..', 'node_modules', '@twemoji', 'svg');
 // Icons PixiRendererPCs draws for player state (getDisplayIcon) that have no SVG of their own
-const PC_STATE_EMOJI = ['💀', '🤢', '🏕️', '🛶', '🧑'];
+const PC_STATE_EMOJI = ['💀', '🤢', '🏕️', '🛶', '🙂']; // 🙂 = AVATAR_FALLBACK, while the avatar loads
 // Conversation topics with no art of their own (PixiRenderer/speechTopicArt.js draws these in the
 // speech bubbles): every list in Topics.json plus the fixed topics in Conversation.js getTopicSymbol
 // and the one-off bubbles (the Healer's thanks, Feste's song)
@@ -88,7 +87,6 @@ const CLIENT_ROOT = path.resolve(__dirname, '..');
 const PUBLIC = path.join(CLIENT_ROOT, 'public', 'assets');
 const OUT_DIR = path.join(PUBLIC, 'atlas');
 const RESOURCES_JSON = path.resolve(CLIENT_ROOT, '..', 'game-server', 'tuning', 'resources.json');
-const PLAYER_ICONS_JSON = path.join(CLIENT_ROOT, 'src', 'Authentication', 'PlayerIcons.json');
 const AVATAR_PARTS_JSON = path.resolve(CLIENT_ROOT, '..', 'game-server', 'tuning', 'avatarParts.json');
 
 const SHEET_SIZE = 2048;            // a CORE sheet
@@ -152,19 +150,6 @@ function listResourceSources() {
     key: `resources/${file}`,
     src: path.join(PUBLIC, 'resources', file),
     cell,
-  }));
-}
-
-function listPlayerIconSources() {
-  const data = readJson(PLAYER_ICONS_JSON);
-  const files = new Set();
-  for (const tier of Object.values(data)) {
-    for (const icon of tier || []) { if (icon.filename) files.add(icon.filename); if (icon.blinkFilename) files.add(icon.blinkFilename); }
-  }
-  return [...files].map((file) => ({
-    key: `playerIcons/${file}`,
-    src: path.join(PUBLIC, 'playerIcons', file),
-    cell: BASE_CELL,
   }));
 }
 
@@ -465,7 +450,7 @@ function sourceHash(items) {
 }
 
 async function main() {
-  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listAvatarSources(), ...listOverlaySources(), ...listGlyphSources(), ...listTileSources(), ...listEdgeSources(), ...listWallSources(), ...listEmojiSources()];
+  const items = [...listResourceSources(), ...listAvatarSources(), ...listOverlaySources(), ...listGlyphSources(), ...listTileSources(), ...listEdgeSources(), ...listWallSources(), ...listEmojiSources()];
   const missing = items.filter((i) => !fs.existsSync(i.src));
   if (missing.length) {
     console.error(`Referenced art not on disk:\n  ${missing.map((m) => m.key).join('\n  ')}`);

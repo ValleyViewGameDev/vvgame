@@ -37,7 +37,6 @@ const { footprintOf, recordFootprint } = require('../utils/footprint');
  *   POST /action/ripen                            a grown farm plot becomes its crop (FarmState's timer)
  *   POST /action/remove                           clear something off the player's own grid (no refund)
  *   POST /action/warehouse-upgrade                the next warehouse level (tuning/warehouse.json)
- *   POST /action/unlock-avatars                   the premium avatars, for gems
  *   POST /action/animal-sell                      sell a farm animal back (its price at purchase)
  *   POST /action/pitch-tent                       camp: a Tent is used, the player is camping (Adventurer)
  *   POST /action/discard                          throw goods away (warehouse or backpack; only ever less)
@@ -1552,7 +1551,6 @@ router.post('/action/remove', async (req, res) => {
 // ---- Upgrades ----------------------------------------------------------------------------------
 
 const warehouseLevels = require('../tuning/warehouse.json');
-const PREMIUM_AVATAR_GEM_COST = 200; // UI/Modals/ChangeIconModal.js shows the same price
 
 /**
  * POST /api/action/warehouse-upgrade { playerId, useGems? }
@@ -1577,24 +1575,6 @@ router.post('/action/warehouse-upgrade', async (req, res) => {
   } catch (err) {
     console.error('❌ action/warehouse-upgrade failed:', err);
     return res.status(500).json({ success: false, error: 'warehouse-upgrade-failed', detail: err.message });
-  }
-});
-
-/** POST /api/action/unlock-avatars { playerId } → { success, avatarsUnlocked, player, seq } */
-router.post('/action/unlock-avatars', async (req, res) => {
-  try {
-    const ctx = await loadPlayer(req, res);
-    if (!ctx) return;
-    const { player, answer } = ctx;
-    if (player.avatarsUnlocked) return res.json({ success: true, avatarsUnlocked: true, player: econ.playerDelta(player), seq: econ.nextSeq() });
-    if (!spendCosts({ ingredient1: 'Gem', ingredient1qty: PREMIUM_AVATAR_GEM_COST }, player.inventory, player.backpack)) return answer(409, 'short-Gem');
-    player.markModified('inventory'); player.markModified('backpack');
-    player.avatarsUnlocked = true;
-    await player.save();
-    return res.json({ success: true, avatarsUnlocked: true, player: econ.playerDelta(player), seq: econ.nextSeq() });
-  } catch (err) {
-    console.error('❌ action/unlock-avatars failed:', err);
-    return res.status(500).json({ success: false, error: 'unlock-avatars-failed', detail: err.message });
   }
 });
 

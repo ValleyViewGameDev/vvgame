@@ -12,6 +12,7 @@ import { playConversation, calculateModifiedChance, relationshipPoints, MATCH_CH
 import { rememberNpcInteraction } from './conversationMemory';
 import ConversationManager from './ConversationManager';
 import '../../UI/Buttons/SharedButtons.css';
+import { AVATAR_FALLBACK } from '../../Avatar/AvatarFace';
 
 // Mapping of interaction names (lowercase) to their success/failure reaction emojis
 const INTERACTION_EMOJIS = {
@@ -140,7 +141,7 @@ const RelationshipCard = ({
 
     // Play conversation sequence if positions are provided
     if (playerPosition && targetPosition) {
-      const playerEmoji = currentPlayer.icon || '😊';
+      const playerEmoji = AVATAR_FALLBACK; // the bubble's glyph before its topic picture lands (never the old `icon`, BL-28)
       const defaultTargetEmoji = targetType === 'npc' ? '🤔' : '😊';
       const conversationTargetEmoji = targetEmoji || defaultTargetEmoji;
       

@@ -90,6 +90,15 @@ attack with rigged arms (the Ogre swings a club), the Coyote lurches, the Spider
 fliers hover and flap, and the Ogre's leap crouches from the legs. What was left of BL-27, the
 player's own lunge, is part of BL-23 (`docs/equipment-plan.md` §3.4).
 
+BL-23 (avatar equipment: the weapon in the hand) closed 2026-11-15: every weapon category is held
+and attacks on the figure (`docs/equipment-plan.md`); shields and armour overlays, if wanted, are
+new items.
+
+BL-28 (avatar follow-ups) closed 2026-11-15: the old `icon` emoji is gone (the `PlayerIcons.json`
+set, `public/assets/playerIcons/`, the Player and PC `icon` fields, its atlas frames); every
+fallback is the smiling face (`AVATAR_FALLBACK`). More hair, faces and skin tones are future
+content, not a task.
+
 BL-24 (optimize the sprite sheets, a launch blocker) closed 2026-11-14: the atlas is grouped by use
 and loaded per grid (`game-client/scripts/build-atlas.js`, `Render/PixiRenderer/AtlasTextures.js`;
 CLAUDE.md, the atlas paragraph). Core sheets 35 MB of GPU memory, always loaded; a grid adds its
@@ -139,29 +148,6 @@ finds a developer's id can call the admin routes. Replace it with a signed sessi
 than from the header or a `playerId` in the body. Found while closing the open admin routes
 (commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
 
-### BL-23: Avatar equipment: the weapon in the hand, armour as the outfit
-
-Added 2026-11-10. Not a launch blocker (owner: "a big task ... come back to that later").
-**Plan written 2026-11-13: `docs/equipment-plan.md`** (hand-held weapons first). **A first prototype is
-in the game the same day** (a `weaponClass` column on the weapon rows; six categories with a drawing each, sword / dagger / spear /
-polearm / axe / hammer, and three attacks, slash / thrust / chop, each an arm clip with the body's move;
-follows the Combat panel's weapon slot; out only while an enemy is on the grid; an arm rig for every outfit; great swords, polearms, axes and hammers held and swung in both hands: every melee weapon now has its category and its attack; the bows shoot: the Short Bow and a longbow drawing for the six other bows; the four crossbows are held level and kick; only the retired Darts shows nothing): the plan's "The prototype" section says what is
-and is not built. Checked on offline renders only; the owner's look in a live fight decides what next.
-
-**What.** The equipped weapon drawn in the avatar's hand, held up in an en garde stance and swung
-when the player attacks, then armour and helmets as overlays (armour rows are outfit rows, helmets
-are hats: `docs/avatar-plan.md` v2 D4). **Why.** The gear a player earns should show on the
-figure. **Where it stands.** The Ogre's club proved the arm (three joints, the weapon on the wrist:
-docs/arm-rig-plan.md §0a). Two probes on the avatar's existing art: the arm on the side the figure
-faces is the far arm and too thin when lifted (rejected by the owner), the NEAR arm is whole and
-works, so the sword goes in the near hand, crossing the body, and the swing comes over and across
-it (the plan's §2). A few weapon drawings per category with tints and lengths; no two-handed
-animation yet. The plan's P1 is a prototype outside the game (one sword, one outfit a body, a fist
-piece, the guard and a slash) for the owner to approve. The player's body move is part
-of each weapon category's attack clip (`CombatFX.playerAttack`), so the old "review the combat
-animations" item (BL-27) has no player half left. The feed exists: `equipFor` / `lookFor` in
-`game-client/src/Avatar/avatarLook.js` read `settings.equippedWeapon` and the rows' `avatarHand`.
-
 ### BL-25: Test a season reset (LAUNCH BLOCKER)
 
 Added 2026-11-10. Launch blocker (owner 2026-11-10).
@@ -186,22 +172,3 @@ talking, exploring a valley or a fight), record them from a clean test account (
 never Oberon), and cut them to the platforms' formats (vertical for Reels / TikTok).
 **Plan (2026-11-11):** `docs/social-video-plan.md` (eight videos, shot lists, recording and
 editing steps); assets go in `ads/` (`ads/README.md`).
-
-### BL-28: Avatar follow-ups (not launch blockers)
-
-Carried over from BL-17 when it closed (2026-11-12); listed by the owner 2026-11-10 so they are
-not lost. Equipment on the figure is BL-23.
-- The last readers of the old `icon` emoji, then `PlayerIcons.json`, `playerIcons/` and the
-  `icon` field can go (the plan's slice D). Done 2026-11-12: other players (none is drawn on the
-  board; the Leaderboard and the Global Market show avatar heads, owner verified); every avatar
-  face falls back to ONE thing while it loads, the smiling face emoji (`AvatarFace.js`
-  `AVATAR_FALLBACK`, the speech bubble too), never the old `icon`; the "you are here" picture on
-  the frontier map is gone (the yellow outline marks the tile); `PlayerAvatarFace` is deleted.
-  What still reads `icon`: the board's fallback for the local player
-  (`PixiRendererPCs.js getDisplayIcon`, `PlayersInGrid.js`), the old Profile panel's icon field,
-  `RelationshipCard.js`, and `speechTopicArt.js` for an old figure emoji. No record needs
-  rewriting: a player without a look is drawn in the default one.
-- Hair is two styles a body, faces one a body; the skin tone palette is to be iterated (the
-  owner found the tones a little strong).
-- Arm swing is muted (the art has no separate arms; see the plan).
-

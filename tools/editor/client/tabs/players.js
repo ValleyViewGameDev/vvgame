@@ -353,7 +353,7 @@ function bulkPreview(kind) {
   const table = el('table', { class: 'sheet players' }, [
     el('thead', {}, el('tr', {}, ['Username', 'Last Active', 'FTUE Step', 'Created', 'Settlement'].map((h) => el('th', {}, h)))),
     el('tbody', {}, profiles.slice(0, 50).map((p) => el('tr', {}, [
-      el('td', {}, `${p.icon || '😀'} ${p.username}`),
+      el('td', {}, p.username),
       el('td', { class: 'err' }, p.lastActive ? `${daysAgo(p.lastActive)} days ago` : 'Never'),
       el('td', {}, String(p.ftuestep || 0)),
       el('td', {}, fmtDate(p.created)),
@@ -445,7 +445,7 @@ function renderSelection() {
     const rows = sorted(scoped());
     if (P.loading) ul.appendChild(el('li', { class: 'muted' }, 'loading…'));
     for (const p of rows) ul.appendChild(el('li', { class: P.selectedId === String(p._id) ? 'active' : '', title: `${p.username}: ${location(p)}`, onclick: () => selectPlayer(String(p._id)) }, [
-      el('span', {}, `${p.icon || '😀'} ${p.username}`),
+      el('span', {}, p.username),
       el('small', { class: 'muted' }, ago(p.lastActive)),
     ]));
     if (!rows.length && !P.loading) ul.appendChild(el('li', { class: 'muted' }, P.error ? 'load failed' : 'no players'));
@@ -491,7 +491,7 @@ function renderTable(root) {
     onclick: c.sortable === false ? undefined : () => setSort(c.key),
   }, c.label))));
   const tbody = el('tbody', {}, rows.map((p) => el('tr', { class: P.selectedId === String(p._id) ? 'selected' : '', onclick: () => selectPlayer(String(p._id)) }, [
-    el('td', {}, `${p.icon || '😀'} ${p.username}`),
+    el('td', {}, p.username),
     el('td', {}, p.language || 'Unknown'),
     el('td', { class: 'num' }, num(p.netWorth)),
     el('td', { class: 'num' }, num(money(p))),
@@ -602,7 +602,7 @@ function renderInspector(root, p) {
   P.els.pendingBadge = el('span', { class: 'badge warn' }, '');
   root.appendChild(el('div', { class: 'toolbar' }, [
     el('button', { onclick: () => selectPlayer(null) }, '← All players'),
-    el('strong', {}, `${p.icon || '😀'} ${p.username}`),
+    el('strong', {}, p.username),
     statusBadge(p), roleBadge(p),
     el('span', { class: 'mono muted', title: 'Player id' }, String(p._id)),
     el('span', { class: 'spacer' }),
