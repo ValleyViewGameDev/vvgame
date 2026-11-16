@@ -12,7 +12,7 @@
 // What a take changes for real: health, enemies killed on the way (xp, drops), the dungeon copy.
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { sleep, zoomToScale, whereAmI, hidePanels, closePanel, park, health, healUp, npcs, myTile, arrive, clickTile, teleport, lookAt, walkTarget, tapReach } from './lib.js';
+import { sleep, zoomToScale, whereAmI, hidePanels, closePanel, park, health, healUp, npcs, myTile, arrive, clickTile, teleport, lookAt, walkTarget, tapReach, pinNpc } from './lib.js';
 
 const OUT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../ads/vvgame/video/raw/_prep');
 const CLOSER = 75 / 45, CLOSE = 1, FARISH = 25 / 45, FAR = 14 / 45;
@@ -60,7 +60,7 @@ async function enterDungeon(page) {
 
 /** The next tile to tap on the way to (x, y): `hop` steps along the shortest route over open ground
  *  (doors count as open), or null when there is none. A tap far away finds no route in the game. */
-export const waypoint = (page, x, y, hop = 5) => page.evaluate(([tx, ty, n]) => {
+export const waypoint = (page, x, y, hop = 5, banned = []) => page.evaluate(([tx, ty, n, ban]) => {
   const tiles = window.__boardTiles();
   const me = window.__pixiCamera.debug().playerTile; const sx = Math.floor(me.x), sy = Math.floor(me.y);
   const key = (a, b) => b * 64 + a, blocked = new Set();
@@ -69,20 +69,21 @@ export const waypoint = (page, x, y, hop = 5) => page.evaluate(([tx, ty, n]) => 
     const w = r.sizeX || r.size || 1, h = r.sizeY || r.size || 1;
     for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) blocked.add(key(r.x + i, r.y - j));
   }
+  for (const [a, b] of ban) blocked.add(key(a, b));        // tiles the game would not step onto (found by trying)
   const open = (a, b) => a >= 0 && b >= 0 && b < tiles.length && a < tiles[0].length && !'wl'.includes(tiles[b][a]) && !blocked.has(key(a, b));
   const prev = new Map([[key(sx, sy), null]]); const queue = [[sx, sy]];
   while (queue.length) {
     const [a, b] = queue.shift();
-    if (a === tx && b === ty) { const path = []; let k = key(a, b); while (k !== null) { path.unshift([k % 64, Math.floor(k / 64)]); k = prev.get(k); } const w = path[Math.min(n, path.length - 1)]; return { x: w[0], y: w[1], left: path.length - 1 }; }
+    if (a === tx && b === ty) { const path = []; let k = key(a, b); while (k !== null) { path.unshift([k % 64, Math.floor(k / 64)]); k = prev.get(k); } const w = path[Math.min(n, path.length - 1)]; return { x: w[0], y: w[1], left: path.length - 1, next: path[1] || null }; }
     for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) { const c = a + ox, d = b + oy; if (open(c, d) && !prev.has(key(c, d))) { prev.set(key(c, d), key(a, b)); queue.push([c, d]); } }
   }
   return null;
-}, [x, y, hop]);
+}, [x, y, hop, banned]);
 
 /** Walk to (x, y) in short taps, fighting what comes into reach; false when health runs low,
  *  there is no way, or time is up. */
 async function trek(page, x, y, ms = 40000) {
-  const until = Date.now() + ms;
+  const until = Date.now() + ms; const banned = [];
   while (Date.now() < until) {
     const me = await myTile(page);
     if (me.x === x && me.y === y) return true;
@@ -90,10 +91,14 @@ async function trek(page, x, y, ms = 40000) {
     if (p && p.hp < p.maxhp * 0.55) { console.log('  health low on the way:', p.hp); return false; }
     const [near] = await hostile(page);
     if (near && near.type === 'Spider' && near.d <= (p?.attackrange || 1)) { await page.keyboard.press('Space'); await sleep(260); continue; } // only what can keep up; the slow ones are outrun
-    const w = await waypoint(page, x, y);
+    const w = await waypoint(page, x, y, 5, banned);
     if (!w) { console.log('  no way to', x, y, 'from', JSON.stringify(me)); return false; }
+    await closePanel(page);                                // a tap that landed on someone opens their panel, which stops the walk
     await clickTile(page, w.x, w.y);
-    await arrive(page, w.x, w.y, 1500);
+    if (!(await arrive(page, w.x, w.y, 1500))) {
+      const now = await myTile(page);                      // did not move at all: the game will not take the route's first step, so go round it
+      if (now.x === me.x && now.y === me.y && w.next) { banned.push(w.next); console.log('  the game will not step to', w.next.join(','), 'from', me.x, me.y); }
+    }
   }
   return false;
 }
@@ -181,7 +186,7 @@ const SHOTS = {
     },
   },
   quests: {
-    async setup(page) { await start(page); if ((await whereAmI(page)).region !== "Titania's Bower") await teleport(page, 'Titania'); await zoomToScale(page, CLOSE); await park(page); },
+    async setup(page) { await start(page); if ((await whereAmI(page)).region !== "Titania's Bower") await teleport(page, 'Titania'); await pinNpc(page, 'Titania', 36, 31); await zoomToScale(page, CLOSE); await park(page); },   // she is held on her mark, as in the Story take
     async run(page, { mark }) {
       await sleep(1500);
       mark('open');

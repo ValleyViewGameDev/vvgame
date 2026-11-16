@@ -110,9 +110,10 @@ export const isCitizen = (npc) => !!npc && CITIZEN_ACTIONS.includes(npc.action);
 /**
  * Citizens who keep their post: no state loop, no wandering, never a conversation partner;
  * only the waiting cue when the player is near (owner 2026-10-28: Kent, The Shepherd; 2026-11-11:
- * Snug, so the Snug lesson's arrow and the player's taps always find him on his own tile).
+ * Snug, so the Snug lesson's arrow and the player's taps always find him on his own tile;
+ * 2026-11-15: Titania, who wandered onto the honey beside her harp).
  */
-const STATIONARY_CITIZENS = new Set(['Kent', 'The Shepherd', 'Snug']);
+const STATIONARY_CITIZENS = new Set(['Kent', 'The Shepherd', 'Snug', 'Titania']);
 export const isStationaryCitizen = (npc) => !!npc && STATIONARY_CITIZENS.has(npc.type);
 /**
  * Does this worker do its job on its own in the working state? The worker panel's

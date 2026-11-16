@@ -10,7 +10,7 @@
 // back is still one A-to-B line and nothing is walked twice on screen.
 // What a take changes for real: the relationship with that character (a friendly Talk), health.
 // The weapon only shows on a grid with an enemy on it (PixiRenderer `enemyOnGrid`).
-import { sleep, zoomToScale, whereAmI, hidePanels, closePanel, park, health, healUp, npcs, myTile, walkTarget, tapReach, arrive, clickTile, teleport, standBeside, equipWeapon } from './lib.js';
+import { sleep, zoomToScale, whereAmI, hidePanels, closePanel, park, health, healUp, npcs, myTile, walkTarget, tapReach, arrive, clickTile, teleport, standBeside, equipWeapon, pinNpc } from './lib.js';
 
 const CLOSE = 1, FARISH = 25 / 45;
 const FRIENDLY = ['Talk', 'Compliment', 'Joke'];          // never Taunt, Insult, Kiss or gifts
@@ -21,7 +21,11 @@ const CAST = {
   // crops the last of the edge away).
   leontes: { who: 'Leontes', place: 'Leontes', near: true },
   gertrude: { who: 'Gertrude', place: 'Town' },
-  titania: { who: 'Titania', place: 'Titania', from: 'Belmont' },
+  // She wanders three tiles from her mark (and onto the honey by the harp): the take holds her on
+  // it, the grass two rows below the harp. The player crosses the meadow from the west, comes in
+  // by the garden gate and up to her (owner 2026-11-15); `via` is tapped first, because her tile
+  // is out of the picture from where he starts, and the tap beside her follows while he walks.
+  titania: { who: 'Titania', place: 'Titania', from: 'Belmont', pin: { x: 36, y: 31 }, startAt: [{ x: 31, y: 36 }, { x: 26, y: 36 }], via: { x: 32, y: 35 } },
   // his Peak has enemies on it, so the weapon is in the hand there: the Knife, not the bow (owner 2026-11-14);
   // what was equipped is put back after the take
   prospero: { who: 'Prospero', place: 'Prospero', weapon: 'Knife' },
@@ -69,9 +73,17 @@ export default (id) => {
       await sleep(2400);
       try {
         await closePanel(page);
+        if (c.pin && !(await pinNpc(page, c.who, c.pin.x, c.pin.y))) throw new Error(`${c.who} is not here`);
+        if (c.pin) await sleep(600);
         const [n] = await npcs(page, `n.type === ${JSON.stringify(c.who)}`);
         if (!n) throw new Error(`${c.who} is not here`);
         let me = await myTile(page);
+        console.log('  landed at', JSON.stringify(me), c.who, 'at', n.x, n.y);
+        if (c.startAt) {                                   // off the cut: to where the walk begins
+          for (const to of c.startAt) for (let i = 0; i < 4; i++) { await clickTile(page, to.x, to.y); if (await arrive(page, to.x, to.y, 6000)) break; }
+          await sleep(1500);
+          me = await myTile(page);
+        } else
         // Landed beside them: step well away first, so the approach is a real walk.
         if (Math.hypot(n.x - me.x, n.y - me.y) < 7) {
           const reach = await tapReach(page);
@@ -94,6 +106,12 @@ export default (id) => {
         }
         console.log('  walking from', JSON.stringify(me), 'to', c.who, 'at', Math.floor(n.x), Math.floor(n.y));
         mark('walk');
+        if (c.via) {
+          await sleep(700);                                // a beat standing in the meadow
+          const reach = await tapReach(page, 2);
+          await clickTile(page, c.via.x, c.via.y); mark('go');
+          for (let i = 0; i < 60; i++) { const at = await myTile(page); if (Math.abs(at.x - n.x) <= reach.dx && Math.abs(at.y - n.y) <= reach.dy) break; await sleep(40); }
+        }
         // Stand beside them on their row and open their panel (invisible). They may wander between
         // the two, and beside them a tap can land on the player instead (the panel's title says
         // whose it is): check the row again once the panel is open, and start over if it is off.

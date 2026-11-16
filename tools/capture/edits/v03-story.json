@@ -1,6 +1,6 @@
 {
   "source": "v03-story/gertrude",
-  "output": "soe_v03-story_9x16_c.mp4",
+  "output": "soe_v03-story_9x16_f.mp4",
   "music": {
     "file": "game-client/public/sound/music/valley1_2.mp3",
     "start": 0,
@@ -10,46 +10,47 @@
     {
       "source": "avatar",
       "from": 0.2,
-      "to": 7.3,
-      "speed": 1.6
+      "to": 5.4,
+      "speed": 1.7
     },
     {
       "source": "avatar",
-      "from": 9.7,
-      "to": 11.4
+      "from": 7.0,
+      "to": 8.6,
+      "speed": 1.4
     },
     {
       "source": "v03-story/gertrude",
-      "from": 7.4,
-      "to": 9.4,
-      "speed": 1.2
+      "from": 7.1,
+      "to": 9.6,
+      "speed": 1.3
     },
     {
       "source": "v03-story/gertrude",
-      "from": 13.8,
-      "to": 19.4,
+      "from": 13.4,
+      "to": 19.0,
       "speed": 1.3
     },
     {
       "source": "v03-story/leontes",
-      "from": 11.6,
-      "to": 13.6,
+      "from": 13.15,
+      "to": 14.4,
       "scale": 1.3,
       "anchor": "top"
     },
     {
       "source": "v03-story/leontes",
-      "from": 14.2,
-      "to": 18.4,
+      "from": 15.0,
+      "to": 19.6,
       "speed": 1.1,
       "scale": 1.3,
       "anchor": "top"
     },
     {
       "source": "v03-story/titania",
-      "from": 10.0,
-      "to": 15.0,
-      "speed": 1.15
+      "from": 11.7,
+      "to": 17.3,
+      "speed": 1.2
     },
     {
       "source": "v03-story/quests",
@@ -59,25 +60,25 @@
     },
     {
       "source": "v03-story/cellar",
-      "from": 70.9,
-      "to": 72.9,
+      "from": 11.0,
+      "to": 13.0,
       "speed": 1.2
     },
     {
       "source": "v03-story/cellar",
-      "from": 74.55,
-      "to": 75.35,
-      "speed": 0.45
+      "from": 17.95,
+      "to": 18.85,
+      "speed": 0.4
     },
     {
       "source": "v03-story/prospero",
-      "from": 7.4,
-      "to": 9.3
+      "from": 6.4,
+      "to": 8.2
     },
     {
       "source": "v03-story/prospero",
-      "from": 9.6,
-      "to": 15.2,
+      "from": 9.4,
+      "to": 15.4,
       "speed": 1.3
     }
   ],

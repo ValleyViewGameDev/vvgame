@@ -1,6 +1,6 @@
 {
   "source": "v02-farming",
-  "output": "soe_v02-farming_9x16_g.mp4",
+  "output": "soe_v02-farming_9x16_i.mp4",
   "music": {
     "file": "game-client/public/sound/music/homestead.mp3",
     "start": 0,
@@ -10,13 +10,15 @@
     {
       "from": "intro",
       "to": "harvest",
-      "speed": 1.5
+      "speed": 1.5,
+      "source": "v02-farming/first"
     },
     {
       "from": "harvest",
       "to": "harvest_end",
       "toOffset": 1.2,
-      "speed": 8
+      "speed": 8,
+      "source": "v02-farming/first"
     },
     {
       "from": "plant",
@@ -32,17 +34,20 @@
     {
       "from": "animals_pan",
       "to": "animals_end",
-      "speed": 1.8
+      "speed": 1.8,
+      "source": "v02-farming/first"
     },
     {
       "from": "kent_pan",
       "to": "kent",
-      "speed": 2
+      "speed": 2,
+      "source": "v02-farming/first"
     },
     {
       "from": "kent",
       "to": "kent_out",
-      "speed": 1.2
+      "speed": 1.2,
+      "source": "v02-farming/first"
     },
     {
       "from": "pull",

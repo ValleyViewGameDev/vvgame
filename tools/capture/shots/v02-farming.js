@@ -28,7 +28,14 @@ const plotEntry = (page, name, click) => page.evaluate(([n, doClick]) => {
   return !blocked;
 }, [name, click]);
 
+// The field's columns, west to east (x 24..32): what an EMPTY tile is planted with. A take that
+// could not replant (2026-11-15: the panel closes on a pick now, so only the first crop went in)
+// leaves bare tiles; the next take fills them, so the field always ends whole.
+const COLUMN = ['Wheat', 'Wheat', 'Carrot', 'Carrot', 'Corn', 'Pepper', 'Onion', 'Sugarcane', 'Sugarcane'];
+const MIN_RIPE = Number(process.env.MIN_RIPE || 40);
+
 let crops = [];   // [{ type, x, y }] to harvest and replant, set in setup
+let bare = [];    // [{ type, x, y }] empty tiles of the field, planted with their column's crop
 
 export default {
   async setup(page) {
@@ -55,7 +62,11 @@ export default {
     crops = (await resources(page, `${IN_BOX} && ${JSON.stringify(Object.keys(PLOT))}.includes(r.type)`))
       .filter((r) => plantable[r.type]).sort((a, b) => a.x - b.x || a.y - b.y);
     console.log('plantable:', JSON.stringify(plantable), '| ripe crops to harvest:', crops.length);
-    if (crops.length < 40) throw new Error(`only ${crops.length} ripe crops in the field: wait for it to grow`);
+    const taken = new Set((await resources(page, IN_BOX)).map((r) => `${r.x},${r.y}`));
+    bare = [];
+    for (let x = BOX.x0; x <= BOX.x1; x++) for (let y = BOX.y0; y <= BOX.y1; y++) if (!taken.has(`${x},${y}`)) bare.push({ type: COLUMN[x - BOX.x0], x, y });
+    console.log('bare tiles to fill:', bare.length);
+    if (crops.length < MIN_RIPE) throw new Error(`only ${crops.length} ripe crops in the field: wait for it to grow`);
     await zoomToScale(page, 25 / 45);
     await park(page);
     await sleep(1000);
@@ -80,18 +91,23 @@ export default {
 
     // 2. Replant every tile with the crop it had. The panel stays open but invisible; each
     //    plot is picked through it, then its tiles are tapped.
-    await openNav(page, 'FarmingPanel');
-    await sleep(1000);
-    await hidePanels(page, true);
-    await lookAt(page, FIELD.x, FIELD.y); // opening a panel returns the view to the player
-    await sleep(400);
-    const plots = await tiles(page, crops);
+    // A pick closes the panel on a phone (placement mode), so it is opened again for each crop;
+    // opening it returns the view to the player, so the field is looked at again each time.
+    const todo = [...crops, ...bare];
     let planted = 0;
+    await hidePanels(page, true);
     mark('plant');
-    for (const type of [...new Set(crops.map((c) => c.type))]) {
+    for (const type of [...new Set(todo.map((c) => c.type))]) {
+      await page.keyboard.press('Escape');
+      await sleep(200);
+      if (!(await page.locator('.panel-container[data-panel-name="FarmingPanel"]').count())) { await openNav(page, 'FarmingPanel'); await sleep(900); }
       if (!(await plotEntry(page, PLOT[type], true))) { console.log('could not pick', PLOT[type]); continue; }
-      await sleep(250);
-      for (const [i, c] of crops.entries()) { if (c.type !== type) continue; await page.mouse.click(plots[i].x, plots[i].y); planted++; await sleep(CLICK_MS); }
+      await sleep(300);
+      await lookAt(page, FIELD.x, FIELD.y);
+      await sleep(350);
+      const mine = todo.filter((c) => c.type === type);
+      const pts = await tiles(page, mine);
+      for (const p of pts) { await page.mouse.click(p.x, p.y); planted++; await sleep(CLICK_MS); }
     }
     mark('plant_end');
     await park(page);

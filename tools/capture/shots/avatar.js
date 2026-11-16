@@ -3,8 +3,8 @@
 //   node capture.js shot avatar
 //
 // The player's own profile is opened (a tap on the avatar; the panel is kept invisible), then Edit
-// Avatar. Off camera the look is set to the Woman with long wavy blonde hair in the first dress.
-// On camera: the Clothes tab, one outfit after another, ending on the black queen's coat; the Face
+// Avatar. Off camera the look is set to the Woman with long wavy blonde hair in the adventurer's outfit.
+// On camera: the Clothes tab, the last two outfits, ending on the black queen's coat; the Face
 // tab; then the editor closed WITHOUT saving and opened again, which shows the saved look (the
 // man, in what he wears now) on the same Face tab. The edit cuts from `face` to `saved`, which
 // reads as the tap on the man's sign.
@@ -12,9 +12,9 @@
 import { sleep, zoomToScale, hidePanels, closePanel, park, myTile, clickTile } from './lib.js';
 
 const TAB = { skin: 0, hair: 1, facialHair: 2, eyes: 3, hat: 4, top: 5 };
-const BLONDE = 'rgb(232, 200, 114)';
+const BLONDE = 1;   // the hair colours, in palette order: brown, blonde, black, red, grey
 // the Clothes tab for the Woman, in catalogue order: shift, peasant, gown, ranger, adventurer, court, queen
-const OUTFITS = [2, 3, 4, 5, 6];
+const START = 4, OUTFITS = [5, 6];   // on camera only the last two changes (owner 2026-11-15): from the adventurer to the court gown, then the black queen's coat
 
 const tab = (page, key) => page.evaluate((i) => document.querySelectorAll('.avatar-modal .avatar-tabs .tab-button')[i]?.click(), TAB[key]);
 const part = (page, i) => page.evaluate((n) => document.querySelectorAll('.avatar-modal .avatar-part-grid .avatar-part')[n]?.click(), i);
@@ -51,27 +51,27 @@ export default {
     await openEditor(page);
     await sleep(1500);
     // the Woman
-    await page.evaluate(() => [...document.querySelectorAll('.avatar-modal .avatar-part')].find((b) => b.innerText.includes('♀'))?.click());
+    await page.evaluate(() => document.querySelector('.avatar-modal .avatar-part .avatar-sign-icon[src*="icon-female"]')?.closest('.avatar-part')?.click());
     await sleep(600);
     // long wavy hair (None, Bun, Long wavy, Short spiky), blonde
     await tab(page, 'hair'); await sleep(700);
     await part(page, 2); await sleep(400);
-    await page.evaluate((c) => [...document.querySelectorAll('.avatar-modal .avatar-swatch')].find((b) => getComputedStyle(b).backgroundColor === c)?.click(), BLONDE);
+    await page.evaluate((n) => document.querySelectorAll('.avatar-modal .avatar-swatch')[n]?.click(), BLONDE);
     await sleep(400);
-    // no hat, the first dress
+    // no hat, the outfit before the last two
     await tab(page, 'hat'); await sleep(600);
     await part(page, 0); await sleep(400);
     await tab(page, 'top'); await sleep(700);
     console.log('outfits on the Clothes tab:', await partCount(page));
-    await part(page, 1);
+    await part(page, START);
     await sleep(2500);                     // the thumbnails finish drawing
     await park(page);
   },
   async run(page, { mark }) {
     try {
       mark('outfits');
-      await sleep(1100);
-      for (const i of OUTFITS) { await part(page, i); mark(`outfit${i}`); await sleep(i === 6 ? 1500 : 950); }
+      await sleep(1300);
+      for (const i of OUTFITS) { await part(page, i); mark(`outfit${i}`); await sleep(i === 6 ? 1700 : 1300); }
       await tab(page, 'skin');
       mark('face');
       await sleep(1400);

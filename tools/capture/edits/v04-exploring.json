@@ -1,6 +1,6 @@
 {
   "source": "v04-exploring/belmont",
-  "output": "soe_v04-exploring_9x16_c.mp4",
+  "output": "soe_v04-exploring_9x16_f.mp4",
   "music": {
     "file": "game-client/public/sound/music/valley1_1.mp3",
     "start": 0,
@@ -10,61 +10,56 @@
     {
       "source": "avatar",
       "from": 0.2,
-      "to": 7.3,
-      "speed": 1.6
+      "to": 5.4,
+      "speed": 1.7
     },
     {
       "source": "avatar",
-      "from": 9.7,
-      "to": 11.4
+      "from": 7.0,
+      "to": 8.6,
+      "speed": 1.4
     },
     {
       "source": "v04-exploring/belmont",
-      "from": 5.6,
-      "to": 8.6,
-      "speed": 1.6
+      "from": 5.2,
+      "to": 7.6,
+      "speed": 1.4
     },
     {
       "source": "v04-exploring/sunflower",
-      "from": 1.6,
-      "to": 8.6,
-      "speed": 2.3
+      "from": 7.2,
+      "to": 14.6,
+      "speed": 2.0
     },
     {
-      "source": "v04-exploring/titania",
-      "from": 4.9,
-      "to": 7.7,
-      "speed": 1.6
+      "source": "v03-story/titania",
+      "from": 8.25,
+      "to": 11.05,
+      "speed": 1.2
     },
     {
       "source": "v04-exploring/strathmoore",
-      "from": 9.4,
-      "to": 13.7,
+      "from": 10.3,
+      "to": 14.6,
       "speed": 1.6
     },
     {
       "source": "v04-exploring/prospero",
-      "from": 5.5,
-      "to": 8.3,
-      "speed": 1.6
+      "from": 5.2,
+      "to": 7.3,
+      "speed": 1.3
     },
     {
       "source": "v04-exploring/yorick",
-      "from": 5.6,
-      "to": 8.2,
+      "from": 5.2,
+      "to": 7.9,
       "speed": 1.5
     },
     {
       "source": "v04-exploring/acheron",
-      "from": 5.5,
-      "to": 6.9,
-      "speed": 1.4
-    },
-    {
-      "source": "v04-exploring/acheron",
-      "from": 7.9,
-      "to": 9.3,
-      "speed": 1.4
+      "from": 5.1,
+      "to": 6.7,
+      "speed": 1.1
     },
     {
       "source": "v04-exploring/golgotha",
@@ -74,8 +69,8 @@
     },
     {
       "source": "v04-exploring/golgotha",
-      "from": 12.6,
-      "to": 14.8
+      "from": 7.0,
+      "to": 9.4
     }
   ],
   "endCard": {

@@ -48,13 +48,19 @@ async function leg(page, opts = {}) {
 }
 
 // The usual beat: walk, change zoom on the way, walk on (legs until about three seconds are up).
+// ONE heading for the whole walk (owner 2026-11-15: he is always going somewhere, never back the
+// way he came): the stop's `toward`, else the way the first leg went; every later leg must lie
+// ahead of it, and when nothing does the walk is over.
 async function stroll(page, { mark }, s) {
   mark('go');
   const t0 = Date.now(); const legs = [];
+  let heading = s.toward || null;
   for (let i = 0; i < 6 && Date.now() - t0 < 2800; i++) {
     if (await hurt(page)) { console.log('  health low, leaving'); break; }
-    const t = await leg(page, { toward: s.toward });
+    const from = await myTile(page);
+    const t = await leg(page, { toward: heading, ahead: !!heading && i > 0 });
     if (!t) break;
+    if (!heading) heading = { x: t.x - from.x, y: t.y - from.y };
     legs.push(t.steps);
     if (i === 0) { await sleep(350); await page.keyboard.press(s.start === CLOSE ? '-' : '='); mark('zoom'); }
     await arrive(page, t.x, t.y, 2500);
@@ -63,23 +69,44 @@ async function stroll(page, { mark }, s) {
   console.log('  legs', legs.join(' + '), 'tiles, zoom', (await zoom(page)).toFixed(2));
 }
 
-// Sunflower Lake's desert: a long run through the spiders, out through every zoom level and back.
-// He runs the moment he lands (the spiders close in and box in a player who stands), in legs
-// that go round them, turning as he goes.
+// Sunflower Lake's desert: one long run through the spiders, out through every zoom level and
+// back. The run is ONE crossing, west to east along the middle rows (owner 2026-11-15: never back
+// and forth): he lands in the middle, so off camera he first runs to the west end. The zoom
+// follows where he is: wide only in the middle of the crossing, because nothing is drawn past the
+// edge of a grid (the widest zoom shows 31 columns and 55 rows).
 async function desertRun(page, { mark }) {
-  // Nothing is drawn past the edge of a grid, so the wider the zoom, the nearer the middle he stays.
-  const MID = { x0: 14, x1: 50, y0: 20, y1: 44 }, CORE = { x0: 18, x1: 46, y0: 29, y1: 35 };
-  const turns = [[1, 0.4, MID], ['-'], [-1, 0.3, MID], [-0.3, -1, CORE], ['-'], [1, 0, CORE], [-1, 0, CORE], ['='], [1, -1, MID], ['='], [1, 1, MID], [0, 1, MID]];
-  mark('go');
-  let tiles = 0;
-  for (const t of turns) {
-    if (typeof t[0] === 'string') { await page.keyboard.press(t[0]); mark(`zoom${t[0] === '-' ? 'out' : 'in'}`); await sleep(150); continue; }
-    const to = await leg(page, { toward: { x: t[0], y: t[1] }, inside: t[2], min: 4 });
-    if (!to) continue;
-    tiles += to.steps;
-    await arrive(page, to.x, to.y, 1400);
+  const BAND = { x0: 13, x1: 51, y0: 28, y1: 36 };
+  const WEST = 16, EAST = 48;
+  const zoomFor = (x) => (x < 21 || x > 43 ? CLOSE : x < 26 || x > 38 ? FARISH : FAR);
+  const east = async (cap) => {
+    const me = await myTile(page); const reach = await tapReach(page);
+    const to = await leg(page, { dx: Math.min(reach.dx, cap), toward: { x: 1, y: (32 - me.y) * 0.15 }, ahead: true, inside: BAND, min: 2 });
+    if (to) await arrive(page, to.x, to.y, 1600);
+    return to;
+  };
+  // off camera: to the west end, at a zoom where a tap reaches seven tiles
+  await zoomToScale(page, FARISH);
+  for (let i = 0; i < 8; i++) {
+    const me = await myTile(page);
+    if (me.x <= WEST) break;
+    const reach = await tapReach(page);
+    const to = await leg(page, { ...reach, toward: { x: -1, y: (32 - me.y) * 0.15 }, ahead: true, inside: BAND, min: 2 });
+    if (to) await arrive(page, to.x, to.y, 2000); else break;
   }
-  console.log('  ran', tiles, 'tiles to', JSON.stringify(await myTile(page)), 'live', JSON.stringify(await page.evaluate(() => window.__pcDebug?.())));
+  await zoomToScale(page, CLOSE);
+  const start = await myTile(page);
+  mark('go');
+  let tiles = 0, level = CLOSE;
+  for (let i = 0; i < 20; i++) {
+    const me = await myTile(page);
+    if (me.x >= EAST) break;
+    const want = zoomFor(me.x);
+    if (want !== level) { const key = want < level ? '-' : '='; await page.keyboard.press(key); mark(`zoom${key === '-' ? 'out' : 'in'}`); level = level === CLOSE ? FARISH : level === FAR ? FARISH : want; await sleep(150); }
+    const to = await east(level === CLOSE ? 3 : 5);
+    if (to) tiles += to.steps; else await sleep(200);
+  }
+  await sleep(500);
+  console.log('  ran', tiles, 'tiles from', JSON.stringify(start), 'to', JSON.stringify(await myTile(page)), 'zoom', (await zoom(page)).toFixed(2), 'live', JSON.stringify(await page.evaluate(() => window.__pcDebug?.())));
 }
 
 // After the run, off camera: lead the spiders away from the middle, where the next take arrives.

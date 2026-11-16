@@ -18,6 +18,20 @@ export const resources = (page, test) => page.evaluate((t) => {
   return window.__boardResources().filter((r) => r && f(r)).map((r) => ({ type: r.type, x: r.x, y: r.y }));
 }, test);
 
+/** Hold an NPC on one tile for this page's session (a capture needs a character on her mark):
+ *  the live NPC is put on the tile and its wander is switched off. Nothing in the game changes;
+ *  the tile is saved as its position, the way any step of its own is. */
+export const pinNpc = async (page, type, x, y) => {
+  await page.waitForFunction(() => typeof window.__npcsDebug === 'function' && window.__npcsDebug(), null, { timeout: 15000 });
+  return page.evaluate(([t, tx, ty]) => {
+    const n = Object.values(window.__npcsDebug() || {}).find((m) => m && m.type === t);
+    if (!n) return false;
+    n.position = { x: tx, y: ty }; n.path = null;
+    n.handleRoamState = async () => undefined;
+    return true;
+  }, [type, x, y]);
+};
+
 export const npcs = async (page, test) => {
   // the hook is re-published by the renderer and can be missing for a moment after a zoom change
   await page.waitForFunction(() => typeof window.__npcsDebug === 'function' && window.__npcsDebug(), null, { timeout: 15000 });
@@ -119,8 +133,10 @@ export const myTile = (page) => page.evaluate(() => { const t = window.__pixiCam
 /** A tile to tap so the player walks (or, afloat, sails: `water`) a good way and stays on screen:
  *  the farthest tile reachable over open ground within `dx` / `dy` tiles of the player, with a
  *  fairly direct route to it, nothing standing on it, and no enemy beside it. `toward` ({x, y},
- *  a direction) prefers that way; `inside` ({x0, x1, y0, y1}) keeps the target in a box of tiles. Returns { x, y, steps } or null. */
-export const walkTarget = (page, { dx = 4, dy = 7, water = false, toward = null, min = 3, inside = null } = {}) => page.evaluate(([mx, my, wet, dir, least, box]) => {
+ *  a direction) prefers that way; `inside` ({x0, x1, y0, y1}) keeps the target in a box of tiles; `ahead` (with `toward`) refuses
+ *  any tile that is not clearly that way, so a walk never doubles back (owner rule: he is always
+ *  going somewhere). Returns { x, y, steps } or null. */
+export const walkTarget = (page, { dx = 4, dy = 7, water = false, toward = null, min = 3, inside = null, ahead = false } = {}) => page.evaluate(([mx, my, wet, dir, least, box, fwd]) => {
   const tiles = window.__boardTiles();
   const me = window.__pixiCamera.debug().playerTile; const sx = Math.floor(me.x), sy = Math.floor(me.y);
   const H = tiles.length, W = tiles[0].length, key = (x, y) => y * 64 + x;
@@ -141,7 +157,8 @@ export const walkTarget = (page, { dx = 4, dy = 7, water = false, toward = null,
   while (queue.length) {
     const [x, y] = queue.shift(); const d = dist.get(key(x, y));
     const cheb = Math.max(Math.abs(x - sx), Math.abs(y - sy));
-    if (cheb >= least && d <= cheb * 2 + 3 && (!box || (x >= box.x0 && x <= box.x1 && y >= box.y0 && y <= box.y1)) && !enemy.some((e) => Math.hypot(e.x - x, e.y - y) < 2.5)) {
+    if (cheb >= least && d <= cheb * 2 + 3 && (!box || (x >= box.x0 && x <= box.x1 && y >= box.y0 && y <= box.y1)) && !enemy.some((e) => Math.hypot(e.x - x, e.y - y) < 2.5)
+      && (!fwd || !dir || ((x - sx) * dir.x + (y - sy) * dir.y) / (Math.hypot(dir.x, dir.y) * Math.hypot(x - sx, y - sy)) >= 0.5)) {
       const score = cheb + (dir ? ((x - sx) * dir.x + (y - sy) * dir.y) / Math.hypot(dir.x, dir.y) : 0) - (d - cheb) * 0.3;
       if (score > bestScore) { bestScore = score; best = { x, y, steps: d }; }
     }
@@ -152,7 +169,7 @@ export const walkTarget = (page, { dx = 4, dy = 7, water = false, toward = null,
     }
   }
   return best;
-}, [dx, dy, water, toward, min, inside]);
+}, [dx, dy, water, toward, min, inside, ahead]);
 
 /** How many tiles fit between the player and the edge of the picture at the current zoom,
  *  less a margin: the reach of a tap, as { dx, dy }. */

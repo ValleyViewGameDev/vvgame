@@ -577,3 +577,38 @@ between the two Face tabs. The modal's thumbnails sit where the band would, so o
 starts with the first gameplay segment (`fromSegment: 2`).
 
 Finals: `soe_v01-zoom_9x16_d`, `soe_v02-farming_9x16_g`, `soe_v04-exploring_9x16_c` (26.0 s), `soe_v03-story_9x16_c` (36.1 s).
+
+Later the same day (owner): the avatar take was recorded again on the updated editor and shows only
+the last two outfit changes (adventurer, court gown, black queen's coat); the band is wider (660 px
+logo, 62 px address) and 70 px lower, which puts the address about 60 px into the bottom strip the
+platforms may cover (plan §3). Finals: `soe_v01-zoom_9x16_e`, `soe_v02-farming_9x16_h`,
+`soe_v04-exploring_9x16_d`, `soe_v03-story_9x16_d`.
+
+## Every take recorded again, and no walk doubles back (2026-11-15)
+
+Owner: the figures cast shadows now, so every gameplay take was recorded again; and he must never
+walk A to B and back just to show motion: he is always going somewhere.
+
+- `lib.js` `walkTarget` takes `ahead` (with `toward`): only tiles clearly that way. `v04-exploring.js`
+  `stroll` keeps ONE heading for the whole walk (the stop's `toward`, else the first leg's) and stops
+  when nothing lies ahead. The desert run is one west-to-east crossing along the middle rows (he runs
+  to the west end off camera first); the zoom follows his column, wide only mid-crossing.
+- `v03-extras.js` `trek` goes round a tile the game refuses to step onto (the Town changed and the
+  walk to the cellar entrance stuck at 42,43).
+- `v02-farming.js`: a pick now closes the Farming panel on a phone, so the panel is opened again for
+  each crop; bare field tiles are planted with their column's crop (`COLUMN`), `MIN_RIPE` env lowers
+  the ripe-crop guard. The first take of the day replanted only the Wheat; a second take (`MIN_RIPE=10`)
+  refilled all 99 tiles. The edit takes intro, harvest, animals and Kent from `v02-farming/first` and
+  plant, grow and the pull-back from the second.
+- The avatar opening is faster (4.2 s).
+
+Finals: `soe_v01-zoom_9x16_f`, `soe_v02-farming_9x16_i` (30.0 s), `soe_v04-exploring_9x16_e` (24.2 s), `soe_v03-story_9x16_e` (35.0 s).
+
+### Titania on her mark, and a walk up to her (2026-11-15)
+
+Owner: Titania stood on a honey pot in Story, and in Exploring the player wandered off toward the pines. Both now use one take, `v03-story@titania`, recorded in the rebuilt garden (harp at 36,29).
+
+- She wanders three tiles from her home tile while working. `pinNpc` (shots/lib.js) holds her on it for the page's session: 36,31, the grass two rows below the harp. Nothing in the game changes.
+- The player crosses the meadow from the west, comes in by the garden gate and stops beside her on her row. Exploring uses that walk (8.25 to 11.05 s); Story uses the talk that follows.
+- The Quest panel take (`v03-extras@quests`) was recorded again in the same garden, with her held on the same tile.
+- Finals: `soe_v04-exploring_9x16_f.mp4`, `soe_v03-story_9x16_f.mp4`.

@@ -43,9 +43,9 @@ const captionHtml = (c) => `<!doctype html><html><head>${FONTS}<style>
 // for the whole video (owner 2026-11-15: no captions on the gameplay videos, the name instead).
 const brandHtml = (b, logo) => `<!doctype html><html><head>${FONTS}<style>
   html,body{margin:0;width:${W}px;height:${H}px;background:transparent}
-  .b{position:absolute;left:70px;right:140px;bottom:${CAPTION_BOTTOM - 10}px;display:flex;flex-direction:column;align-items:center;gap:22px}
-  img{width:${b.width || 470}px;padding:22px 30px;border-radius:26px;background:#fffbb3;box-shadow:0 8px 20px rgba(0,0,0,.45)}
-  .u{font:700 46px/1 'Lora',serif;color:#fff;letter-spacing:.01em;-webkit-text-stroke:8px #1d2b06;paint-order:stroke fill;text-shadow:0 4px 10px rgba(0,0,0,.55)}
+  .b{position:absolute;left:70px;right:140px;bottom:${CAPTION_BOTTOM - 80}px;display:flex;flex-direction:column;align-items:center;gap:26px}
+  img{width:${b.width || 660}px;padding:28px 40px;border-radius:32px;background:#fffbb3;box-shadow:0 8px 20px rgba(0,0,0,.45)}
+  .u{font:700 62px/1 'Lora',serif;color:#fff;letter-spacing:.01em;-webkit-text-stroke:9px #1d2b06;paint-order:stroke fill;text-shadow:0 4px 10px rgba(0,0,0,.55)}
 </style></head><body><div class="b"><img src="${logo}">${b.url ? `<div class="u">${esc(b.url)}</div>` : ''}</div></body></html>`;
 
 const endCardHtml = (card, logo) => `<!doctype html><html><head>${FONTS}<style>
