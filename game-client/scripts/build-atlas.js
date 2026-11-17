@@ -58,9 +58,17 @@
  * Sheet files are named by content hash (sheets/<name>-<hash>.webp), so they can be cached forever
  * (render.yaml); only the manifest world.json is revalidated.
  *
+ * The LOGIN SCENE's own sheet (2026-11-16). A new visitor's first screen is one fixed grid
+ * (SCENE_LAYOUT), yet it used to wait for every core sheet (~2 MB: all ground types, walls, avatar
+ * parts, every small frame) plus a whole page per figure (~1.6 MB). So the frames that grid draws
+ * (its resources, its ground types, the grass lip) are packed AGAIN onto `scene-N` sheets, listed in
+ * the manifest under `scene`, outside `sheets` and `frames`: the game never loads them, and the scene
+ * loads nothing else (AtlasTextures.enterSceneAtlas). A frame the scene asks for that is not on them
+ * is still served from its own sheet, so a layout edit without a rebuild costs bytes, never art.
+ *
  * Output (committed; Render's `npm run build` does not run this)
- *   public/assets/atlas/sheets/<core-N|page-N>-<hash>.{png,webp,json}   the sheets and their Pixi JSON
- *   public/assets/atlas/world.json                  manifest: sheets (core or page), frame -> sheet index, source hash
+ *   public/assets/atlas/sheets/<core-N|page-N|scene-N>-<hash>.{png,webp,json}   the sheets and their Pixi JSON
+ *   public/assets/atlas/world.json                  manifest: sheets (core or page), frame -> sheet index, scene sheets, source hash
  *
  * Usage
  *   node scripts/build-atlas.js            build (skips when nothing changed)
@@ -96,6 +104,8 @@ const PAGE_SIZE = Number(process.env.ATLAS_PAGE) || 1024;             // a PAGE:
 const BIG_PAGE = Number(process.env.ATLAS_BIG_PAGE) || 1552;
 const SHEETS_DIR = 'sheets';
 const LAYOUTS = path.resolve(CLIENT_ROOT, '..', 'game-server', 'layouts', 'gridLayouts');
+const SCENE_LAYOUT = 'homestead/start-screen.json'; // the login scene (routes/loginSceneRoutes.js): gets its own sheet
+const LIP_TYPE = 'g';                                // the ground type with a drawn edge lip (PixiRendererTileTextures.js)
 // what a player can place on a homestead: each is one virtual grid for the co-occurrence packing
 const PLACEABLE = ['crafting', 'station', 'deco', 'farmplot', 'pet', 'training', 'shop', 'trainingAndShop', 'farmhouse', 'source'];
 const CORE_NAMESPACES = ['tiles/', 'edges/', 'walls/', 'overlays/', 'icons/', 'avatar/'];
@@ -344,14 +354,14 @@ function put(sheet, item, spot) {
   sheet.usedH = Math.max(sheet.usedH, spot.y + item.bh);
 }
 
-/** The core frames: largest side first into SHEET_SIZE sheets, first sheet with room. */
-function packCore(items, sheets) {
+/** The core (or scene) frames: largest side first into SHEET_SIZE sheets, first sheet with room. */
+function packCore(items, sheets, kind = 'core') {
   const sorted = [...items].sort((a, b) => Math.max(b.bw, b.bh) - Math.max(a.bw, a.bh) || (b.bw * b.bh) - (a.bw * a.bh) || a.key.localeCompare(b.key));
   const mine = [];
   for (const item of sorted) {
     let spot = null; let sheet = null;
     for (const sh of mine) { spot = place(sh, item.bw, item.bh); if (spot) { sheet = sh; break; } }
-    if (!spot) { sheet = newSheet(sheets, SHEET_SIZE, 'core'); mine.push(sheet); spot = place(sheet, item.bw, item.bh); }
+    if (!spot) { sheet = newSheet(sheets, SHEET_SIZE, kind); mine.push(sheet); spot = place(sheet, item.bw, item.bh); }
     if (!spot) throw new Error(`${item.key} (${item.bw}x${item.bh}) does not fit a ${SHEET_SIZE} px sheet`);
     put(sheet, item, spot);
   }
@@ -437,6 +447,22 @@ function gridUses() {
   return { uses, grids };
 }
 // how much a grid counts in the packing: roughly how often it is entered
+/** The frame keys the login scene draws: SCENE_LAYOUT's resources (from gridUses), its raster ground types and the grass lip. */
+function sceneFrameKeys(grids, items) {
+  const keys = new Set(grids.get(SCENE_LAYOUT) || []);
+  const file = path.join(LAYOUTS, SCENE_LAYOUT);
+  if (!fs.existsSync(file)) return keys;
+  const raw = readJson(RESOURCES_JSON);
+  const rows = Array.isArray(raw) ? raw : (raw.resources || Object.values(raw));
+  const tileType = new Map(rows.filter((r) => r.category === 'tile' && r.layoutkey).map((r) => [r.layoutkey, r.type]));
+  const types = new Set();
+  for (const row of readJson(file).tiles || []) for (const k of row || []) if (tileType.has(k)) types.add(tileType.get(k));
+  for (const item of items) {
+    const m = /^(tiles|edges)\/([^-]+)-/.exec(item.key);
+    if (m && types.has(m[2]) && (m[1] === 'tiles' || m[2] === LIP_TYPE)) keys.add(item.key);
+  }
+  return keys;
+}
 const gridWeight = (id) => (id.startsWith('town/') ? 400 : id.startsWith('homestead/') || id.startsWith('placeable/') ? 100 : id.startsWith('dungeon/') ? 20 : 1);
 
 function sourceHash(items) {
@@ -445,7 +471,9 @@ function sourceHash(items) {
     const stat = fs.statSync(item.src);
     h.update(`${item.key}:${item.cell}:${stat.size}:${Math.floor(stat.mtimeMs)}\n`);
   }
-  h.update(`v10:trim:maxrects:paged:${SHEET_SIZE}:${PAGE_SIZE}:${BIG_PAGE}:${SMALL_CELL}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}:${TILE_PAD}`);
+  // the scene sheet follows its layout (and the tile rows of resources.json that name its ground)
+  for (const f of [path.join(LAYOUTS, SCENE_LAYOUT), RESOURCES_JSON]) if (fs.existsSync(f)) h.update(crypto.createHash('sha1').update(fs.readFileSync(f)).digest('hex'));
+  h.update(`v11:scene:trim:maxrects:paged:${SHEET_SIZE}:${PAGE_SIZE}:${BIG_PAGE}:${SMALL_CELL}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}:${TILE_PAD}`);
   return h.digest('hex');
 }
 
@@ -498,16 +526,20 @@ async function main() {
   const paged = rastered.filter((i) => !isCore(i));
   for (const i of paged) if (!uses.has(i.key)) uses.set(i.key, new Set(['rare'])); // on no grid (player icons, story art): together
   packPages(paged, sheets, uses, gridWeight);
+  const sceneKeys = sceneFrameKeys(grids, rastered);
+  const sceneSheets = [];
+  packCore(rastered.filter((i) => sceneKeys.has(i.key)), sceneSheets, 'scene');
   const sheetsDir = path.join(OUT_DIR, SHEETS_DIR);
   fs.mkdirSync(sheetsDir, { recursive: true });
   for (const f of fs.readdirSync(OUT_DIR)) if (/^world-\d+\.(png|webp|json)$/.test(f)) fs.unlinkSync(path.join(OUT_DIR, f)); // the pre-BL-24 names
   for (const f of fs.readdirSync(sheetsDir)) fs.unlinkSync(path.join(sheetsDir, f));
   const shortHash = (buf) => crypto.createHash('sha1').update(buf).digest('hex').slice(0, 10);
 
-  const manifest = { version: 2, sourceHash: hash, sheetSize: SHEET_SIZE, pageSize: PAGE_SIZE, sheets: [], frames: {} };
-  let coreN = 0, pageN = 0;
+  const manifest = { version: 2, sourceHash: hash, sheetSize: SHEET_SIZE, pageSize: PAGE_SIZE, sheets: [], frames: {}, scene: [] };
+  let coreN = 0, pageN = 0, sceneN = 0;
 
-  for (const sheet of sheets) {
+  for (const sheet of [...sheets, ...sceneSheets]) {
+    const isScene = sheet.kind === 'scene';
     const sheetW = sheet.size;
     const sheetH = Math.min(sheet.size, Math.ceil(sheet.usedH / 16) * 16); // cropped to what it uses
     const composites = [];
@@ -524,14 +556,14 @@ async function main() {
       } else {
         composites.push({ input: frame.buf, left: frame.x, top: frame.y });
       }
-      manifest.frames[frame.key] = sheet.index;
+      if (!isScene) manifest.frames[frame.key] = sheet.index;
     }
     const base = sharp({
       create: { width: sheetW, height: sheetH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
     }).composite(composites);
     const png = await base.clone().png({ compressionLevel: 9, palette: false }).toBuffer();
     const webp = await sharp(png).webp({ quality: WEBP_QUALITY, alphaQuality: 100, effort: 6 }).toBuffer();
-    const stem = sheet.kind === 'core' ? `core-${coreN++}` : `page-${pageN++}`;
+    const stem = isScene ? `scene-${sceneN++}` : sheet.kind === 'core' ? `core-${coreN++}` : `page-${pageN++}`;
     const pngName = `${SHEETS_DIR}/${stem}-${shortHash(png)}.png`;
     const webpName = `${SHEETS_DIR}/${stem}-${shortHash(webp)}.webp`;
     fs.writeFileSync(path.join(OUT_DIR, pngName), png);
@@ -556,12 +588,13 @@ async function main() {
     const jsonText = JSON.stringify(sheetJson);
     const jsonName = `${SHEETS_DIR}/${stem}-${shortHash(jsonText)}.json`;
     fs.writeFileSync(path.join(OUT_DIR, jsonName), jsonText);
-    manifest.sheets.push({ json: jsonName, png: pngName, webp: webpName, core: sheet.kind === 'core', w: sheetW, h: sheetH, frames: sheet.frames.length });
+    const entry = { json: jsonName, png: pngName, webp: webpName, core: sheet.kind === 'core', w: sheetW, h: sheetH, frames: sheet.frames.length };
+    if (isScene) manifest.scene.push(entry); else manifest.sheets.push(entry);
     console.log(`  ${stem}: ${sheetW}x${sheetH}, ${sheet.frames.length} frames, png ${(png.length / 1024).toFixed(0)} KB, webp ${(webp.length / 1024).toFixed(0)} KB`);
   }
 
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-  console.log(`Done in ${((Date.now() - t0) / 1000).toFixed(1)} s: ${sheets.length} sheets, ${items.length} frames -> ${path.relative(CLIENT_ROOT, OUT_DIR)}/`);
+  console.log(`Done in ${((Date.now() - t0) / 1000).toFixed(1)} s: ${sheets.length} sheets (+ ${sceneSheets.length} for the login scene, ${sceneKeys.size} frames), ${items.length} frames -> ${path.relative(CLIENT_ROOT, OUT_DIR)}/`);
   report(manifest, grids);
 }
 

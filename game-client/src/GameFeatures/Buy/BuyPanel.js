@@ -124,6 +124,7 @@ const BuyPanel = ({
       filename: effectiveItem.filename || null,
       size: effectiveItem.size || 1, sizeX: effectiveItem.sizeX, sizeY: effectiveItem.sizeY,
       buildOptions: effectiveBuildOptions,
+      endsOnPlace: true, // like a building: one farm animal per pick, placement mode ends when it lands (owner 2026-11-16; App.js)
       // Spam-click protection for cursor mode
       isProcessing: false,
       setProcessing: (processing) => {
@@ -237,6 +238,7 @@ const BuyPanel = ({
         size: item.size || 1, sizeX: item.sizeX, sizeY: item.sizeY,
         buildOptions: buyOptions,
         modifiedRecipe: modifiedRecipe, // Include the gem-modified recipe for cursor placement
+        endsOnPlace: true, // like a building: one per pick (owner 2026-11-16)
         // Spam-click protection for cursor mode
         isProcessing: false,
         setProcessing: (processing) => {

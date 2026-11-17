@@ -1,5 +1,5 @@
 import React from 'react';
-import { StringsProvider } from './UI/StringsContext';
+import { StringsProvider, loadStrings } from './UI/StringsContext';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './UI/Styles/mobile.css'; // phone layout; imported after App so it follows every component stylesheet
@@ -24,6 +24,7 @@ import { NPCOverlayProvider } from './UI/NPCOverlayContext';
 import { BulkOperationProvider } from './UI/BulkOperationContext';
 import { TransitionProvider } from './UI/TransitionContext';
 import './Dev/devStoryPreview'; // dev only: __storyPreview() opens THE story modal on any screen
+import './Dev/devLoginPoster'; // dev only: __captureLoginPoster() remakes the login scene's still picture
 
 installTouchClass(); // html.touch-ui: no hover colours on resource/quest buttons on touch screens
 installBuildWatch(); // "The Game Has Updated" prompt when a deploy lands mid-session (UI/Modals/UpdatePrompt.js)
@@ -66,6 +67,9 @@ if (!window.__root_created__) {
   console.error("❌ React root was already created!");
 }
 
+// A non-English player's strings file is its own chunk (UI/StringsContext.js): fetch it before the
+// first render so the page never flashes English. English (every new visitor) resolves at once.
+const renderApp = () => {
 if (!window.__app_rendered__) {
   console.warn("🧪 Rendering App...");
   window.__app_rendered__ = true;
@@ -102,6 +106,8 @@ if (!window.__app_rendered__) {
 } else {
   console.error("❌ App already rendered — something is wrong");
 }
+};
+if (savedLanguage === 'en') renderApp(); else loadStrings(savedLanguage).then(renderApp);
 
 } // Close the main HMR prevention block
 

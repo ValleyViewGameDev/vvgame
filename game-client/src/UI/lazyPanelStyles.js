@@ -1,0 +1,70 @@
+// The main CSS, in the cascade order it had before the panels were split out (UI/lazyPanels.js,
+// 2026-11-16), from the first stylesheet a lazy panel brought in to the end (mobile.css excepted:
+// index.js imports it last). App.js imports this file where MapPanel's import used to be, so every
+// rule lands where it did; an async chunk's CSS would otherwise be appended after mobile.css and beat
+// the phone overrides. Check after a change: `npm run build` prints no .chunk.css, and a stylesheet a
+// newly split panel uses is added here at the place it held in main.css.
+import '../ZoomedOut/FrontierMiniMap.css';
+import '../Store/Store.css';
+import './StatusBar/StatusBar.css';
+import './Modals/LevelUpModal.css';
+import '../VFX/Celebration.css';
+import './Modals/LanguagePickerModal.css';
+import '../Authentication/Authentication.css';
+import './Modals/EmailModal.css';
+import './Modals/InstallPromptModal.css';
+import '../Utils/GridStateDebug.css';
+import '../GameFeatures/Inventory/InventoryPanel.css';
+import '../GameFeatures/Inventory/ManageContentsModal.css';
+import './Modals/ResourceModalSmall.css';
+import './Buttons/HelpBadge.css';
+import '../GameFeatures/Inventory/CurrenciesModal.css';
+import '../Economy/GemCosts.css';
+import '../GameFeatures/Inventory/WarehousePanel.css';
+import '../GameFeatures/Trophies/TrophyPanel.css';
+import './Buttons/QuestButton.css';
+import './Icons/XpStar.css';
+import './SlamIn.css';
+import '../GameFeatures/Social/QuestForHope.css';
+import '../GameFeatures/Crafting/ScrollStation.css';
+import '../GameFeatures/Relationships/Relationships.css';
+import './Modals/NameDeedModal.css';
+import '../GameFeatures/NPCs/SnugTravelModal.css';
+import '../GameFeatures/NPCs/CluesModal.css';
+import '../GameFeatures/NPCs/NPCConnections.css';
+import '../GameFeatures/NPCs/NPCsPanel.css';
+import './SaleBurst.css';
+import './Icons/TileSwatch.css';
+import '../GameFeatures/Leaderboard/Leaderboard.css';
+import './Panels/LevelLock.css';
+import '../GameFeatures/Trading/Kent.css';
+import '../GameFeatures/Trading/Train.css';
+import '../GameFeatures/Carnival/Carnival.css';
+import '../GameFeatures/Government/Courthouse.css';
+import '../GameFeatures/Crafting/CraftingStation.css';
+import './Modals/ProgressModal.css';
+import '../GameFeatures/FarmHands/BulkHarvestResultsModal.css';
+import '../GameFeatures/NPCs/CitizenStatusLine.css';
+import '../GameFeatures/FarmHands/WorkerAutoWorkToggle.css';
+import './RegionName.css';
+import '../GameFeatures/Pets/PetPanel.css';
+import '../GameFeatures/Deco/DecoPanel.css';
+import './Modals/TradingInventoryModal.css';
+import '../GameFeatures/Trading/TradeStall.css';
+import '../GameFeatures/Trading/GlobalMarketModal.css';
+import '../GameFeatures/Mailbox/Mailbox.css';
+import './Panels/TownNewsPanel.css';
+import './HudCountdown.css';
+import '../GameFeatures/Eating/Eating.css';
+import '../GameFeatures/Social/PlayerPanel.css';
+import '../GameFeatures/Combat/CombatPanel.css';
+import './QuickNotice.css';
+import './Modals/ShareModal.css';
+import '../LoginScene/LoginScene.css';
+import '../Dev/devEditMode.css';
+import '../Dev/devCaptureMode.css';
+import '../GameFeatures/FTUE/FTUEScrim.css';
+import '../GameFeatures/Move/Move.css';
+import './Modals/BeginModal.css';
+import './Modals/SurveyPromptModal.css';
+import './Panels/scrollFade.css';

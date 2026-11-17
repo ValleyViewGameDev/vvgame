@@ -97,6 +97,21 @@
 </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- The login scene's still picture (owner 2026-11-16): a new visitor sees the forest at once,
+         before the 1 MB app bundle and the sprite sheets arrive. The same picture sits behind
+         .keyart-wrapper (App.css) once React is up, and the live scene fades in over it
+         (LoginScene/LoginScene.js removes this element). Framed like the live scene: grid top-left at
+         the board's corner, 45 px tiles (31.5 on phones). Remade with __captureLoginPoster(). -->
+    <style>
+      :root { --scene-poster: url(%PUBLIC_URL%/assets/login-scene-poster.webp); }
+      #scene-poster { position: fixed; top: 84px; left: 0; right: 0; bottom: 0; z-index: 0;
+        background: #77ac0d var(--scene-poster) 0 0 / 2160px auto no-repeat; }
+      @media (max-width: 767px) { #scene-poster { top: 68px; background-size: 1512px auto; } }
+      @media (max-width: 767px) and (orientation: portrait) { #scene-poster { top: 100px; } }
+      @media (max-height: 500px) and (orientation: landscape) { #scene-poster { top: 74px; } }
+    </style>
+    <div id="scene-poster" hidden></div>
+    <script>try { if (!localStorage.getItem('player')) document.getElementById('scene-poster').hidden = false; } catch (e) {}</script>
     <div id="root"></div>
     <!--
       This HTML file is a template.

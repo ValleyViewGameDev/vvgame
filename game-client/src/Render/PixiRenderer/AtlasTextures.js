@@ -21,6 +21,13 @@
  *     image stays, Pixi uploads it again if a sprite draws from it), so GPU memory follows the grid
  *     you are on instead of growing to every sheet. Pixi's texture GC would do the same after a minute.
  *
+ * The login scene (2026-11-16): a new visitor's first screen draws one fixed grid, so the build packs
+ * that grid's frames onto their own `scene` sheets (scripts/build-atlas.js, manifest `scene`).
+ * `enterSceneAtlas()` (LoginScene.prefetchLoginScene, before anything loads) makes `loadAtlas()` load
+ * those instead of the core sheets: ~0.? of the bytes. Any frame not on them is still served from its
+ * own sheet by getAtlasTexture. The game board never runs in scene mode: Begin and sign-in reload the
+ * page, and a game PixiRenderer calls `leaveSceneAtlas()` at mount in case one ever does not.
+ *
  * Lifecycle: PixiRenderer calls `resetAtlas()` when it destroys its Application
  * (`app.destroy(true, { texture: true })` takes the sheet BaseTextures with it), and the
  * next `getAtlasTexture` reloads. Textures are also validated on every lookup so a
@@ -43,6 +50,8 @@ let generation = 0;          // bumped by resetAtlas() so stale loads are ignore
 let webpSupport = null;      // Promise<boolean>
 let keepPages = new Set();   // the pages the grid last prepared draws from
 let releaseTimer = null;
+let sceneMode = false;       // enterSceneAtlas(): loadAtlas() means the scene sheets, not core
+const sceneKeys = new Set(); // frames that came from a scene sheet (no page needed for them)
 const RELEASE_DELAY_MS = 2500;
 
 function supportsWebP() {
@@ -80,13 +89,15 @@ function loadManifest() {
   return manifestPromise;
 }
 
-/** Load one sheet (once per generation) and add its frames to the map. Never rejects. */
+/** Load one sheet (once per generation) and add its frames to the map. Never rejects.
+ *  `index`: a manifest.sheets index, or `scene-<j>` for manifest.scene[j]. */
 function loadSheet(index) {
   if (sheetLoads.has(index)) return sheetLoads.get(index);
   const thisGeneration = generation;
+  const scene = typeof index === 'string' && index.startsWith('scene-');
   const p = (async () => {
     const m = await loadManifest();
-    const sheet = m.sheets[index];
+    const sheet = scene ? m.scene?.[Number(index.slice(6))] : m.sheets[index];
     if (!sheet) return;
     const useWebP = await supportsWebP();
     const [json, img] = await Promise.all([
@@ -98,6 +109,11 @@ function loadSheet(index) {
     const spritesheet = new Spritesheet(base, json);
     await spritesheet.parse();
     if (thisGeneration !== generation) { spritesheet.destroy(true); return; }
+    if (scene) {
+      // a scene frame never replaces one already in from its real sheet (the same art either way)
+      for (const [key, texture] of Object.entries(spritesheet.textures)) if (!allFrames.has(key)) { allFrames.set(key, texture); sceneKeys.add(key); }
+      return;
+    }
     sheetBases.set(index, base);
     for (const [key, texture] of Object.entries(spritesheet.textures)) allFrames.set(key, texture);
   })().catch((err) => {
@@ -108,13 +124,43 @@ function loadSheet(index) {
   return p;
 }
 
-/** Load (once) the manifest and the CORE sheets; resolves the frame map. Never rejects: callers fall back to SVG. */
+/** The login scene's atlas: from now on `loadAtlas()` loads the scene sheets instead of core. Call it
+ *  before anything has loaded the atlas (once core is asked for, this does nothing). */
+export function enterSceneAtlas() {
+  if (!corePromise) sceneMode = true;
+}
+
+/** Back to the game's atlas (core on the next `loadAtlas()`); frames already in stay. A no-op outside scene mode. */
+export function leaveSceneAtlas() {
+  if (!sceneMode) return;
+  sceneMode = false;
+  corePromise = null;
+  frames = null;
+  sceneKeys.clear();
+}
+
+/** Put the core sheets in the browser cache without decoding them (Begin: the reload that follows draws from them). */
+export function prefetchCoreSheets() {
+  loadManifest().then(async (m) => {
+    const useWebP = await supportsWebP();
+    for (const s of m.sheets) if (s.core !== false) {
+      fetch(`${ATLAS_DIR}/${s.json}`).catch(() => {});
+      fetch(`${ATLAS_DIR}/${useWebP && s.webp ? s.webp : s.png}`).catch(() => {});
+    }
+  }).catch(() => {});
+}
+
+/** Load (once) the manifest and the CORE sheets (in scene mode: the scene sheets); resolves the frame map.
+ *  Never rejects: callers fall back to SVG. */
 export function loadAtlas() {
   if (!corePromise) {
     const thisGeneration = generation;
+    const scene = sceneMode;
     corePromise = loadManifest().then(async (m) => {
-      // a manifest without core flags (built before BL-24) is all core
-      const core = m.sheets.map((s, i) => (s.core === false ? -1 : i)).filter((i) => i >= 0);
+      // a manifest without core flags (built before BL-24) is all core; one without scene sheets: core for the scene too
+      const core = scene && m.scene?.length
+        ? m.scene.map((s, j) => `scene-${j}`)
+        : m.sheets.map((s, i) => (s.core === false ? -1 : i)).filter((i) => i >= 0);
       await Promise.all(core.map(loadSheet));
       if (thisGeneration === generation) frames = allFrames;
       return allFrames;
@@ -173,7 +219,10 @@ function pagesForTypes(types, masterResources) {
     seen.add(t);
     const row = byType.get(t);
     if (!row) return;
-    for (const k of frameKeysForRow(row)) { const i = manifest.frames[k]; if (i !== undefined) want.add(i); }
+    for (const k of frameKeysForRow(row)) {
+      if (sceneKeys.has(k)) continue; // on a scene sheet already
+      const i = manifest.frames[k]; if (i !== undefined) want.add(i);
+    }
     if (row.action === 'spawn' && row.requires) addType(row.requires);
   };
   for (const t of types || []) addType(t);
@@ -253,6 +302,7 @@ export function resetAtlas() {
   allFrames.clear();
   sheetLoads.clear();
   sheetBases.clear();
+  sceneKeys.clear();
 }
 
 export function isAtlasLoaded() {

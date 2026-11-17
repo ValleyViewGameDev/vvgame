@@ -6,7 +6,6 @@ import './UI/Buttons/SharedButtons.css';
 import './Render/Tooltip.css';
 import axios from 'axios';
 import API_BASE from './config.js';
-import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef, act } from 'react';
 import { registerNotificationClickHandler, showNotification, dismissNotification } from './UI/Notifications/Notifications';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse, loadMasterXPLevels, loadFTUEsteps } from './Utils/TuningManager';
@@ -25,7 +24,7 @@ import { setCitizenContext } from './GameFeatures/NPCs/NPCCitizenBehavior';
 import { attackNearestEnemy } from './GameFeatures/Combat/Combat';
 import { burnTick } from './GameFeatures/Combat/tileHazards';
 import { derivedMaxhp } from './GridState/PlayersInGrid';
-import { loadAtlas } from './Render/PixiRenderer/AtlasTextures';
+import { loadAtlas, prefetchCoreSheets } from './Render/PixiRenderer/AtlasTextures';
 import { handleResourceClick } from './ResourceClicking';
 import { isMobile } from './Utils/appUtils';
 import { useUILock } from './UI/UILockContext';
@@ -51,7 +50,7 @@ import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 // LEGACY - Old HTML-based zoom views (PixiJS now handles settlement/frontier zoom)
 // import SettlementView from './ZoomedOut/SettlementView';
 // import FrontierView from './ZoomedOut/FrontierView';
-import MapPanel from './ZoomedOut/MapPanel';
+import './UI/lazyPanelStyles'; // the panels' stylesheets stay in main.css, in their old order (UI/lazyPanels.js)
 import { PLAYER_FIXED_POSITION } from './Render/PixiRenderer/CameraConstants';
 import {
   getPlayerWorldPosition,
@@ -67,7 +66,6 @@ import Modal from './UI/Modals/Modal';
 import RevivalModal from './UI/Modals/RevivalModal';
 import LevelUpModal from './UI/Modals/LevelUpModal';
 import LanguagePickerModal from './UI/Modals/LanguagePickerModal';
-import PrivacyPolicyModal from './UI/Modals/PrivacyPolicyModal';
 import { useStrings } from './UI/StringsContext';
 import panelIconsData from './UI/Icons.json';
 import { getMayorUsername } from './GameFeatures/Government/GovUtils';
@@ -75,62 +73,31 @@ import { getDerivedLevel, getXpForNextLevel } from './Utils/playerManagement';
 import { isCurrency, deriveWarehouseAndBackpackCapacity, getPlayerQuantity } from './Utils/InventoryManagement';
 import soundManager from './Sound/SoundManager';
 
-import ProfilePanel from './Authentication/ProfilePanel';
 import LoginPanel from './Authentication/LoginPanel';
-import DebugPanel from './Utils/debug';
-import InventoryPanel from './GameFeatures/Inventory/InventoryPanel';
-import WarehousePanel from './GameFeatures/Inventory/WarehousePanel';
-import TrophyPanel from './GameFeatures/Trophies/TrophyPanel.js';
-import HowToPanel from './UI/Panels/HowToPanel';
-import HowToMoneyPanel from './UI/Panels/HowToMoneyPanel';
-import HowToGemsPanel from './UI/Panels/HowToGemsPanel';
-import QuestPanel from './GameFeatures/Quests/QuestPanel';
-import NPCPanel from './GameFeatures/NPCs/NPCsPanel.js';
-import BuildPanel from './GameFeatures/Build/BuildPanel';
-import BuyPanel from './GameFeatures/Buy/BuyPanel';
-import PetsPanel from './GameFeatures/Pets/PetsPanel';
-import BuyDecoPanel from './GameFeatures/Deco/BuyDecoPanel';
-import FarmingPanel from './GameFeatures/Farming/FarmingPanel';
-import ToolsPanel from './GameFeatures/Farming/ToolsPanel';
-import SkillsPanel from './GameFeatures/Skills/SkillsPanel';
-import GovPanel from './GameFeatures/Government/GovPanel';
-import LeaderboardPanel from './GameFeatures/Leaderboard/Leaderboard';
-import BankPanel from './GameFeatures/Trading/Bank';
-import InnPanel from './GameFeatures/Inn/InnPanel';
-import BackpackManageModal from './GameFeatures/Inventory/BackpackManageModal';
-import KentPanel from './GameFeatures/Trading/Kent';
-import NewTrainPanel from './GameFeatures/Trading/NewTrain';
-import CarnivalPanel from './GameFeatures/Carnival/Carnival';
-import CourthousePanel from './GameFeatures/Government/Courthouse';
+// The panels and in-game modals load as their own chunks (UI/lazyPanels.js): not needed for the login scene
+import {
+  ProfilePanel, DebugPanel, InventoryPanel, WarehousePanel, TrophyPanel, HowToPanel,
+  HowToMoneyPanel, HowToGemsPanel, QuestPanel, NPCPanel, BuildPanel, BuyPanel,
+  PetsPanel, BuyDecoPanel, FarmingPanel, ToolsPanel, SkillsPanel, GovPanel,
+  LeaderboardPanel, BankPanel, InnPanel, BackpackManageModal, KentPanel, NewTrainPanel,
+  CarnivalPanel, CourthousePanel, CraftingStation, FarmHouse, FarmHandPanel, ShopStation,
+  ScrollStation, PetPanel, CropPanel, DecoPanel, DoorPanel, TradeStall,
+  Mailbox, OffSeasonModal, TownNewsPanel, SeasonPanel, SocialPanel, CombatPanel,
+  ShareModal, MapPanel, PrivacyPolicyModal, Chat,
+  prefetchPanels,
+} from './UI/lazyPanels';
 
-import CraftingStation from './GameFeatures/Crafting/CraftingStation';
-import FarmHouse from './GameFeatures/Crafting/FarmHouse';
-import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
-import ShopStation from './GameFeatures/Crafting/ShopStation';
 import RegionName from './UI/RegionName';
 import HeaderRing from './UI/HeaderRing';
 import NavHoverTip, { useNavHoverTip, useHoverTip } from './UI/NavHoverTip';
 import { stripLeadingEmoji } from './UI/Panels/Panel';
-import ScrollStation from './GameFeatures/Crafting/ScrollStation';
-import PetPanel from './GameFeatures/Pets/PetPanel';
 import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
-import CropPanel from './GameFeatures/Farming/CropPanel.js';
-import DecoPanel from './GameFeatures/Deco/DecoPanel';
-import DoorPanel from './GameFeatures/Doors/DoorPanel';
-import TradeStall from './GameFeatures/Trading/TradeStall';
-import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
 import { trackPurchase } from './Utils/conversionTracking';
-import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
-import TownNewsPanel from './UI/Panels/TownNewsPanel.js';
 import HudCountdown from './UI/HudCountdown';
 import { questBadgeState } from './GameFeatures/Quests/questBadge';
-import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
-import SocialPanel from './GameFeatures/Social/SocialPanel';
-import CombatPanel from './GameFeatures/Combat/CombatPanel';
 import HopeFound from './GameFeatures/Social/HopeFound';
 import { startHopeFinale, setHopeFinaleHooks, isHopeReturned, holdsHope, isHopeFinaleRunning, HOPE_COORD as HOPE_FINALE_COORD } from './GameFeatures/Story/hopeFinale';
-import ShareModal from './UI/Modals/ShareModal';
 import AvatarFace from './Avatar/AvatarFace';
 import { usePanelContext } from './UI/Panels/PanelContext';
 import { useModalContext } from './UI/ModalContext';
@@ -142,7 +109,7 @@ import { StatusBarContext } from './UI/StatusBar/StatusBar';
 // The characters walking random paths over the key art: off for now (they don't read as the game
 // yet); kept for a load screen that shows more of the game one day.
 // import StartScreenAnimation from './UI/StartScreenAnimation';
-import LoginScene from './LoginScene/LoginScene';
+import LoginScene, { prefetchLoginScene } from './LoginScene/LoginScene';
 import { useTransition } from './UI/TransitionContext';
 import LoadingScreen from './UI/LoadingScreen';
 
@@ -1155,6 +1122,10 @@ useEffect(() => {
 useEffect(() => {
   const initializeAppWrapper = async () => {
     const initStartTime = Date.now();
+    if (!localStorage.getItem('player')) {
+      prefetchLoginScene(); // a new visitor: the scene's downloads start now
+      setTimeout(prefetchPanels, 10000); // the panels follow the live scene (LoginScene.js); this covers a scene that never comes up
+    } else prefetchPanels(); // a signed-in player: every panel chunk loads alongside the tuning (UI/lazyPanels.js)
     console.log('🏁🏁🏁 [INIT] ========== App initialization begun ==========');
     console.log(`🏁 [INIT] Timestamp: ${new Date().toISOString()}`);
 
@@ -3045,7 +3016,7 @@ const handleLogout = () => {
 // Begin gate: make the silent account, then boot as that player (one reload, like a typed signup).
 const handleBegin = async () => {
   setIsSilentCreating(true);
-  loadAtlas(); // warms the browser cache for the reload that follows
+  prefetchCoreSheets(); // warms the browser cache for the reload that follows (the scene drew from its own sheet)
   try {
     await createSilentAccount();
     window.location.reload();

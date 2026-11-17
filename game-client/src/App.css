@@ -798,7 +798,13 @@ body {
   right: 0;
   bottom: 0;
   overflow: hidden;
-  background-color: var(--tile-g); /* plain grass until the login scene's first frame (LoginScene/LoginScene.js) */
+  background-color: var(--tile-g); /* grass beyond the still picture */
+  /* the login scene's still picture (public/index.html #scene-poster, the same file and framing)
+     until the live scene fades in over it (LoginScene/LoginScene.js) */
+  background-image: var(--scene-poster); /* set in public/index.html: a public file, not a bundled one */
+  background-position: 0 0;
+  background-size: 2160px auto; /* 48 tiles at 45 px */
+  background-repeat: no-repeat;
 }
 
 /* The key art (login and loading) is pinned to the top-left at its natural size (1698 x 1545):

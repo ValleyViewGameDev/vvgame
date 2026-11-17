@@ -541,6 +541,8 @@
 
   /* ---------- login / key art ---------- */
   .keyart-wrapper { left: var(--m-safe-left); top: var(--m-header-height); right: 0; bottom: 0; width: auto; height: auto; }
+  /* the login scene's still picture at the phone scene zoom (LoginScene PHONE_ZOOM 0.7: 48 x 31.5 px) */
+  @media (max-width: 767px) { .keyart-wrapper { background-size: 1512px auto; } }
   /* the key art stays pinned top-left at its natural size on phones too (App.css; KeyArtImage.js
      serves the phone file) */
 

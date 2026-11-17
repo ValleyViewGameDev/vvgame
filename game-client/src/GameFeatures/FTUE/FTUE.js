@@ -10,6 +10,8 @@ import AvatarFace, { AVATAR_FALLBACK } from '../../Avatar/AvatarFace';
 import AvatarModal from '../../Avatar/AvatarModal';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { uiString } from '../../Utils/inputMode';
+import { playCutscene } from '../../Utils/cutscene';
+import { getPlayerTile } from '../../PlayerMovement';
 
 // A step's notificationSprite is a file under /assets/resources (board art), or an absolute path
 // such as /assets/icons/icon-farming.svg when the toast should carry a nav icon instead
@@ -31,6 +33,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
   const [negativeReasons, setNegativeReasons] = useState([]);
   // { since, sawLevelUp } while the feedback modal waits for the level-up modal to come and go
   const [pendingFeedback, setPendingFeedback] = useState(null);
+  const [avatarBeatDone, setAvatarBeatDone] = useState(false); // the avatar editor closed: its 2 s look at the avatar is playing
 
   useEffect(() => {
     if (!pendingFeedback) return undefined;
@@ -441,14 +444,26 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
   // the signup carousel; saving or closing it advances the step (continue: true on the step). A
   // player who closes it without saving keeps the starting icon and can make one later.
   if (currentStepData?.modalType === 'icon') {
+    // On closing: the modal goes, the camera centres on the avatar the player just made and holds
+    // there 2 s (input locked, Utils/cutscene.js), THEN the step advances (the Wheat step pans to
+    // the wheat). Without the beat the new avatar was never seen (owner 2026-11-16).
+    const finishAvatarBeat = async () => {
+      if (avatarBeatDone) return;
+      setAvatarBeatDone(true);
+      const me = getPlayerTile();
+      if (me) await playCutscene({ tile: { x: Math.round(me.x), y: Math.round(me.y) }, holdMs: 2000 });
+      await handleOK();
+      setAvatarBeatDone(false);
+    };
+    if (avatarBeatDone) return null;
     return (
       <AvatarModal
         currentPlayer={currentPlayer}
         setCurrentPlayer={setCurrentPlayer}
         intro={uiString(strings, currentStepData.bodyKey)}
         startRandomBody="male"
-        onClose={handleOK}
-        onSaved={() => handleOK()}
+        onClose={finishAvatarBeat}
+        onSaved={() => finishAvatarBeat()}
       />
     );
   }

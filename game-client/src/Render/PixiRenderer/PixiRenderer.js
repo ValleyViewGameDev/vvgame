@@ -33,7 +33,7 @@ import { npcSize, npcCovers } from '../../Utils/npcFootprint';
 import { findArtAt, opaqueTopFraction, opaqueFeet } from './artHitTest';
 import * as ActorShadows from './actorShadows';
 import { setNpcHeadTop, clearNpcHeadTop, npcOverlaySpot, onNpcHeadTopsChanged } from './npcHeadTops';
-import { loadAtlas, getAtlasTexture, resetAtlas, isAtlasLoaded } from './AtlasTextures';
+import { loadAtlas, getAtlasTexture, resetAtlas, isAtlasLoaded, leaveSceneAtlas } from './AtlasTextures';
 import CombatFX from './CombatFX';
 import { reachOnEnemy, getAttackCooldownStatus } from '../../GameFeatures/Combat/Combat';
 import { emojiKey } from '../../Utils/emojiKey';
@@ -794,6 +794,7 @@ const PixiRenderer = ({
 
       // Start the sprite-sheet download now so it overlaps the grid bundle fetch; once it
       // lands, the ground re-composes from the atlas tiles (PixiRendererTileTextures)
+      if (!scene) leaveSceneAtlas(); // the game board draws from the core sheets, never the login scene's own
       loadAtlas().then(() => setAtlasTick((t) => t + 1));
       if (process.env.NODE_ENV !== 'production') window.__pixiApp = app; // dev hook: inspect the stage from the console
       // dev hook: the resource whose tall art is under a board-relative screen point (artHitTest.js)
