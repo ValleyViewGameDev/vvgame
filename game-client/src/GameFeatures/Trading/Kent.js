@@ -462,6 +462,8 @@ function KentPanel({
                             // the item (or, on a multi-item offer, every item side by side, with need / have).
                             // A card on its own cooldown, which shows a timer instead of its goods, ignores the tap.
                             if (canAffordAll || cardOnCooldown || isTrading) return;
+                            // the basic click: the card's button opts out of the global one (a sale plays collect_money)
+                            soundManager.playSFX('button_press');
                             if (itemsWithQty.length > 1) {
                               setInfoResource(itemsWithQty.map((item) => item.item));
                               setInfoNeeds(itemsWithQty.map((item) => ({ type: item.item, need: item.quantity, have: item.playerQty })));

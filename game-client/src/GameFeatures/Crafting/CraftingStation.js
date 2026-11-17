@@ -344,6 +344,7 @@ const CraftingStation = ({
       updateStatus(409); // "All crafting slots are full."
       return;
     }
+    soundManager.playSFX('collect_item'); // on the tap (house rule): the same sound as collecting a craft
 
     // ONE request (game-server routes/actionRoutes.js /action/craft-start): the server takes the
     // recipe from resources.json, checks its station, skill and level, spends it and starts the
@@ -942,6 +943,7 @@ const CraftingStation = ({
               return (
                 <ResourceButton
                   key={recipe.type}
+                  noClickSfx // starting and collecting play their own sound (collect_item), not the button click
                   symbol={recipe.symbol}
                   name={getLocalizedString(recipe.type, strings)}
                   className="resource-button craft-card"

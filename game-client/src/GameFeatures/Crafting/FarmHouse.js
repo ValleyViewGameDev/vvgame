@@ -16,6 +16,7 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import { createCollectEffect } from '../../VFX/VFX';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import soundManager from '../../Sound/SoundManager';
 import '../../UI/Buttons/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
@@ -224,6 +225,7 @@ const FarmHouse = ({
   const handleCraft = async (transactionId, transactionKey, recipe) => {
     setErrorMessage('');
     if (!recipe) { setErrorMessage('Invalid recipe selected.'); return; }
+    soundManager.playSFX('collect_item'); // on the tap (house rule): the same sound as collecting a craft
     const answer = await postAction('/api/action/craft-start', {
       playerId: currentPlayer.playerId, gridId,
       stationX: currentStationPosition.x, stationY: currentStationPosition.y,
@@ -259,6 +261,7 @@ const FarmHouse = ({
     if (madeDef && madeDef.category !== 'npc' && !canCollect({
       resource: recipe.type, quantity: 1, currentPlayer, inventory, backpack, masterResources, globalTuning, ...roomFeedback,
     })) return;
+    soundManager.playSFX('collect_item'); // on the tap, as at the crafting stations
     const answer = await postAction('/api/action/craft-collect', {
       playerId: currentPlayer.playerId, gridId,
       stationX: currentStationPosition.x, stationY: currentStationPosition.y,
@@ -463,6 +466,7 @@ const FarmHouse = ({
               return (
                 <ResourceButton
                   key={recipe.type}
+                  noClickSfx // starting and collecting play their own sound (collect_item), not the button click
                   symbol={recipe.symbol}
                   filename={recipe.iconFile || recipe.filename} // a worker's head crop, not its whole figure at icon size
                   name={getLocalizedString(recipe.type, strings)}

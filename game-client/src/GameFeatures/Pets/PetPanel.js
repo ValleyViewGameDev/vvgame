@@ -23,6 +23,7 @@ import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 import { canCollect, reportRefusal } from '../../Utils/noRoom';
 import { XP_STAR_TOKEN, XP_STAR_HTML } from '../../UI/Icons/XpStar';
+import soundManager from '../../Sound/SoundManager';
 
 // What a fed pet finds is rolled on the server (game-server utils/playerEconomy.js rollPetReward)
 
@@ -156,6 +157,7 @@ const PetPanel = ({
       updateStatus(`You need ${feedQuantity}x ${getLocalizedString(feedIngredient, strings)} to feed ${getLocalizedString(petName, strings)}`);
       return;
     }
+    soundManager.playSFX('collect_item'); // on the tap: the same sound as starting a craft
     const revertCard = runCardReturn(setCardFx, 'pet', { out: 'leave', returnMs: 700 });
     const answer = await postAction('/api/action/pet-feed', {
       playerId: currentPlayer.playerId, gridId,
@@ -195,6 +197,7 @@ const PetPanel = ({
       resource: rewardItem, quantity: revealedRewardQty || 1, currentPlayer, inventory: currentPlayer.inventory, backpack: currentPlayer.backpack, masterResources, globalTuning, ...roomFeedback,
     })) return;
     setIsCollecting(true);
+    soundManager.playSFX('reward'); // on the tap: the same harp and bell as a quest reward
     const revertCard = runCardReturn(setCardFx, 'pet');
     // The reward and its XP rise from the Collect card (its place taken on the tap: the panel changes
     // once the server answers) and fly home (UI/FlyToTarget.js)

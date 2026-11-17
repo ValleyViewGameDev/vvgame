@@ -134,5 +134,9 @@
   {
     "event": "reward",
     "file1": "sfx_reward.mp3"
+  },
+  {
+    "event": "gem_spend",
+    "file1": "sfx_gem_spend.mp3"
   }
 ]

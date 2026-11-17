@@ -6,6 +6,7 @@ import { useStrings } from '../StringsContext';
 import CloseButton from '../Buttons/CloseButton';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import ResourceIcon from '../Icons/ResourceIcon';
+import soundManager from '../../Sound/SoundManager';
 
 /**
  * "Confirm / Spend X Gems?": asked before any spend of GEM_CONFIRM_MIN gems or more.
@@ -32,13 +33,27 @@ let confirmed = null;   // { gems, at }: a Yes the next spendIngredients may use
 
 export const setGemConfirmResources = (list) => { resourceDefs = Array.isArray(list) ? list : []; };
 
+// The gem-spend sound (owner 2026-11-17): every gem spend says yes here, on the tap or on the
+// modal's Yes, whatever its size. One spend can pass twice (the gem button asks, then
+// spendIngredients uses its token), so a second yes within GEM_SOUND_GAP_MS is the same spend.
+const GEM_SOUND_GAP_MS = 1000;
+let lastGemSound = 0;
+function gemSpendSound(gems) {
+  if (!(Number(gems) > 0)) return;
+  const now = Date.now();
+  if (now - lastGemSound < GEM_SOUND_GAP_MS) return;
+  lastGemSound = now;
+  soundManager.playSFX('gem_spend');
+}
+
 export function confirmGemSpend({ gems, items = [], oneShot = true }) {
-  if (!(Number(gems) >= GEM_CONFIRM_MIN)) return Promise.resolve(true);
+  if (!(Number(gems) >= GEM_CONFIRM_MIN)) { gemSpendSound(gems); return Promise.resolve(true); }
   const ask = showRequest
     ? new Promise((resolve) => showRequest({ gems, items, resolve }))
     : Promise.resolve(window.confirm(`Spend ${gems} Gems?`));
   return ask.then((ok) => {
     confirmed = ok && oneShot ? { gems: Number(gems), at: Date.now() } : null;
+    if (ok) gemSpendSound(gems);
     return ok;
   });
 }
@@ -55,10 +70,10 @@ export function confirmRecipeGemSpend(recipe, { leaveToken = false } = {}) {
     if (!type || qty <= 0) continue;
     if (type === 'Gem') gems += qty; else items.push({ type, amount: qty });
   }
-  if (gems < GEM_CONFIRM_MIN) return Promise.resolve(true);
+  if (gems < GEM_CONFIRM_MIN) { gemSpendSound(gems); return Promise.resolve(true); }
   const token = confirmed;
   confirmed = null;
-  if (token && Date.now() - token.at < TOKEN_MS && gems <= token.gems) return Promise.resolve(true);
+  if (token && Date.now() - token.at < TOKEN_MS && gems <= token.gems) { gemSpendSound(gems); return Promise.resolve(true); }
   return confirmGemSpend({ gems, items, oneShot: leaveToken });
 }
 
@@ -101,7 +116,7 @@ export const GemSpendConfirmHost = () => {
             <button className="btn-basic btn-neutral btn-modal" onClick={() => answer(false)}>
               {strings[2029] || 'Cancel'}
             </button>
-            <button className="btn-basic btn-success btn-modal" onClick={() => answer(true)}>
+            <button className="btn-basic btn-success btn-modal" data-no-click-sfx="true" onClick={() => answer(true)}>
               {strings[2028] || 'Yes'}
             </button>
           </div>
