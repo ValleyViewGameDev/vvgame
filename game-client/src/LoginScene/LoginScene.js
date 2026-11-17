@@ -34,7 +34,7 @@ export function prefetchLoginScene() {
   if (!layoutPromise) {
     layoutPromise = axios.get(`${API_BASE}/api/login-scene`).then(({ data }) => data);
     layoutPromise.catch(() => { layoutPromise = null; });
-    enterSceneAtlas(); // the scene's own sheet (~?? KB), not the game's core sheets (build-atlas.js SCENE_LAYOUT)
+    enterSceneAtlas(); // the scene's own sheet (~400 KB), not the game's core sheets (build-atlas.js SCENE_LAYOUT)
     loadAtlas();
   }
   return layoutPromise;

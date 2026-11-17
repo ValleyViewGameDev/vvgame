@@ -153,6 +153,19 @@ async function recordDevDevice(visitorId, playerId, when = new Date()) {
   );
 }
 
+// Is this request, or this account, the owner testing? (owner 2026-11-16) True for a local game
+// server or a localhost page (devSourceOf), a browser a developer has used (analytics_dev_device),
+// or a developer / test username. The same traffic the analytics dashboard leaves out; the
+// new-account alert and the welcome email are skipped for it too (routes/auth.js).
+async function isDeveloperTraffic(req, player = null) {
+  if (devSourceOf(req)) return true;
+  const { isExcludedFromRankings } = require('./developerHelpers');
+  if (player && player.username && isExcludedFromRankings(player.username)) return true;
+  const visitorId = visitorIdOf(req, player && player.client_info);
+  if (visitorId && await AnalyticsDevDevice.exists({ _id: visitorId })) return true;
+  return false;
+}
+
 // The level a total xp gives (as the client's getDerivedLevel: level i+2 at XP_THRESHOLDS[i]).
 function levelForXp(xp) {
   let level = 1;
@@ -275,6 +288,6 @@ function sanitizeClientInfo(body) {
 
 module.exports = {
   recordActivity, recordPlayed, recordQuestCompleted, recordPurchase, recordGridEntered,
-  requestSource, visitorIdOf, recordDevDevice, recordKentSale, recordValleyVisit, recordEnemyKill, recordLevelUps, levelForXp,
+  requestSource, visitorIdOf, recordDevDevice, isDeveloperTraffic, recordKentSale, recordValleyVisit, recordEnemyKill, recordLevelUps, levelForXp,
   recordPageview, ensurePageview, sanitizeClientInfo, dayKeyUTC, HEX24,
 };

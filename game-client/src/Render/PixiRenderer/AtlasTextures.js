@@ -24,7 +24,7 @@
  * The login scene (2026-11-16): a new visitor's first screen draws one fixed grid, so the build packs
  * that grid's frames onto their own `scene` sheets (scripts/build-atlas.js, manifest `scene`).
  * `enterSceneAtlas()` (LoginScene.prefetchLoginScene, before anything loads) makes `loadAtlas()` load
- * those instead of the core sheets: ~0.? of the bytes. Any frame not on them is still served from its
+ * those instead of the core sheets and pages: ~400 KB instead of ~3.6 MB. Any frame not on them is still served from its
  * own sheet by getAtlasTexture. The game board never runs in scene mode: Begin and sign-in reload the
  * page, and a game PixiRenderer calls `leaveSceneAtlas()` at mount in case one ever does not.
  *

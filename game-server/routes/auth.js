@@ -14,7 +14,16 @@ const starterAccount = JSON.parse(fs.readFileSync(starterAccountPath, 'utf8'));
 
 const crypto = require('crypto');
 const { sendNewUserEmail } = require('../utils/emailUtils.js');
-const { recordActivity, ensurePageview, sanitizeClientInfo, requestSource } = require('../utils/analytics');
+const { recordActivity, ensurePageview, sanitizeClientInfo, requestSource, isDeveloperTraffic } = require('../utils/analytics');
+
+// The new-account alert and the welcome email are not sent for the owner's own testing: a local
+// game server, a localhost page, a developer's browser, a developer or test name (owner 2026-11-16;
+// utils/analytics.js isDeveloperTraffic, the same rule the analytics dashboard uses).
+function unlessDeveloper(req, player, send, what) {
+  isDeveloperTraffic(req, player)
+    .then((dev) => { if (dev) console.log(`📧 ${what} skipped: developer traffic (${player?.username})`); else return send(); })
+    .catch((err) => console.error(`❌ ${what}:`, err?.message || err));
+}
 const { NO_PASSWORD, hasPassword, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername, isReservedUsername, generateUniqueRandomUsername } = require('../utils/usernames');
 const sendMailboxMessage = require('../utils/messageUtils');
@@ -73,7 +82,7 @@ router.post('/check-username', async (req, res) => {
 // rows and the welcome mailbox gift. Shared by /register-new-player (typed and silent) and
 // /login-google (a brand-new Google identity). `extra` lands on the document last
 // (googleId, email, email_source...). Returns the saved player.
-async function createPlayerAccount({ username, silent, hashedPassword, ipHash, language, frontierId, browser, os, diagnostics, clientInfo, extra = {}, source = {} }, io) {
+async function createPlayerAccount({ username, silent, hashedPassword, ipHash, language, frontierId, browser, os, diagnostics, clientInfo, extra = {}, source = {}, req = null }, io) {
 
   // Step 3: Load starter attributes
   const {
@@ -210,7 +219,7 @@ async function createPlayerAccount({ username, silent, hashedPassword, ipHash, l
 
   console.log(`✅ New player created: ${username}${silent ? ' (silent)' : ''} (homestead will be created when Home Deed is purchased)`);
   // The owner's new-user alert fires when the player has a name (here, or /player/name for silent ones)
-  if (!silent) sendNewUserEmail(newPlayer);
+  if (!silent) unlessDeveloper(req, newPlayer, () => sendNewUserEmail(newPlayer), 'new-account alert');
 
   // Day-0 gift: the welcome mailbox message, sent here so every registration path gets it
   // (left for the player to find: the FTUE no longer walks them to the Mailbox, 2026-11-13)
@@ -260,7 +269,7 @@ router.post('/register-new-player', async (req, res) => {
     const hashedPassword = password ? await bcrypt.hash(password, 10) : NO_PASSWORD;
     const newPlayer = await createPlayerAccount({
       username, silent, hashedPassword, ipHash, language, frontierId, browser, os, diagnostics, clientInfo,
-      source: requestSource(req, clientInfo),
+      source: requestSource(req, clientInfo), req,
     }, req.app.get('socketio'));
 
     res.status(201).json({ success: true, player: publicPlayer(newPlayer), sessionToken: signSession(newPlayer._id) });
@@ -304,7 +313,7 @@ router.post('/login-google', async (req, res) => {
       if (!current.email || current.email_source !== 'manual') { current.email = email; current.email_source = 'oauth'; }
       if (!current.email_prompt_seen_at) current.email_prompt_seen_at = new Date();
       await current.save();
-      sendWelcomeEmail(current).catch(() => {});
+      unlessDeveloper(req, current, () => sendWelcomeEmail(current), 'welcome email');
       recordActivity(current._id, { username: current.username, ...requestSource(req) }).catch(() => {});
       console.log(`✅ Google linked to ${current.username}`);
       return res.json({ success: true, player: publicPlayer(current), isNewAccount: false, linked: true, sessionToken: signSession(current._id) });
@@ -327,11 +336,11 @@ router.post('/login-google', async (req, res) => {
         username, silent: true, hashedPassword: NO_PASSWORD, ipHash,
         language: req.body.language || 'en', frontierId, browser: req.body.browser, os: req.body.os, diagnostics: req.body.diagnostics,
         clientInfo: sanitizeClientInfo(req.body.clientInfo || null),
-        source: requestSource(req, sanitizeClientInfo(req.body.clientInfo || null)),
+        source: requestSource(req, sanitizeClientInfo(req.body.clientInfo || null)), req,
         extra: { googleId, google_picture: picture, email, email_source: 'oauth', email_prompt_seen_at: new Date() },
       }, req.app.get('socketio'));
       isNewAccount = true;
-      sendWelcomeEmail(player).catch(() => {});
+      unlessDeveloper(req, player, () => sendWelcomeEmail(player), 'welcome email');
       console.log(`✅ Google signup: new player ${username}`);
     }
     recordActivity(player._id, { username: player.username, ...requestSource(req) }).catch(() => {});
@@ -452,7 +461,7 @@ router.post('/player/name', async (req, res) => {
     player.named_at = new Date();
     await player.save();
     recordActivity(player._id, { username: player.username, ...requestSource(req) }).catch(() => {}); // re-stamp the cohort row
-    sendNewUserEmail(player);
+    unlessDeveloper(req, player, () => sendNewUserEmail(player), 'new-account alert');
     res.json({ success: true, player: publicPlayer(player) });
   } catch (err) {
     console.error('❌ /player/name:', err);
@@ -474,7 +483,7 @@ router.post('/player/email', async (req, res) => {
     player.email_source = 'manual';
     if (!player.email_prompt_seen_at) player.email_prompt_seen_at = new Date();
     await player.save();
-    sendWelcomeEmail(player).catch(() => {}); // fire-and-forget; once per player
+    unlessDeveloper(req, player, () => sendWelcomeEmail(player), 'welcome email'); // fire-and-forget; once per player
     res.json({ success: true, player: publicPlayer(player), marketingEligible: isMarketingEligible(player) });
   } catch (err) {
     console.error('❌ /player/email:', err);
