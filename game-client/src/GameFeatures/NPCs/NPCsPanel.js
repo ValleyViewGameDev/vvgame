@@ -657,7 +657,7 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
         setStoryRelationshipType('story');
         setStoryModalOpen(true);
       }
-      soundManager.playSFX('skill_earned');
+      soundManager.playSFX('reward'); // harp and bell: a quest reward (also bulk harvest / craft collect)
       try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
 
       // Ensure inventory and backpack are valid arrays

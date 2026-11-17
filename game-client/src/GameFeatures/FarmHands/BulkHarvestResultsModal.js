@@ -20,7 +20,7 @@ export function BulkHarvestResultsModal({
   // Play success sound when modal opens
   useEffect(() => {
     if (isOpen && results) {
-      soundManager.playSFX('success');
+      soundManager.playSFX('reward');
     }
   }, [isOpen, results]);
 

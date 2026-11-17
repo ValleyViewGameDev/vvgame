@@ -130,5 +130,9 @@
   {
     "event": "animal_snort",
     "file1": "sfx_animal_snort.mp3"
+  },
+  {
+    "event": "reward",
+    "file1": "sfx_reward.mp3"
   }
 ]
