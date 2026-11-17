@@ -412,6 +412,7 @@ const PixiRenderer = ({
   doinkerTargets,         // Resource/NPC type(s) to point doinker at
   doinkerType,            // 'resource' or 'button'
   doinkerVisible = false, // Whether doinker should be visible
+  doinkerRadar = true,    // false: the arrow alone, no radar rings (FTUE step doinkerRadar)
   // Touch / tap-to-walk
   onBoardTap,             // ({ placing }) => boolean: any real tap/click on the board; true = the tap only dismissed a panel (phones) and does nothing else
   onPlayerClick,          // () => void: the local avatar's tile was clicked (opens the Player Character panel)
@@ -1869,6 +1870,23 @@ const PixiRenderer = ({
   }, []);
 
   /**
+   * A tap on Signpost Home / Dungeon Exit out of range (owner 2026-11-16): walk all the way onto it
+   * and, standing on it, fire it as a tap would (handleTileClick: the travel). Dropped if the walk is
+   * replaced, or the thing is gone by then.
+   */
+  const walkOntoTeleport = useCallback((r) => {
+    const L = latestRef.current;
+    if (!L?.onWalkTo) return;
+    L.onWalkTo(r.y, r.x, {
+      onArrive: () => {
+        const now = latestRef.current;
+        const still = now?.resources?.find((x) => x && x.type === r.type && x.x === r.x && x.y === r.y);
+        if (still && now.handleTileClick) now.handleTileClick(still.y, still.x);
+      },
+    });
+  }, []);
+
+  /**
    * A tap on a BUILDING out of range (owner 2026-11-16): walk toward its nearest tile and, the
    * moment it is in range with nothing in the way (the same test as the tap: Euclidean distance to
    * its nearest footprint tile against the derived range, and no wall in the line), stop there and
@@ -2026,7 +2044,12 @@ const PixiRenderer = ({
     // a building (anything with a panel) opens once the walk brings it into range; anything else
     // (a tree, a rock, a crop) is only walked up to: tap again once there
     const BUILDING_CATEGORIES = ['training', 'crafting', 'trainingAndShop', 'station', 'farmhouse', 'shop'];
+    // The way out (owner 2026-11-16): the town's Signpost Home and a dungeon's Dungeon Exit are walked
+    // ONTO (both passable) and fire on arrival, as a tap on them in reach does; a route that cannot be
+    // found gets the walk's own "You can't go that way."
+    const TELEPORTS = ['Signpost Home', 'Dungeon Exit'];
     const walkToward = (r) => {
+      if (TELEPORTS.includes(r.type)) { walkOntoTeleport(r); return; }
       if (BUILDING_CATEGORIES.includes(r.category)) { walkToBuilding(r); return; }
       const t = nearestOf(r); if (onWalkTo) onWalkTo(t.y, t.x);
     };
@@ -2058,7 +2081,9 @@ const PixiRenderer = ({
     }
 
     // The avatar itself: open the Player Character panel (wins over whatever is on the tile)
-    if (!arrowTarget && onPlayerClick && playerPos && Math.round(playerPos.x) === col && Math.round(playerPos.y) === row) {
+    // (not when the player stands ON Signpost Home or the Dungeon Exit, both passable: the tap is the way out)
+    const onTeleport = resources?.some((r) => r && (r.type === 'Signpost Home' || r.type === 'Dungeon Exit') && r.x === col && r.y === row);
+    if (!arrowTarget && !onTeleport && onPlayerClick && playerPos && Math.round(playerPos.x) === col && Math.round(playerPos.y) === row) {
       onPlayerClick();
       return;
     }
@@ -2153,7 +2178,7 @@ const PixiRenderer = ({
     if (handleTileClick) {
       handleTileClick(row, col);
     }
-  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, cursorMode, onWalkTo, walkToNpc, walkToAttack, walkToBuilding, findHostileAtScreen, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
+  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, cursorMode, onWalkTo, walkToNpc, walkToAttack, walkToBuilding, walkOntoTeleport, findHostileAtScreen, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
       onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,
@@ -2519,6 +2544,7 @@ const PixiRenderer = ({
         {/* FTUE Doinker - bouncing arrow pointing at target resources/NPCs */}
         {!scene && doinkerType !== 'button' && doinkerType !== 'element' && (
           <PixiRendererDoinker
+            radar={doinkerRadar}
             doinkerTargets={doinkerTargets}
             doinkerType={doinkerType}
             TILE_SIZE={TILE_SIZE}

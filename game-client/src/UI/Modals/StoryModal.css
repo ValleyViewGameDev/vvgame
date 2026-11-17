@@ -126,3 +126,12 @@
   filter: sepia(0.85) saturate(0.7) contrast(0.9) brightness(1.05);
   opacity: 0.82;
 }
+
+/* Figure layout: words not yet revealed keep their place (invisible), so the modal's height is the
+   whole speech's from the first frame and the words appear in place (owner 2026-11-16) */
+.story-word-hidden { visibility: hidden; }
+/* Continue pinned at the bottom: the speech and figure scroll inside the modal on a short screen
+   (90vh), the button never leaves the bottom edge; the content sits centred vertically above it */
+.story-modal-figure.modal-small { display: flex; flex-direction: column; }
+.story-modal-figure .story-modal-figure-layout { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.story-modal-figure .modal-buttons { flex: 0 0 auto; }

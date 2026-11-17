@@ -986,6 +986,7 @@ const [showFTUE, setShowFTUE] = useState(false);
 const [doinkerTargets, setDoinkerTargets] = useState(null); // Resource type string or array of strings to point doinkers at
 const [doinkerType, setDoinkerType] = useState('resource'); // Type of doinker: 'resource' or 'button'
 const [doinkerPointing, setDoinkerPointing] = useState('down'); // step doinkerPointing: 'down' (above) or 'left'
+const [doinkerRadar, setDoinkerRadar] = useState(true); // step doinkerRadar: false = the arrow alone, no radar rings (a hint)
 const [scrimTarget, setScrimTarget] = useState(null); // FTUE Scrim Moment: the one board thing that stays live
 // Dev hook: point a doinker (and optionally a scrim) without walking an account through the FTUE,
 // e.g. __ftueDoink('Wheat', 'resource', true); __ftueDoink(null) clears it.
@@ -1806,6 +1807,7 @@ useEffect(() => {
       setDoinkerTargets(targets);
       setDoinkerType(type);
       setDoinkerPointing(stepData.doinkerPointing || 'down');
+      setDoinkerRadar(stepData.doinkerRadar !== false);
     };
     // doinkerDelayMs: a hint, not an instruction (owner 2026-11-16, step 14 "visit Arden's Grange"):
     // the player plays on freely and the arrow comes only after this long on the step, counted from
@@ -3679,6 +3681,7 @@ return (
           // FTUE Doinker props
           doinkerTargets={shownDoinkerTargets}
           doinkerType={shownDoinkerType}
+          doinkerRadar={(doinkerTargets && !doinkerPanelOpen) ? doinkerRadar : true}
           doinkerVisible={!!shownDoinkerTargets}
           // Touch: tap-to-walk and pinch zoom (PlayerMovement.walkTo, zoomIn/zoomOut)
           onPlayerClick={() => openMyProfile()}
@@ -3738,6 +3741,7 @@ return (
           <FTUEDoinker
             doinkerTargets={shownDoinkerTargets}
             doinkerType={shownDoinkerType}
+            radar={(doinkerTargets && !doinkerPanelOpen) ? doinkerRadar : true}
             TILE_SIZE={activeTileSize}
             visible={!!shownDoinkerTargets}
             gridId={gridId}

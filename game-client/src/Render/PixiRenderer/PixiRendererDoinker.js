@@ -34,6 +34,7 @@ const PixiRendererDoinker = ({
   TILE_SIZE,
   visible,
   gridId,
+  radar = true, // false: the arrow alone (FTUE step doinkerRadar: a hint, not an instruction)
 }) => {
   const [targetPositions, setTargetPositions] = useState([]);
 
@@ -146,7 +147,7 @@ const PixiRendererDoinker = ({
   // Screen placement: the arrows are portalled to <body> (position: fixed) so they can sit above
   // a Scrim Moment (FTUEScrim.css lifts .ftue-doinker to 1600); inside the board they would be
   // trapped under the board's own stacking context. Positions follow the camera on a short tick.
-  return <BoardArrows targets={targetPositions} TILE_SIZE={TILE_SIZE} />;
+  return <BoardArrows targets={targetPositions} TILE_SIZE={TILE_SIZE} radar={radar} />;
 };
 
 // The arrows on screen now, with what each points at. The arrow itself lets taps through
@@ -169,7 +170,7 @@ export function boardArrowTargetAt(clientX, clientY) {
 // off-screen target would strand them: re-check this often and bring it back.
 const SCRIM_RECHECK_MS = 1000;
 
-function BoardArrows({ targets, TILE_SIZE }) {
+function BoardArrows({ targets, TILE_SIZE, radar = true }) {
   const [arrows, setArrows] = useState([]);
   const revealedAt = useRef(new Map()); // targetName -> last reveal check (ms)
   useEffect(() => {
@@ -211,7 +212,7 @@ function BoardArrows({ targets, TILE_SIZE }) {
   if (!arrows.length) return null;
   return createPortal(
     <>
-      {arrows.map((a) => <DoinkerRadar key={`radar-${a.key}`} x={a.x} y={a.cy} />)}
+      {radar && arrows.map((a) => <DoinkerRadar key={`radar-${a.key}`} x={a.x} y={a.cy} />)}
       {arrows.map((a) => (
         <div
           key={a.key}

@@ -226,7 +226,9 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
   const visibleText = words.slice(0, visibleWordCount).join(' ');
   const isTextComplete = visibleWordCount >= words.length;
 
-  // Figure layout: the page's paragraphs (blank lines), each revealed in turn by the same word count
+  // Figure layout: the page's paragraphs (blank lines), each revealed in turn by the same word count.
+  // Every word is laid out from the start and the ones not yet revealed are invisible, so the modal
+  // is the full speech's height on the first frame and never grows as the words come in (owner 2026-11-16)
   let figureParagraphs = null;
   if (figureFile) {
     let shown = visibleWordCount;
@@ -234,7 +236,7 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
       const paraWords = para.split(/\s+/).filter(w => w.length > 0);
       const take = Math.max(0, Math.min(paraWords.length, shown));
       shown -= paraWords.length;
-      return paraWords.slice(0, take).join(' ');
+      return { shown: paraWords.slice(0, take).join(' '), hidden: paraWords.slice(take).join(' ') };
     });
   }
 
@@ -262,7 +264,7 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
   // and a transformed ancestor would otherwise become the fixed overlay's containing block
   // (the modal then conforms to the panel instead of the viewport)
   if (figureFile) {
-    const lastShown = figureParagraphs.reduce((last, text, i) => (text ? i : last), 0);
+    const lastPara = figureParagraphs.length - 1;
     return createPortal(
       <div className="modal-overlay">
         <div className="modal-container modal-small story-modal story-modal-figure">
@@ -275,9 +277,12 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
             </div>
             <div className="modal-content story-modal-content story-modal-figure-text">
               {displayName && <h3 className="story-modal-name">{displayName}</h3>}
-              {figureParagraphs.map((text, i) => (
+              {figureParagraphs.map(({ shown, hidden }, i) => (
                 <p key={i} className="story-modal-text">
-                  {i === 0 && text ? '\u201C' : ''}{text}{i === lastShown && isTextComplete ? '\u201D' : ''}
+                  {i === 0 ? <span className={shown ? '' : 'story-word-hidden'}>{'\u201C'}</span> : null}
+                  {shown}{shown && hidden ? ' ' : ''}
+                  {hidden ? <span className="story-word-hidden" aria-hidden="true">{hidden}</span> : null}
+                  {i === lastPara ? <span className={isTextComplete ? '' : 'story-word-hidden'}>{'\u201D'}</span> : null}
                 </p>
               ))}
             </div>

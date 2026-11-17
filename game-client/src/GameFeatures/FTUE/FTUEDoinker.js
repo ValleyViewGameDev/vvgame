@@ -21,7 +21,7 @@ import { footprintOf } from '../../Utils/footprint';
  * - pointing: 'down' (default: above the target) | 'left' (to the target's right, pointing at it;
  *   button / element doinkers only, from the step's doinkerPointing)
  */
-const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visible, gridId, activePanel, pointing = 'down' }) => {
+const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visible, gridId, activePanel, pointing = 'down', radar: radarOn = true }) => {
   const [targetPositions, setTargetPositions] = useState([]);
   const [buttonPosition, setButtonPosition] = useState(null);
 
@@ -200,7 +200,7 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
     const arrowHeight = 40;
     const arrowWidth = 30;
     // the radar pulse from the button's centre; not for a button inside a panel (owner 2026-11-16)
-    const radar = buttonPosition.inPanel ? null : <DoinkerRadar x={buttonPosition.x} y={buttonPosition.midY} />;
+    const radar = (buttonPosition.inPanel || !radarOn) ? null : <DoinkerRadar x={buttonPosition.x} y={buttonPosition.midY} />;
 
     // Pointing left: a horizontal arrow just right of the target, centred on its middle
     if (pointing === 'left') {
@@ -257,7 +257,7 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
 
         return (
           <Fragment key={`doinker-${targetPosition.targetName}-${index}`}>
-          <DoinkerRadar fixed={false} x={pixelX} y={pixelY} />
+          {radarOn && <DoinkerRadar fixed={false} x={pixelX} y={pixelY} />}
           <div
             className="ftue-doinker"
             style={{

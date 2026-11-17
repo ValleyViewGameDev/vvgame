@@ -218,9 +218,11 @@ function spawnNextTo(grid, type, offset, fallback) {
   const open = openTileTest(grid);
   if (!r) return nearestOpenTile(grid, fallback, 8, open);
   const pos = { x: r.x + (offset?.x || 0), y: r.y + (offset?.y || 0) };
-  if (open(pos.x, pos.y)) return pos;
   const cells = footprint(r);
   const inside = new Set(cells.map(([x, y]) => `${x},${y}`));
+  // never ON the thing itself: the Dungeon Exit and Signpost Home are passable (walked onto to
+  // leave, owner 2026-11-16), and an arrival standing on one would be on top of the way out
+  if (!inside.has(`${pos.x},${pos.y}`) && open(pos.x, pos.y)) return pos;
   let best = null;
   for (const [cx, cy] of cells) {
     for (let dy = -1; dy <= 1; dy++) {

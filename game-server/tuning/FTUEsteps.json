@@ -183,7 +183,8 @@
     "doinker": true,
     "doinkerType": "resource",
     "doinkerTarget": "Signpost Town",
-    "doinkerDelayMs": 10000
+    "doinkerDelayMs": 15000,
+    "doinkerRadar": false
   },
   {
     "step": 15,
