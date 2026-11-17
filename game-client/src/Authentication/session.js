@@ -1,5 +1,6 @@
 import axios from 'axios';
 import API_BASE from '../config';
+import { getVisitorId } from '../Utils/pageviewBeacon';
 
 /**
  * The player's session token (BL-2, game-server/utils/session.js). The server signs it at
@@ -87,6 +88,11 @@ export function ensureSession() {
 const isOpen = (url) => OPEN_URLS.some((u) => String(url || '').includes(u));
 
 applyHeader(getSessionToken());
+
+// This browser's anonymous visitor id on every request (owner 2026-11-16): the server keeps it on
+// the account's analytics record and remembers a developer's browsers, so the analytics dashboard
+// can leave out the owner's throwaway test accounts (game-server utils/analytics.js visitorIdOf)
+try { const vid = getVisitorId(); if (vid) axios.defaults.headers.common['X-Visitor-Id'] = vid; } catch (_) { /* storage off */ }
 
 // Before any request that needs a session: get one first when the stored player has none
 axios.interceptors.request.use(async (config) => {

@@ -225,6 +225,18 @@ rows when deciding which cohorts have real data.
   payment-test account) by username; a multi-account farmer by regex; and pin
   by `_id` whenever the handle is ordinary enough that a regex would swallow
   real players. Pageviews are anonymous and cannot be filtered either way.
+- **Developer devices and local servers (always left out, 2026-11-16).** The client sends its
+  anonymous visitor id (one per browser, `vv_visitor_id`) as `X-Visitor-Id` on every request.
+  The auth paths keep it on the account's `analytics_player.visitor_ids`, and stamp
+  `dev_source` when the account was made or signed in through a game server not running in
+  production (`local-server`: it shares the production database) or from a localhost page
+  (`localhost-page`). Any request from a developer session marks its browser in
+  `analytics_dev_device` (`game-server/server.js`). The dashboard's always-on exclusion
+  (`abuseExcludeIds`) drops every account with a `dev_source`, a visitor id on that list, or a
+  live `client_info` from a developer browser or a localhost referrer. It is per BROWSER: sign in
+  as a developer once in each browser you test from (Safari and the home-screen app on an
+  iPhone are separate), and again after a private window or cleared site data. Accounts made
+  before 2026-11-16 carry no visitor id once deleted: purge those by hand.
 - **When a metric reads zero, check the dev filter first**, then the go-live
   gap (see above), then whether the metric is even possible for that population.
 

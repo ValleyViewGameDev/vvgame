@@ -13,6 +13,7 @@ const AnalyticsActivity = require('../models/analyticsActivity');
 const AnalyticsPlayer = require('../models/analyticsPlayer');
 const AnalyticsPageview = require('../models/analyticsPageview');
 const AnalyticsLevel = require('../models/analyticsLevel');
+const AnalyticsDevDevice = require('../models/analyticsDevDevice');
 const XP_THRESHOLDS = require('../tuning/xpLevels.json').map((l) => l.xp); // reach level i+2 at [i]
 
 // Player ids are 24-hex ObjectIds. Several call sites record for ANY request
@@ -44,7 +45,7 @@ async function recordActivity(playerId, opts = {}) {
   if (!playerId) return;
   const pid = String(playerId);
   if (!HEX24.test(pid)) return; // ignore non-ObjectId ids (junk/malformed requests)
-  const { username = null, when = new Date() } = opts;
+  const { username = null, when = new Date(), visitorId = null, devSource = null } = opts;
   const day = dayKeyUTC(when);
   const writes = [
     AnalyticsActivity.updateOne(
@@ -54,9 +55,12 @@ async function recordActivity(playerId, opts = {}) {
     ),
   ];
   if (username) {
+    // visitorId / devSource come with the username from the auth paths only (requestSource below)
+    const set = { username };
+    if (devSource) set.dev_source = devSource;
     writes.push(AnalyticsPlayer.updateOne(
       { _id: pid },
-      { $setOnInsert: { firstSeenDay: day, firstSeenAt: when }, $set: { username } },
+      { $setOnInsert: { firstSeenDay: day, firstSeenAt: when }, $set: set, ...(visitorId ? { $addToSet: { visitor_ids: visitorId } } : {}) },
       { upsert: true },
     ));
   }
@@ -118,6 +122,35 @@ async function recordValleyVisit(playerId, when = new Date()) {
 }
 async function recordEnemyKill(playerId, when = new Date()) {
   await setDayFlag(playerId, { $set: { enemy_killed: true } }, when);
+}
+
+// ---- Developer traffic (owner 2026-11-16): the dashboard leaves it out ----
+// The browser a request comes from: the anonymous visitor id the client sends as X-Visitor-Id
+// (game-client Authentication/session.js), else one in a signup's clientInfo.
+function visitorIdOf(req, clientInfo = null) {
+  const raw = String((req && req.get && req.get('x-visitor-id')) || (clientInfo && clientInfo.visitor_id) || '').trim().toLowerCase();
+  return UUID_RE.test(raw) ? raw : null;
+}
+const LOCAL_ORIGIN_RE = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\]|[a-z0-9-]+\.localhost)(:\d+)?(\/|$)/i;
+// 'local-server' when this game server is not the production one (a developer's machine: it shares
+// the production database), 'localhost-page' when the request came from a localhost page; else null.
+function devSourceOf(req) {
+  if (process.env.NODE_ENV !== 'production') return 'local-server';
+  const from = (req && req.get && (req.get('origin') || req.get('referer'))) || '';
+  return LOCAL_ORIGIN_RE.test(from) ? 'localhost-page' : null;
+}
+// What the auth paths pass to recordActivity with the username
+function requestSource(req, clientInfo = null) {
+  return { visitorId: visitorIdOf(req, clientInfo), devSource: devSourceOf(req) };
+}
+// A developer's session made a request from this browser: remember it as a developer device
+async function recordDevDevice(visitorId, playerId, when = new Date()) {
+  if (!visitorId || !UUID_RE.test(visitorId)) return;
+  await AnalyticsDevDevice.updateOne(
+    { _id: visitorId },
+    { $setOnInsert: { firstSeenAt: when }, $set: { lastSeenAt: when, playerId: playerId ? String(playerId) : null } },
+    { upsert: true },
+  );
 }
 
 // The level a total xp gives (as the client's getDerivedLevel: level i+2 at XP_THRESHOLDS[i]).
@@ -241,6 +274,7 @@ function sanitizeClientInfo(body) {
 }
 
 module.exports = {
-  recordActivity, recordPlayed, recordQuestCompleted, recordPurchase, recordGridEntered, recordKentSale, recordValleyVisit, recordEnemyKill, recordLevelUps, levelForXp,
+  recordActivity, recordPlayed, recordQuestCompleted, recordPurchase, recordGridEntered,
+  requestSource, visitorIdOf, recordDevDevice, recordKentSale, recordValleyVisit, recordEnemyKill, recordLevelUps, levelForXp,
   recordPageview, ensurePageview, sanitizeClientInfo, dayKeyUTC, HEX24,
 };

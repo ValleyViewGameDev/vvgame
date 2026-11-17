@@ -54,6 +54,7 @@ const Purchase = require(path.join(GAME_SERVER, 'models', 'purchase'));
 const AnalyticsActivity = require(path.join(GAME_SERVER, 'models', 'analyticsActivity'));
 const AnalyticsPurge = require(path.join(GAME_SERVER, 'models', 'analyticsPurge'));
 const AnalyticsPlayer = require(path.join(GAME_SERVER, 'models', 'analyticsPlayer'));
+const AnalyticsDevDevice = require(path.join(GAME_SERVER, 'models', 'analyticsDevDevice'));
 const AnalyticsPageview = require(path.join(GAME_SERVER, 'models', 'analyticsPageview'));
 const { dayKeyUTC } = require(path.join(GAME_SERVER, 'utils', 'analytics'));
 
@@ -290,6 +291,20 @@ async function abuseExcludeIds() {
     players.forEach((p) => ids.add(String(p._id)));
     aplayers.forEach((p) => ids.add(String(p._id)));
   }
+  // Developer traffic (owner 2026-11-16): accounts made or signed in on a developer's browser
+  // (analytics_dev_device, filled whenever a developer session makes a request), through a local
+  // game server or a localhost page (analytics_player.dev_source), and live accounts that arrived
+  // from a localhost page before dev_source existed (client_info referrer)
+  const devices = (await AnalyticsDevDevice.find({}, { _id: 1 }).lean()).map((d) => d._id);
+  const [devAp, devPl] = await Promise.all([
+    AnalyticsPlayer.find({ $or: [{ dev_source: { $ne: null } }, ...(devices.length ? [{ visitor_ids: { $in: devices } }] : [])] }, { _id: 1 }).lean(),
+    Player.find({ $or: [
+      { 'client_info.acquisition.referrer_host': { $in: ['localhost', '127.0.0.1'] } },
+      ...(devices.length ? [{ 'client_info.visitor_id': { $in: devices } }] : []),
+    ] }, { _id: 1 }).lean(),
+  ]);
+  devAp.forEach((p) => ids.add(String(p._id)));
+  devPl.forEach((p) => ids.add(String(p._id)));
   return [...ids];
 }
 

@@ -14,7 +14,7 @@ const starterAccount = JSON.parse(fs.readFileSync(starterAccountPath, 'utf8'));
 
 const crypto = require('crypto');
 const { sendNewUserEmail } = require('../utils/emailUtils.js');
-const { recordActivity, ensurePageview, sanitizeClientInfo } = require('../utils/analytics');
+const { recordActivity, ensurePageview, sanitizeClientInfo, requestSource } = require('../utils/analytics');
 const { NO_PASSWORD, hasPassword, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername, isReservedUsername, generateUniqueRandomUsername } = require('../utils/usernames');
 const sendMailboxMessage = require('../utils/messageUtils');
@@ -73,7 +73,7 @@ router.post('/check-username', async (req, res) => {
 // rows and the welcome mailbox gift. Shared by /register-new-player (typed and silent) and
 // /login-google (a brand-new Google identity). `extra` lands on the document last
 // (googleId, email, email_source...). Returns the saved player.
-async function createPlayerAccount({ username, silent, hashedPassword, ipHash, language, frontierId, browser, os, diagnostics, clientInfo, extra = {} }, io) {
+async function createPlayerAccount({ username, silent, hashedPassword, ipHash, language, frontierId, browser, os, diagnostics, clientInfo, extra = {}, source = {} }, io) {
 
   // Step 3: Load starter attributes
   const {
@@ -193,7 +193,7 @@ async function createPlayerAccount({ username, silent, hashedPassword, ipHash, l
   // Analytics (fire-and-forget, never awaited): cohort row + day-0 activity, and
   // make sure the visitor's pageview exists so the Site Traffic funnel's
   // numerator never outruns its denominator. See docs/analytics.md.
-  recordActivity(newPlayer._id, { username: newPlayer.username }).catch(() => {});
+  recordActivity(newPlayer._id, { username: newPlayer.username, ...source }).catch(() => {});
   if (clientInfo && clientInfo.visitor_id) {
     ensurePageview(clientInfo.visitor_id, {
       utm_source: clientInfo.acquisition.utm_source,
@@ -260,6 +260,7 @@ router.post('/register-new-player', async (req, res) => {
     const hashedPassword = password ? await bcrypt.hash(password, 10) : NO_PASSWORD;
     const newPlayer = await createPlayerAccount({
       username, silent, hashedPassword, ipHash, language, frontierId, browser, os, diagnostics, clientInfo,
+      source: requestSource(req, clientInfo),
     }, req.app.get('socketio'));
 
     res.status(201).json({ success: true, player: publicPlayer(newPlayer), sessionToken: signSession(newPlayer._id) });
@@ -304,7 +305,7 @@ router.post('/login-google', async (req, res) => {
       if (!current.email_prompt_seen_at) current.email_prompt_seen_at = new Date();
       await current.save();
       sendWelcomeEmail(current).catch(() => {});
-      recordActivity(current._id, { username: current.username }).catch(() => {});
+      recordActivity(current._id, { username: current.username, ...requestSource(req) }).catch(() => {});
       console.log(`✅ Google linked to ${current.username}`);
       return res.json({ success: true, player: publicPlayer(current), isNewAccount: false, linked: true, sessionToken: signSession(current._id) });
     }
@@ -326,13 +327,14 @@ router.post('/login-google', async (req, res) => {
         username, silent: true, hashedPassword: NO_PASSWORD, ipHash,
         language: req.body.language || 'en', frontierId, browser: req.body.browser, os: req.body.os, diagnostics: req.body.diagnostics,
         clientInfo: sanitizeClientInfo(req.body.clientInfo || null),
+        source: requestSource(req, sanitizeClientInfo(req.body.clientInfo || null)),
         extra: { googleId, google_picture: picture, email, email_source: 'oauth', email_prompt_seen_at: new Date() },
       }, req.app.get('socketio'));
       isNewAccount = true;
       sendWelcomeEmail(player).catch(() => {});
       console.log(`✅ Google signup: new player ${username}`);
     }
-    recordActivity(player._id, { username: player.username }).catch(() => {});
+    recordActivity(player._id, { username: player.username, ...requestSource(req) }).catch(() => {});
     res.json({ success: true, player: publicPlayer(player), isNewAccount, sessionToken: signSession(player._id) });
   } catch (err) {
     console.error('❌ /login-google:', err?.message || err);
@@ -379,7 +381,7 @@ router.post('/login', async (req, res) => {
     await Player.findByIdAndUpdate(player._id, { lastActive: new Date() });
     // Analytics heartbeat (fire-and-forget). Login holds the player doc, so it
     // is one of the two call sites allowed to stamp the username (docs/analytics.md).
-    recordActivity(player._id, { username: player.username }).catch(() => {});
+    recordActivity(player._id, { username: player.username, ...requestSource(req) }).catch(() => {});
 
     // Respond with player details (never the password hash)
     return res.status(200).json({
@@ -449,7 +451,7 @@ router.post('/player/name', async (req, res) => {
     player.named = true;
     player.named_at = new Date();
     await player.save();
-    recordActivity(player._id, { username: player.username }).catch(() => {}); // re-stamp the cohort row
+    recordActivity(player._id, { username: player.username, ...requestSource(req) }).catch(() => {}); // re-stamp the cohort row
     sendNewUserEmail(player);
     res.json({ success: true, player: publicPlayer(player) });
   } catch (err) {

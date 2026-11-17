@@ -108,6 +108,22 @@ app.use(express.json({ limit: '10mb' }));
 // Player sessions (BL-2): verify the token, and make x-player-id mean the session's player (utils/session.js)
 const { sessionMiddleware, claimGuard, socketPlayerId, ENFORCE: SESSION_ENFORCE } = require('./utils/session');
 app.use(sessionMiddleware);
+// Developer devices (owner 2026-11-16): a developer session's browser is remembered once per
+// server process, so the analytics dashboard can leave out accounts made on it (utils/analytics.js)
+{
+  const { visitorIdOf, recordDevDevice } = require('./utils/analytics');
+  const { isDeveloperPlayerId } = require('./utils/serviceMode');
+  const seenDevDevice = new Set();
+  app.use((req, res, next) => {
+    const playerId = req.sessionPlayerId;
+    const visitorId = playerId ? visitorIdOf(req) : null;
+    if (visitorId && !seenDevDevice.has(`${playerId}:${visitorId}`)) {
+      seenDevDevice.add(`${playerId}:${visitorId}`);
+      isDeveloperPlayerId(playerId).then((dev) => (dev ? recordDevDevice(visitorId, playerId) : null)).catch(() => {});
+    }
+    next();
+  });
+}
 
 // Service status (update notice / maintenance). See utils/serviceMode.js.
 app.get('/api/status', (req, res) => res.json({ ...getStatus(), build: APP_BUILD }));
