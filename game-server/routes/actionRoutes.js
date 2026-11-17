@@ -1358,8 +1358,10 @@ router.post('/action/place', async (req, res) => {
     }
     if (def.category === 'crafting' && onGrid.filter((r) => r && r.type === def.type).length >= limit('maxCraftingStationsPerType', 4)) return answer(409, 'limit');
 
-    // a grazing animal's Money price rises with each one of its type already owned (animalPricing.js)
-    const price = def.action === 'graze' ? econ.withScaledAnimalCost(def, econ.countAnimalsOfType(grid, def.type)) : def;
+    // a grazing animal's Money price rises with each one of its type already owned (animalPricing.js),
+    // and so does a crafting station's with each one of its type already on the grid (stationPricing.js)
+    const price = def.action === 'graze' ? econ.withScaledAnimalCost(def, econ.countAnimalsOfType(grid, def.type))
+      : econ.withScaledStationCost(def, econ.countStationsOfType(onGrid, def.type)); // stations and copyInflation rows; others unchanged
     const paid = payFor(player, price, { useGems });
     if (!paid.ok) return answer(409, paid.reason);
     if (!isNPC) {

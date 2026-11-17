@@ -4,6 +4,8 @@
     "trigger": "StartedFTUE",
     "showModal": true,
     "modalSprite": "npc-head-gertrude.svg",
+    "modalFigure": "npc-figure-gertrude.png",
+    "modalFigureEffect": "ghost",
     "bodyKey": 16019,
     "continue": true,
     "addQuests": []
@@ -177,7 +179,11 @@
     ],
     "dismissNotification": true,
     "notificationKey": 7066,
-    "notificationSprite": "signpost-town.svg"
+    "notificationSprite": "signpost-town.svg",
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "Signpost Town",
+    "doinkerDelayMs": 10000
   },
   {
     "step": 15,

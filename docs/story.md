@@ -17,7 +17,10 @@ given to **Gertrude's spirit**: the Queen, turned to stone in her castle, speaks
 at the edge of the forest (until 2026-11-01, a sea cave) ("Who comes? A stranger... It turned me to stone and took my King's crown...")
 and sends them to Constable Elbow for the Home Deed. Rewritten 2026-11-01 (owner): the stranger
 now steps out of the forest, the tale is three pages (forest; the storm, stone and crown; the
-Oracle and "bring us Hope!"), and the page sending them to Elbow is gone (toast 741 points the
+Oracle and "bring us Hope!"), and the page sending them to Elbow is gone. Cut 2026-11-16 (owner,
+less reading in the first minute) to ONE short page of four beats, shown beside Gertrude's full
+figure: the stranger from the forest, Prospero's storm turned her to stone, the Oracle's "what is
+lost must be found", "Bring us Hope, traveler!" (the crown is no longer named here) (toast 741 points the
 way). Her waking at the end of the early game pays
 off the voice the player heard first.
 

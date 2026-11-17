@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { resolveFtueDirtTile, nearestResourceOfType } from './findBoardTarget';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import DoinkerArrow from './DoinkerArrow';
+import DoinkerRadar from './DoinkerRadar';
 import './FTUE.css';
 import { footprintOf } from '../../Utils/footprint';
 
@@ -156,7 +157,9 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
         right: rect.right,
         midY: rect.top + rect.height / 2,
         width: rect.width,
-        height: rect.height
+        height: rect.height,
+        // a button inside a panel needs no radar (owner 2026-11-16): the panel is already in front of the player
+        inPanel: !!targetButton.closest('[data-panel-name]'),
       };
     };
 
@@ -196,11 +199,13 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
   if ((doinkerType === 'button' || doinkerType === 'element') && buttonPosition) {
     const arrowHeight = 40;
     const arrowWidth = 30;
+    // the radar pulse from the button's centre; not for a button inside a panel (owner 2026-11-16)
+    const radar = buttonPosition.inPanel ? null : <DoinkerRadar x={buttonPosition.x} y={buttonPosition.midY} />;
 
     // Pointing left: a horizontal arrow just right of the target, centred on its middle
     if (pointing === 'left') {
       return createPortal(
-        <div
+        <>{radar}<div
           key="doinker-button"
           className="ftue-doinker-button ftue-doinker-left"
           style={{
@@ -213,14 +218,14 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
           <div className="ftue-doinker-left-arrow">
             <DoinkerArrow width={arrowWidth} height={arrowHeight} />
           </div>
-        </div>,
+        </div></>,
         document.body
       );
     }
 
     // Use portal to render at document.body level, escaping any parent overflow:hidden/auto
     return createPortal(
-      <div
+      <>{radar}<div
         key="doinker-button"
         className="ftue-doinker-button"
         style={{
@@ -231,7 +236,7 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
         }}
       >
         <DoinkerArrow width={arrowWidth} height={arrowHeight} />
-      </div>,
+      </div></>,
       document.body
     );
   }
@@ -251,8 +256,9 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
         const arrowWidth = Math.max(20, TILE_SIZE * 0.5);
 
         return (
+          <Fragment key={`doinker-${targetPosition.targetName}-${index}`}>
+          <DoinkerRadar fixed={false} x={pixelX} y={pixelY} />
           <div
-            key={`doinker-${targetPosition.targetName}-${index}`}
             className="ftue-doinker"
             style={{
               left: `${pixelX}px`,
@@ -263,6 +269,7 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
           >
             <DoinkerArrow width={arrowWidth} height={arrowHeight} />
           </div>
+          </Fragment>
         );
       })}
     </>

@@ -50,6 +50,24 @@ export const tryAdvanceFTUEByTrigger = async (triggerKey, playerId, currentPlaye
   return incrementFTUEStep(playerId, currentPlayer, setCurrentPlayer);
 };
 
+// Triggers that are a STATE as well as an event: the player can reach it before the step that waits
+// for it begins (owner 2026-11-16: the Town Key bought from Elbow while the town arrival was still
+// earning its trophy, so AcquiredTownKey fired one step early and was dropped, and the Elbow step
+// then pointed at him forever). App.js asks this whenever the step or the holdings change and
+// advances when the next step's trigger is already true.
+const held = (p, type) => [...(p?.inventory || []), ...(p?.backpack || [])]
+  .filter((i) => i && i.type === type).reduce((n, i) => n + (i.quantity || 0), 0);
+const STATE_TRIGGERS = {
+  AcquiredTownKey: (p) => held(p, 'Town Key') > 0,
+};
+/** The next step's trigger when it is already satisfied by the player's state, else null. */
+export const satisfiedNextTrigger = (currentPlayer) => {
+  if (!currentPlayer?.firsttimeuser) return null;
+  const next = getFTUEsteps().find((step) => step.step === (currentPlayer.ftuestep || 0) + 1);
+  const test = next && STATE_TRIGGERS[next.trigger];
+  return test && test(currentPlayer) ? next.trigger : null;
+};
+
 // Export function to increment FTUE step in both DB and local state
 export const incrementFTUEStep = async (playerId, currentPlayer, setCurrentPlayer) => {
   try {

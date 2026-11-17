@@ -23,6 +23,7 @@ import { UILockProvider } from './UI/UILockContext';
 import { NPCOverlayProvider } from './UI/NPCOverlayContext';
 import { BulkOperationProvider } from './UI/BulkOperationContext';
 import { TransitionProvider } from './UI/TransitionContext';
+import './Dev/devStoryPreview'; // dev only: __storyPreview() opens THE story modal on any screen
 
 installTouchClass(); // html.touch-ui: no hover colours on resource/quest buttons on touch screens
 installBuildWatch(); // "The Game Has Updated" prompt when a deploy lands mid-session (UI/Modals/UpdatePrompt.js)

@@ -20,7 +20,8 @@ import axios from 'axios';
  *                          again (no migration needed).
  *
  * Keys in use: survey (the L5 survey nudge), email (the email ask), snugLesson (Travel with Snug),
- * audreyLesson (hire Audrey at L5, FarmHands/useAudreyLesson.js).
+ * audreyLesson (hire Audrey at L5, FarmHands/useAudreyLesson.js), nameAsk (the Home Deed name
+ * prompt first opened, NPCsPanel.js; read by the analytics FTUE funnel).
  * A key is a short name: letters first, then letters, digits, - or _ (no dots).
  */
 const LEGACY = {

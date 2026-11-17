@@ -31,7 +31,12 @@ export default function FTUEScrim({ target, gridId }) {
       // where it counts as a tap on its target (PixiRendererDoinker boardArrowTargetAt)
       const arrow = rect && !(target && typeof target === 'object') && document.querySelector('.ftue-doinker-board');
       if (arrow) {
-        const a = arrow.getBoundingClientRect();
+        // the arrow's RESTING box (its inline left/top/size, centred on left by translateX(-50%)),
+        // not getBoundingClientRect: that follows the bounce, and the hole bounced with it
+        // (owner 2026-11-16). The -12 below already leaves room for the bounce's 12 px lift.
+        const w = parseFloat(arrow.style.width) || 0, h = parseFloat(arrow.style.height) || 0;
+        const l = parseFloat(arrow.style.left) - w / 2, t = parseFloat(arrow.style.top);
+        const a = { left: l, top: t, right: l + w, bottom: t + h };
         rect = { x1: Math.min(rect.x1, Math.round(a.left - PAD)), y1: Math.min(rect.y1, Math.round(a.top - PAD - 12)),
           x2: Math.max(rect.x2, Math.round(a.right + PAD)), y2: rect.y2 };
       }

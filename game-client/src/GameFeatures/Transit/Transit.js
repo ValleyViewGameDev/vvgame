@@ -233,12 +233,15 @@ export async function handleTransitSignpost(
       );
       if (!moved) return;
 
+      // The FTUE first, the moment the player arrives: the Elbow doinker must not wait on the trophy's
+      // round trip (a quick player bought the Town Key in that gap), and it must not depend on the
+      // trophy at all (it matches only when the next step is the town visit; owner 2026-11-16)
+      if (currentPlayer?.playerId) tryAdvanceFTUEByTrigger('FirstTownVisit', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
       const hasTraveledToTownTrophy = currentPlayer.trophies?.some(
         (t) => t.type === "TraveledToTown" && t.progress > 0
       );
       if (!hasTraveledToTownTrophy && currentPlayer?.playerId) {
         await earnTrophy(currentPlayer.playerId, "TraveledToTown", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-        await tryAdvanceFTUEByTrigger('FirstTownVisit', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
       }
       return;
     }

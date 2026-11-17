@@ -70,6 +70,9 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   const [isGlobalMarketOpen, setIsGlobalMarketOpen] = useState(false); // Global Market modal state
 
   const tradeStallSlotConfig = globalTuning?.tradeStallSlots || [];
+  // what selling a listing to the game pays: the listing less tradeStallHaircut (server twin:
+  // stallActionRoutes.js stall-sell-to-game)
+  const sellToGameValue = (slot) => Math.floor((slot?.amount || 0) * (slot?.price || 0) * (1 - (globalTuning?.tradeStallHaircut ?? 0)));
   const tradeStallRequestConfig = globalTuning?.tradeStallRequests || [];
   
   // Get slot-specific configuration
@@ -158,7 +161,8 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     const answer = await postAction('/api/action/stall-unlock', { playerId: currentPlayer.playerId, slotIndex });
     applyStallAnswer(answer.data);
     if (!answer.ok) {
-      if (answer.reason === 'short-Wood') updateStatus(`${strings[177]} ${config.unlockCost} {res:Wood} ${strings[176]} ${strings[178]}`);
+      const currency = config.unlockCurrency || 'Wood';
+      if (answer.reason === `short-${currency}`) updateStatus(`${strings[177]} ${config.unlockCost} {res:${currency}} ${getLocalizedString(currency, strings)} ${strings[178]}`);
       else stallRefusal(answer.reason);
       return;
     }
@@ -166,9 +170,10 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     updateStatus(`${strings[170]}`);
   };
 
-  // The Sell tab always shows 4 slots in index order, whatever shape the server sends back (it may
-  // omit a slot it never saved): a server reply must never reshape the grid under the player.
-  const SELL_SLOT_COUNT = 4;
+  // The Sell tab always shows every slot globalTuning.tradeStallSlots lists (6 since 2026-11-16: four
+  // Wood slots and two Gem slots), in index order, whatever shape the server sends back (it may omit a
+  // slot it never saved): a server reply must never reshape the grid under the player.
+  const SELL_SLOT_COUNT = Math.max(4, tradeStallSlotConfig.length);
   const emptySellSlot = (index, locked) => ({
     slotIndex: index, locked, resource: null, amount: 0, price: 0, sellTime: null, boughtBy: null, boughtFor: null,
   });
@@ -636,7 +641,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       handleCollectPayment(`collect-${Date.now()}`, 'collect-payment', index);
                     } else if (isOwnStall && isReadyToSell && !isPurchased) {
                       // Handle sell to game
-                      celebrateSlot(index, slot.amount * slot.price);
+                      celebrateSlot(index, sellToGameValue(slot));
                       handleSellSingle(`sell-${Date.now()}`, 'sell-to-game', index);
                     }
                   }}
@@ -649,7 +654,8 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       <div className="trade-slot-status">{formatDuration(config.sellWaitTime / 1000)} {strings[174]}</div>
                       <div className="trade-slot-unlock-cta">
                         <span>{strings[175]}</span>
-                        <span className="trade-slot-unlock-cost" title={strings[176]}>{config.unlockCost.toLocaleString()} <ResourceIcon type="Wood" masterResources={resourceData} /></span>
+                        {/* Wood, or Gems for the paid slots (globalTuning unlockCurrency) */}
+                        <span className="trade-slot-unlock-cost" title={getLocalizedString(config.unlockCurrency || 'Wood', strings)}>{config.unlockCost.toLocaleString()} <ResourceIcon type={config.unlockCurrency || 'Wood'} masterResources={resourceData} /></span>
                       </div>
                     </div>
                   ) : isEmpty ? (
@@ -680,7 +686,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       )}
                       {isReadyToSell && !isPurchased && (
                         <div className="trade-slot-status ready">
-                          {strings[167]} <ResourceIcon type="Money" masterResources={resourceData} />{(slot.amount * slot.price).toLocaleString()}
+                          {strings[167]} <ResourceIcon type="Money" masterResources={resourceData} />{sellToGameValue(slot).toLocaleString()}
                         </div>
                       )}
                     </div>

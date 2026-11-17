@@ -34,8 +34,15 @@ import { getLocalizedString } from '../../Utils/stringLookup';
  * @param {string} speakerName - Optional name under the icon; by default the localized npcName, else the
  *   resource whose art npcFilename is, else (FTUE, the player's own icon) the player's username
  * @param {string} okLabel - Optional label for the last page's button (a scene's "Next" between speakers)
+ * @param {string} figureFile - Optional FULL-LENGTH art under /assets/resources (a character's board figure,
+ *   e.g. "npc-figure-gertrude.png"). Switches to the figure layout: a narrow column with the whole
+ *   figure and the speaker's name, the words beside it, ALL on one page (blank lines become
+ *   paragraphs, not pages). The FTUE opening uses it (owner 2026-11-16: one modal, not three pages).
+ *   The speaker's name is a centred title over the words, and the button says Continue (owner 2026-11-16).
+ * @param {string} figureEffect - Optional look for the figure: 'ghost' = sepia and a little faded, for a
+ *   spirit or a statue speaking (Gertrude, turned to stone, owner 2026-11-16)
  */
-function StoryModal({ isOpen = false, onClose, npcName, relationshipType, username, symbol, symbolNode = null, dialogKey: directDialogKey, npcFilename, speakerName, okLabel }) {
+function StoryModal({ isOpen = false, onClose, npcName, relationshipType, username, symbol, symbolNode = null, dialogKey: directDialogKey, npcFilename, speakerName, okLabel, figureFile = null, figureEffect = null }) {
   const strings = useStrings();
   const [currentPage, setCurrentPage] = useState(0);
   const [pages, setPages] = useState([]);
@@ -111,6 +118,15 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
       return;
     }
 
+    // The figure layout is one page: the whole speech beside the whole figure
+    if (figureFile) {
+      setPages([dialogText.trim()]);
+      setCurrentPage(0);
+      setVisibleWordCount(0);
+      setIsAnimating(true);
+      return;
+    }
+
     // A string with explicit page breaks (a blank line, "\n\n") is paged exactly there, so a
     // story's page count is the writer's call in every language (FTUE opening: 3 pages)
     if (/\n\s*\n/.test(dialogText)) {
@@ -152,7 +168,7 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
     setCurrentPage(0);
     setVisibleWordCount(0);
     setIsAnimating(true);
-  }, [dialogText]);
+  }, [dialogText, figureFile]);
 
   // Reset to first page and start animation when modal opens with new content
   useEffect(() => {
@@ -210,6 +226,18 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
   const visibleText = words.slice(0, visibleWordCount).join(' ');
   const isTextComplete = visibleWordCount >= words.length;
 
+  // Figure layout: the page's paragraphs (blank lines), each revealed in turn by the same word count
+  let figureParagraphs = null;
+  if (figureFile) {
+    let shown = visibleWordCount;
+    figureParagraphs = currentText.split(/\n\s*\n/).map((para) => {
+      const paraWords = para.split(/\s+/).filter(w => w.length > 0);
+      const take = Math.max(0, Math.min(paraWords.length, shown));
+      shown -= paraWords.length;
+      return paraWords.slice(0, take).join(' ');
+    });
+  }
+
   const handleNext = () => {
     if (isTextComplete && !isLastPage) {
       setCurrentPage(prev => prev + 1);
@@ -233,6 +261,38 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
   // Portal to <body>: NPC panels render this while they are animated/transformed on phones,
   // and a transformed ancestor would otherwise become the fixed overlay's containing block
   // (the modal then conforms to the panel instead of the viewport)
+  if (figureFile) {
+    const lastShown = figureParagraphs.reduce((last, text, i) => (text ? i : last), 0);
+    return createPortal(
+      <div className="modal-overlay">
+        <div className="modal-container modal-small story-modal story-modal-figure">
+          <CloseButton corner onClick={() => onClose('dismiss')} />
+          <div className="story-modal-figure-layout">
+            <div className="story-modal-figure-col">
+              <div className="story-modal-figure-frame">
+                <img src={`/assets/resources/${figureFile}`} alt={displayName || 'Character'} className={`story-modal-figure-img${figureEffect ? ` story-modal-figure-${figureEffect}` : ''}`} />
+              </div>
+            </div>
+            <div className="modal-content story-modal-content story-modal-figure-text">
+              {displayName && <h3 className="story-modal-name">{displayName}</h3>}
+              {figureParagraphs.map((text, i) => (
+                <p key={i} className="story-modal-text">
+                  {i === 0 && text ? '\u201C' : ''}{text}{i === lastShown && isTextComplete ? '\u201D' : ''}
+                </p>
+              ))}
+            </div>
+          </div>
+          <div className="modal-buttons shared-buttons">
+            <button className="btn-basic btn-modal btn-success" onClick={handleOk}>
+              {okLabel || strings[360] || 'Continue'}
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
   return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-small story-modal">

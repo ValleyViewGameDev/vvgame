@@ -24,7 +24,7 @@ async function requireDeveloperOrSelf(req, res, targetId, { allowSelf }) {
   const callerId = req.get('x-player-id') || null;
   if (allowSelf && callerId && String(callerId) === String(targetId)) return true;
   if (await isDeveloperPlayerId(callerId)) return true;
-  res.status(403).json({ error: 'Not allowed.' });
+  res.status(403).json({ error: 'Not allowed.', code: 'NOT_DEVELOPER' });
   return false;
 }
 const Grid = require('../models/grid');

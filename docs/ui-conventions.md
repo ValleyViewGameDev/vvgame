@@ -60,7 +60,13 @@ value rather than trust this page.
   resource whose art `npcFilename` is, else the player's username for an FTUE speech in their own
   icon, or `speakerName`), then the words, revealed word by word, paged at sentences or at a
   blank line; no title. The corner X calls `onClose('dismiss')`, OK calls `onClose()`. The owner
-  iterates on this modal: change it there, and every story moment follows.
+  iterates on this modal: change it there, and every story moment follows. Its one variant is the
+  FIGURE layout (`figureFile`, owner 2026-11-16, the FTUE opening): the speaker's whole board
+  figure in a narrow left column (96 px wide, 220 tall; 64 x 150 on phones), the wide column
+  beside it holding the speaker's NAME as a centred title over the words, the whole speech on
+  ONE page (blank lines become paragraphs, not pages) and a Continue button (string 360). Use it where a speech must land in one read; an FTUE step asks for it with
+  `modalFigure`. `figureEffect: 'ghost'` (step field `modalFigureEffect`) tints the figure sepia
+  and a little faded, for a spirit or a statue speaking (Gertrude).
 - Every modal is `.modal-overlay > .modal-container` with a size class (`modal-small` 320 px,
   `modal-medium` 50vw/600 max, `modal-large` 80vw/800 max, `modal-xlarge` 90vw/1400 max; the
   bare container is 80vw/1000 max). Use `UI/Modals/Modal.js` (`size`, `className`, `title`)

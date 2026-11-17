@@ -4,7 +4,7 @@ import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import HelpBadge from '../../UI/Buttons/HelpBadge';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { KEY_TYPES, getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { KEY_TYPES, isSecret, secretTypes, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import stringsEN from '../../UI/Strings/stringsEN.json';
 import './CurrenciesModal.css';
 
@@ -35,6 +35,7 @@ export default function CurrenciesModal({ inventory = [], backpack = [], masterR
   const qty = (type) => getPlayerQuantity(type, inventory, backpack);
   const def = (type) => masterResources.find((r) => r.type === type);
   const keys = KEY_TYPES.filter((t) => masterResources.some((r) => r.type === t)); // keys + Hecate's Torch
+  const secrets = secretTypes(masterResources); // Portia's Secret, Caliban's Secret, ... (owner 2026-11-16)
 
   const row = (type) => {
     const r = def(type);
@@ -42,7 +43,9 @@ export default function CurrenciesModal({ inventory = [], backpack = [], masterR
     return (
       <button key={type} type="button" className={`cur-row ${n ? '' : 'cur-row--none'}`} onClick={() => setInfoFor(type)}>
         <span className="cur-icon" aria-hidden="true">
-          {(r?.iconFile || r?.filename) ? <img src={`/assets/resources/${r.iconFile || r.filename}`} alt="" /> : (r?.symbol || '❓')}
+          {(r?.iconFile || r?.filename) ? <img src={`/assets/resources/${r.iconFile || r.filename}`} alt="" />
+            : isSecret(type) ? <img src="/assets/icons/mark-secret.svg" alt="" /> /* a secret with no art of its own: the painted shhh face */
+            : (r?.symbol || '❓')}
         </span>
         {/* one line: icon, amount, name, then the ? at the right (owner 2026-11-06) */}
         <span className="cur-amount">{n.toLocaleString()}</span>
@@ -57,6 +60,7 @@ export default function CurrenciesModal({ inventory = [], backpack = [], masterR
       <Modal onClose={onClose} title={t(98008)} className="modal-narrow currencies-modal">
         <div className="cur-list">{CURRENCIES.map(row)}</div>
         {keys.length > 0 && <div className="cur-list cur-list--keys">{keys.map(row)}</div>}
+        {secrets.length > 0 && <div className="cur-list cur-list--keys cur-list--secrets">{secrets.map(row)}</div>}
         <div className="modal-buttons shared-buttons">
           <button className="btn-basic btn-modal btn-success" onClick={onClose}>{t(796)}</button>
         </div>

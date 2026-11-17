@@ -120,3 +120,13 @@ honey-wood pair for both bodies; it is installed as `icon-male` / `icon-female` 
 pink takes were dropped. Cut with `icons.js --cols 3
 --rows 3`, then the magenta-hued fringe cleared (hue 280-328°) and the svg rewrapped.
 `Avatar/AvatarModal.js` shows them as a 48 px `.avatar-sign-icon` inside the thumb.
+
+## The Secrets mark: a "shhh" face (`icons-r15`, owner 2026-11-16)
+
+One of the round-face feelings family (r12 sheet as the control ref), a finger to the lips, two
+takes: the sly side-glance (installed, `mark-secret`) and closed eyes (on file, `mark-secret-alt`).
+It ends the Inventory panel's keys row with the total of the player's Secrets (any resource whose
+type ends in "'s Secret": `isSecret` in `Utils/InventoryManagement.js` and
+`game-server/utils/inventoryUtils.js`). Secrets are currencies from then on: free of backpack and
+warehouse capacity, granted into the warehouse list, still spent from either list. Currencies &
+Keys lists them in a third block, each with its character's head.

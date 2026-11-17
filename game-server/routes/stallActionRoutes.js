@@ -10,7 +10,7 @@
  * changed with one conditional atomic update that claims the slot only if it is still exactly as
  * seen, so two buyers can never both get one listing and nothing of theirs is overwritten.
  *
- *   POST /action/stall-unlock          { slotIndex }                  Wood for a listing slot
+ *   POST /action/stall-unlock          { slotIndex }                  Wood (or Gems: unlockCurrency) for a listing slot
  *   POST /action/stall-list            { slotIndex, resource, amount } goods out of the holdings onto the stall
  *   POST /action/stall-sell-to-game    { slotIndex }                  an unsold listing, after its wait, for its price
  *   POST /action/stall-collect         { slotIndex }                  the Money another player paid
@@ -101,7 +101,9 @@ router.post('/action/stall-unlock', wrap('stall-unlock', async (req, res) => {
   const stalls = stallsOf(player);
   if (!cfg || !stalls.listings[slotIndex]) return refuse(400, 'no-slot');
   if (!stalls.listings[slotIndex].locked) return refuse(409, 'unlocked');
-  if (!spendCosts({ ingredient1: 'Wood', ingredient1qty: cfg.unlockCost || 0 }, player.inventory, player.backpack)) return refuse(409, 'short-Wood');
+  // a slot unlocks with Wood, or with Gems where its tuning says so (the two paid slots, owner 2026-11-16)
+  const currency = cfg.unlockCurrency || 'Wood';
+  if (!spendCosts({ ingredient1: currency, ingredient1qty: cfg.unlockCost || 0 }, player.inventory, player.backpack)) return refuse(409, `short-${currency}`);
   player.markModified('inventory'); player.markModified('backpack');
   stalls.listings[slotIndex] = { ...stalls.listings[slotIndex], locked: false };
   saveStalls(player, { listings: stalls.listings });
@@ -141,7 +143,10 @@ router.post('/action/stall-sell-to-game', wrap('stall-sell-to-game', async (req,
   if (stallBlocked(slot.resource)) return refuse(400, 'not-for-trade-stall');
   if (slot.boughtBy) return refuse(409, 'sold');
   if (!slot.sellTime || slot.sellTime > Date.now()) return refuse(409, 'not-ready');
-  const money = (slot.amount || 0) * (slot.price || 0);
+  // selling to the game pays the listing less globalTuning.tradeStallHaircut (owner 2026-11-16: a
+  // straight dump is the worse deal; another player buying it pays the full price). Client twin:
+  // TradeStall.js sellToGameValue.
+  const money = Math.floor((slot.amount || 0) * (slot.price || 0) * (1 - (globalTuning.tradeStallHaircut ?? 0)));
   econ.grant(player, 'Money', money);
   econ.advanceQuests(player, 'Sell', slot.resource, slot.amount);
   stalls.listings[slotIndex] = emptyListing(slotIndex, slot.locked);

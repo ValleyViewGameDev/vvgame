@@ -37,7 +37,14 @@ export function findBoardTarget(targetName, gridId) {
 }
 // The dirt tile the FTUE planting beat points at: the tile the tutorial Wheat was harvested from
 // when it is empty dirt again, else the empty dirt tile nearest the player. Null when none.
+// The first crop has been planted (Farming.js, on the tap): the "plant here" dirt target is done.
+// Without this, between the tap and the PlantedFirstCrop step, the highlight jumped to the
+// next empty dirt tile for a moment (owner 2026-11-16). Cleared again if the planting fails.
+let ftueDirtDone = false;
+export function setFtueDirtDone(done) { ftueDirtDone = !!done; }
+
 export function resolveFtueDirtTile() {
+  if (ftueDirtDone) return null;
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources() || [];
   if (!tiles || !tiles.length) return null;

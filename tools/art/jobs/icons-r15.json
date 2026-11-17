@@ -1,0 +1,25 @@
+{
+  "name": "icons-r15",
+  "note": "Owner 2026-11-16: a 'shhh' face for the Inventory panel's keys row, counting the player's Secrets (Caliban's Secret, Gertrude's Secret...). One of the round-face feelings family (icons-r12), system style. Two takes.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "secret": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg",
+        "_candidates/icons-r12/approved/openai--system-feelings-1.png"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "CONTROL: the SECOND attached sheet holds this game's approved round face glyphs: match their rendering, their thick dark outline, their soft painted fill, their golden yellow face colour and their SIZE IN THE CELL exactly, so the new icons are one set with them. SUBJECTS: the SHUSHING FACE, the familiar 'shhh, it's a secret' face, in order on the 3 x 3 grid, left to right then top to bottom, ONE icon per grid cell, centred in its cell and well inside it, a few big simple shapes that still read at 20 pixels. No letters and no words. 1 SHUSH: the same round golden face, eyes looking slightly sideways, sly, one raised index finger pressed upright against pursed lips (the hand a simple rounded shape in the same golden colour with the same dark outline). 2 SHUSH ALTERNATE: the same face with the eyes closed in a knowing smile, the finger pressed to the lips. Cells 3 to 9 stay EMPTY, pure flat magenta, nothing drawn in them."
+    }
+  }
+}

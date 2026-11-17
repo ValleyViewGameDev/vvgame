@@ -83,8 +83,10 @@ export function signIn(reason) {
   return signingIn;
 }
 
+// 'Not allowed.' is /delete-player and /reset-password refusing a caller that is neither a
+// developer nor the account itself (routes/playerRoutes.js requireDeveloperOrSelf)
 const needsSignIn = (err) => err.status === 401
-  || (err.status === 403 && (err.body?.error === 'developer only' || ['SESSION_MISMATCH', 'NOT_OWNER', 'NOT_DEVELOPER'].includes(err.body?.code)));
+  || (err.status === 403 && (['developer only', 'Not allowed.'].includes(err.body?.error) || ['SESSION_MISMATCH', 'NOT_OWNER', 'NOT_DEVELOPER'].includes(err.body?.code)));
 
 async function gameRequest(method, path, body) {
   const send = async () => {

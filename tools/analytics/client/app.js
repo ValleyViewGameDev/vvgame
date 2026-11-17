@@ -651,10 +651,17 @@ function computeFunnel(rows, steps, audreyLevel = 5) {
     if (p.hired_audrey) hired++;
   }
   const pc = (n) => (total ? Math.round((n / total) * 1000) / 10 : 0);
+  // "Opened name prompt" sits before the step that buys the Home Deed (the name is asked for as the
+  // deed is tapped): everyone past that step, plus anyone still short of it with the nameAsk stamp
+  const deedStep = (steps.find((s) => s.trigger === 'BoughtHomeDeed') || {}).step;
   const out = [];
   for (const s of steps) {
     let cum = completed;
     for (let j = s.step; j <= maxStep; j++) cum += atStep[j] || 0;
+    if (s.step === deedStep) {
+      const stuck = rows.filter((p) => p.name_prompt && !(p.completed || p.hired_audrey) && (p.ftue_step ?? 0) < deedStep).length;
+      out.push({ id: 'name', label: 'Opened name prompt', count: cum + stuck, percent: pc(cum + stuck), at: stuck });
+    }
     out.push({ id: s.step, label: `Step ${s.step}: ${s.trigger}`, count: cum, percent: pc(cum), at: atStep[s.step] || 0 });
   }
   out.push({ id: 'completed', label: 'Completed FTUE', count: completed, percent: pc(completed), at: completed - leveled });
@@ -680,6 +687,9 @@ function renderFtue() {
     options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y',
       scales: { x: PCT_AXIS({ max: 100 }), y: { ticks: { color: '#efe7d8' }, grid: { display: false } } },
       plugins: { legend: { display: false }, tooltip: { callbacks: {
+        afterLabel: (item) => (f.rows[item.dataIndex].id === 'name'
+          ? (ftueData.name_prompt_start_day ? `Recorded from ${ftueData.name_prompt_start_day}: players who stopped here before then are missing` : 'Not recorded yet: starts with the game-client deploy that records it')
+          : ''),
         label: (item) => { const r = f.rows[item.dataIndex]; return `${r.count} of ${f.total} reached (${item.raw}%)${r.at ? `, ${r.at} ${r.id === 'hired' ? 'in all' : 'stopped here'}` : ''}`; },
       } } } },
   });

@@ -18,6 +18,7 @@
   "farmAnimalInflation": 0.1,
   "maxTownBuildings": 800,
   "maxCraftingStationsPerType": 4,
+  "craftingStationInflation": 0.1,
   "doctorsPerHospital": 10,
   "harvestDropRate": 0.1,
   "warehouseDropRate": 0.07,
@@ -68,7 +69,7 @@
   "farZoom": 14,
   "settlementZoom": 2,
   "frontierZoom": 0.25,
-  "tradeStallHaircut": 0.35,
+  "tradeStallHaircut": 0.3,
   "mayorcut": 50,
   "bankOffers": 3,
   "valleyBankOffers": [
@@ -128,34 +129,12 @@
   },
   "firstHomesteadGrazeSeconds": 120,
   "tradeStallSlots": [
-    {
-      "slotIndex": 0,
-      "maxAmount": 10,
-      "sellWaitTime": 300000,
-      "unlocked": true,
-      "unlockCost": 5
-    },
-    {
-      "slotIndex": 1,
-      "maxAmount": 50,
-      "sellWaitTime": 28800000,
-      "unlocked": false,
-      "unlockCost": 50
-    },
-    {
-      "slotIndex": 2,
-      "maxAmount": 75,
-      "sellWaitTime": 86400000,
-      "unlocked": false,
-      "unlockCost": 500
-    },
-    {
-      "slotIndex": 3,
-      "maxAmount": 100,
-      "sellWaitTime": 86400000,
-      "unlocked": false,
-      "unlockCost": 1000
-    }
+    { "slotIndex": 0, "maxAmount": 10, "sellWaitTime": 300000, "unlocked": true, "unlockCost": 5 },
+    { "slotIndex": 1, "maxAmount": 20, "sellWaitTime": 28800000, "unlocked": false, "unlockCost": 50 },
+    { "slotIndex": 2, "maxAmount": 30, "sellWaitTime": 86400000, "unlocked": false, "unlockCost": 500 },
+    { "slotIndex": 3, "maxAmount": 50, "sellWaitTime": 86400000, "unlocked": false, "unlockCost": 1000 },
+    { "slotIndex": 4, "maxAmount": 25, "sellWaitTime": 172800000, "unlocked": false, "unlockCost": 25, "unlockCurrency": "Gem" },
+    { "slotIndex": 5, "maxAmount": 25, "sellWaitTime": 172800000, "unlocked": false, "unlockCost": 50, "unlockCurrency": "Gem" }
   ],
   "tradeStallRequests": [
     {

@@ -41,7 +41,7 @@ import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAn
 import { cropCapReached } from './Utils/ResourceHelpers';
 import FTUE, { FTUE_FEEDBACK_DONE_EVENT } from './GameFeatures/FTUE/FTUE';
 import FTUEDoinker from './GameFeatures/FTUE/FTUEDoinker';
-import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
+import { tryAdvanceFTUEByTrigger, satisfiedNextTrigger } from './GameFeatures/FTUE/FTUEutils';
 
 import playersInGridManager from './GridState/PlayersInGrid';
 import { usePlayersInGrid, useGridStatePCUpdate } from './GridState/GridStatePCContext';
@@ -995,6 +995,7 @@ if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
   };
 }
 const lastCutsceneStep = useRef(null);
+const doinkerDelayRef = useRef(null); // { step, at }: when a step with doinkerDelayMs began
 const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
 const [hoveredTile, setHoveredTile] = useState(null); // { row, col } - tile under cursor for placement highlight
 useMoveMode({ cursorMode, setCursorMode, setResources, closePanel, gridId }); // Move: pick up / cancel (GameFeatures/Move)
@@ -1754,6 +1755,19 @@ useEffect(() => {
   }
 }, [isAppInitialized, tileTypes.length, resources.length, currentPlayer, lastShownFTUEStep, showFTUE, closePanel]);
 
+// FTUE catch-up: a step whose trigger is a state the player already holds (the Town Key bought before
+// the Elbow step began) is passed at once, instead of leaving its doinker pointing forever
+// (FTUEutils.satisfiedNextTrigger). One advance in flight at a time; the next render re-checks.
+const ftueCatchUpRef = useRef(null);
+useEffect(() => {
+  const trigger = satisfiedNextTrigger(currentPlayer);
+  if (!trigger || !currentPlayer?.playerId) return;
+  const key = `${currentPlayer.ftuestep}:${trigger}`;
+  if (ftueCatchUpRef.current === key) return;
+  ftueCatchUpRef.current = key;
+  tryAdvanceFTUEByTrigger(trigger, currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+}, [currentPlayer?.ftuestep, currentPlayer?.inventory, currentPlayer?.backpack, currentPlayer?.firsttimeuser]); // eslint-disable-line react-hooks/exhaustive-deps
+
 // FTUE Doinker - Update doinker targets based on current FTUE step
 useEffect(() => {
   if (!currentPlayer?.firsttimeuser || currentPlayer?.ftuestep === undefined) {
@@ -1788,9 +1802,25 @@ useEffect(() => {
     // doinkerTarget can be a string, array of strings, or CSS selector (for button type)
     const targets = stepData.doinkerTarget;
     const type = stepData.doinkerType || 'resource'; // Default to 'resource' if not specified
-    setDoinkerTargets(targets);
-    setDoinkerType(type);
-    setDoinkerPointing(stepData.doinkerPointing || 'down');
+    const show = () => {
+      setDoinkerTargets(targets);
+      setDoinkerType(type);
+      setDoinkerPointing(stepData.doinkerPointing || 'down');
+    };
+    // doinkerDelayMs: a hint, not an instruction (owner 2026-11-16, step 14 "visit Arden's Grange"):
+    // the player plays on freely and the arrow comes only after this long on the step, counted from
+    // when the step began (a re-run of this effect does not restart the clock)
+    const delay = Number(stepData.doinkerDelayMs) || 0;
+    if (delay > 0) {
+      if (doinkerDelayRef.current?.step !== stepData.step) doinkerDelayRef.current = { step: stepData.step, at: Date.now() };
+      const left = doinkerDelayRef.current.at + delay - Date.now();
+      setDoinkerTargets(null);
+      if (left <= 0) show();
+      else {
+        const timer = setTimeout(show, left);
+        return () => clearTimeout(timer);
+      }
+    } else show();
   } else {
     setDoinkerTargets(null);
     setDoinkerType('resource');
@@ -1807,9 +1837,14 @@ const audreyLesson = useAudreyLesson({ currentPlayer, setCurrentPlayer, gridId, 
   blocked: isLevelUpModalOpen || showSurveyPrompt, closePanel, strings });
 const lesson = snugLesson || audreyLesson;
 const shownScrim = scrimTarget || lesson?.scrim || null;
-const shownDoinkerTargets = doinkerTargets || lesson?.doinkerTargets || null;
-const shownDoinkerType = doinkerTargets ? doinkerType : (lesson?.doinkerType || doinkerType);
-const shownDoinkerPointing = doinkerTargets ? doinkerPointing : (lesson?.doinkerPointing || doinkerPointing);
+// A board doinker on an NPC hides while that NPC's own panel is open (owner 2026-11-16: Elbow's
+// arrow over his open Town Key panel); it comes back if the panel closes with the step unchanged
+const doinkerPanelOpen = !!doinkerTargets && doinkerType === 'resource'
+  && (activePanel === 'NPCPanel' || activePanel === 'KentPanel') && !!activeQuestGiver?.type
+  && (Array.isArray(doinkerTargets) ? doinkerTargets : [doinkerTargets]).includes(activeQuestGiver.type);
+const shownDoinkerTargets = (doinkerPanelOpen ? null : doinkerTargets) || lesson?.doinkerTargets || null;
+const shownDoinkerType = (doinkerTargets && !doinkerPanelOpen) ? doinkerType : (lesson?.doinkerType || doinkerType);
+const shownDoinkerPointing = (doinkerTargets && !doinkerPanelOpen) ? doinkerPointing : (lesson?.doinkerPointing || doinkerPointing);
 
 // The survey nudge (docs/launch-checklist.md): once per profile, when the first level-up modal at
 // SURVEY_PROMPT_LEVEL or above is closed; stamped as it shows (moment 'survey', Utils/moments.js),
@@ -4395,6 +4430,7 @@ return (
           currentSeason={seasonData?.type}
           cursorMode={cursorMode}
           setCursorMode={setCursorMode}
+          masterXPLevels={masterXPLevels}
         />
       )}
       {activePanel === 'NPCPanel' && (

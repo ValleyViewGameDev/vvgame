@@ -11,6 +11,7 @@ import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesA
 import { createCollectEffect } from '../VFX/VFX';
 import soundManager from '../Sound/SoundManager';
 import { footprintOf, footprintCells } from '../Utils/footprint';
+import { withScaledStationCost } from '../Utils/stationPricing';
 
 export const handleConstructionWithGems = async (params) => {
   // Wrapper function that uses a modified recipe if provided
@@ -166,11 +167,12 @@ export const handleConstruction = async ({
     }
   }
 
-  // Calculate total cost for status message
+  // Calculate total cost for status message (a station's Money as the server charges it: stationPricing.js)
+  const pricedResource = withScaledStationCost(selectedResource, resources, globalTuning?.craftingStationInflation);
   const costDetails = [];
   for (let i = 1; i <= 4; i++) {
-    const ingredientType = selectedResource[`ingredient${i}`];
-    const ingredientQty = selectedResource[`ingredient${i}qty`];
+    const ingredientType = pricedResource[`ingredient${i}`];
+    const ingredientQty = pricedResource[`ingredient${i}qty`];
     if (ingredientType && ingredientQty) {
       costDetails.push(`${ingredientQty} ${ingredientType}`);
     }

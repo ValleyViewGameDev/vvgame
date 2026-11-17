@@ -52,19 +52,18 @@ function OffSeasonModal({ onClose }) {
 
   // the season after a change can be the same type again (Fall #39 follows Fall #38), so the title
   // names only the coming one (docs/season-reset.md)
-  const title = `🗓️ ${seasonData.type}`;
-  const message = strings["5035"];   // "We are between seasons!"
-  const message2 = strings["5036"]; // "Temporarily unavailable while we reset the season."
+  const title = seasonData.type;
 
   return (
     <Modal
       isOpen={true}
       onClose={onClose}
       title={title}
-      message={message}
-      message2={message2}
       size="medium"
     >
+      {/* the same plain paragraphs as the list below (the Modal's `message` prop draws smaller text) */}
+      <p>{strings["5035"]}</p>
+      <p>{strings["5036"]}</p>
       <h2 className="countdown-timer"><strong>{(strings["5037"] || '').replace('{season}', seasonData.type)}</strong> {countdown}</h2>
 
       <ul style={{ paddingLeft: "1.5rem", marginBottom: "1rem" }}>

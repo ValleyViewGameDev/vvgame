@@ -8,6 +8,12 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 // in display order (the Inventory keys row and the Currencies modal list them this way)
 export const KEY_TYPES = ['Town Key', 'Golden Key', 'Dungeon Key', 'Skeleton Key', 'Mirror Key', "Hecate's Torch"];
 export const isKey = (resourceType) => KEY_TYPES.includes(resourceType);
+// The Secrets (Portia's Secret, Caliban's Secret, ...): currencies like the keys, free of backpack and
+// warehouse capacity, counted together in the Inventory keys row and listed in Currencies & Keys
+// (owner 2026-11-16). Any resource whose type ends in "'s Secret" is one (the server has the same rule).
+export const isSecret = (resourceType) => typeof resourceType === 'string' && /'s Secret$/.test(resourceType);
+/** The secrets that exist, in resources.json order. */
+export const secretTypes = (masterResources) => (masterResources || []).filter((r) => r && isSecret(r.type)).map((r) => r.type);
 
 // Helper function to check if an item is a currency (doesn't count against inventory)
 export const isCurrency = (resourceType) => {
@@ -22,7 +28,8 @@ export const isCurrency = (resourceType) => {
          resourceType === "Hecate's Torch" ||
          resourceType === 'Yellow Heart' ||
          resourceType === 'Green Heart' ||
-         resourceType === 'Purple Heart';
+         resourceType === 'Purple Heart' ||
+         isSecret(resourceType);
 };
 
 /**

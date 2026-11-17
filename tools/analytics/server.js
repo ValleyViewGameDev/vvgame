@@ -907,11 +907,12 @@ async function ftueFunnelForRange({ start, end }, excludeIds = []) {
     { $match: { created_at: { $gte: start, $lte: end }, ...exPlQ(excludeIds) } },
     { $project: {
       username: 1, named: 1, email: 1, firsttimeuser: 1, ftuestep: 1, aspiration: 1, created_at: 1, lastActive: 1, language: 1,
-      settlementId: 1, client_info: 1, xp: 1, gridId: 1,
+      settlementId: 1, client_info: 1, xp: 1, gridId: 1, 'moments.nameAsk': 1,
       'ftueFeedback.os': 1, 'ftueFeedback.browser': 1, 'ftueFeedback.timezone': 1, 'ftueFeedback.isMobile': 1,
     } },
     { $sort: { created_at: -1 } },
   ]);
+  const nameAskStart = await Player.findOne({ 'moments.nameAsk': { $exists: true } }, { 'moments.nameAsk': 1 }).sort({ 'moments.nameAsk': 1 }).lean();
   const homeIds = rows.map((p) => p.gridId).filter(Boolean);
   const hiredGrids = homeIds.length ? await Grid.aggregate([
     { $match: { _id: { $in: homeIds } } },
@@ -929,6 +930,7 @@ async function ftueFunnelForRange({ start, end }, excludeIds = []) {
   return {
     steps: FTUE_STEPS,
     audrey_level: AUDREY_LEVEL,
+    name_prompt_start_day: nameAskStart ? dayKeyUTC(nameAskStart.moments.nameAsk) : null,
     cohort_total: rows.length,
     purged_unnamed: purged.length ? purged[0].count : 0,
     players: rows.map((p) => redactPerUser({
@@ -938,6 +940,10 @@ async function ftueFunnelForRange({ start, end }, excludeIds = []) {
       has_email: !!p.email,
       completed: p.firsttimeuser === false || p.firsttimeuser === undefined,
       ftue_step: Number.isFinite(p.ftuestep) ? p.ftuestep : null,
+      // The Home Deed name prompt was opened (moment 'nameAsk', stamped from 2026-11-16's deploy;
+      // NPCsPanel.js). Older accounts carry no stamp, so the bar counts them only once they are
+      // past the deed (the client's funnel adds that).
+      name_prompt: !!(p.moments && p.moments.nameAsk),
       level: levelOf(p.xp),
       hired_audrey: !!p.gridId && hiredSet.has(String(p.gridId)),
       aspiration: p.aspiration ?? null,

@@ -12,6 +12,7 @@ import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import { createCollectEffect, createPlantGrowEffect } from '../../VFX/VFX';
 import { boardArtScale } from '../../Render/PixiRenderer/boardArt';
 import soundManager from '../../Sound/SoundManager';
+import { setFtueDirtDone } from '../FTUE/findBoardTarget';
 
 /**
  * The status string for planting a farmplot on the wrong ground: "Must plant on <ground>" for
@@ -149,6 +150,7 @@ export const handleFarmPlotPlacement = async ({
     // The plot appears on the tap; ONE request (game-server routes/actionRoutes.js /action/plant)
     // checks the tile and the skill, spends the seeds, starts the clock and advances Plant quests.
     const existingResources = GlobalGridStateTilesAndResources.getResources() || [];
+    setFtueDirtDone(true); // the tutorial's "plant here" highlight ends with the tap, not on the next free dirt
     GlobalGridStateTilesAndResources.setResources([...existingResources, enrichedNewResource]);
     setResources([...existingResources, enrichedNewResource]);
     const answer = await postAction('/api/action/plant', { playerId: currentPlayer.playerId, gridId, x: tileX, y: tileY, type: selectedItem.type });
@@ -159,6 +161,7 @@ export const handleFarmPlotPlacement = async ({
       );
       GlobalGridStateTilesAndResources.setResources(rolledBack);
       setResources(rolledBack);
+      setFtueDirtDone(false); // nothing planted: the tutorial may point at the dirt again
       FloatingTextManager.addFloatingText(String(answer.reason || '').startsWith('short-') ? 305 : 304, tileX, tileY, TILE_SIZE);
       window._processingPlants.delete(plantId);
       return false;

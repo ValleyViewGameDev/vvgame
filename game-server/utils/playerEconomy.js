@@ -577,6 +577,28 @@ function withScaledAnimalCost(def, count) {
 }
 
 
+// ---- Per-copy prices (Utils/stationPricing.js) -----------------------------------------------
+//
+// Each copy of a thing already on the grid raises the next one's Money price, compounding (owner
+// 2026-11-16, Hay Day's rising price per extra machine as a coin sink): crafting stations by
+// globalTuning.craftingStationInflation, and any row with its own `copyInflation` (the grand and
+// aspirational decorations, 0.5) by that. Plots, trees and the rest stay flat. Only Money scales;
+// Wood, Stone and the rest stay as the recipe says.
+const countStationsOfType = (resources, type) => (resources || []).filter((r) => r && r.type === type).length;
+const copyInflationOf = (def) => (Number(def?.copyInflation) > 0 ? Number(def.copyInflation)
+  : def?.category === 'crafting' ? Number(globalTuning.craftingStationInflation ?? 0.1) : 0);
+function withScaledStationCost(def, count, inflation = copyInflationOf(def)) {
+  if (!def || !(inflation > 0) || !count) return def;
+  const scaled = { ...def };
+  for (let i = 1; i <= 4; i++) {
+    if (scaled[`ingredient${i}`] === 'Money' && scaled[`ingredient${i}qty`]) {
+      scaled[`ingredient${i}qty`] = Math.ceil((scaled[`ingredient${i}qty`] * Math.pow(1 + inflation, count)) / 50) * 50;
+    }
+  }
+  return scaled;
+}
+
+
 // ---- Hit points (Phase 5, 2026-11-04) ---------------------------------------------------------
 //
 // hp is reported by the client (combat is simulated there) through /player/state and enter-grid.
@@ -687,6 +709,8 @@ module.exports = {
   derivedMaxhp,
   countAnimalsOfType,
   withScaledAnimalCost,
+  countStationsOfType,
+  withScaledStationCost,
   spendWithGems,
   playerDelta,
   nextSeq,

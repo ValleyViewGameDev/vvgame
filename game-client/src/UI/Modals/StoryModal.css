@@ -70,3 +70,59 @@
   text-align: center;
   margin-bottom: 12px;
 }
+
+/* Figure layout (`figureFile`, owner 2026-11-16; the FTUE opening): a narrow column with the
+   speaker's whole figure and name, the words in the wide column beside it, one page.
+   The figure art is a square sheet with the body in its middle third, so the frame crops it to
+   the body: the image is as tall as the frame and centred in it. */
+.story-modal-figure.modal-small {
+  width: 560px;
+  max-height: 90vh;
+}
+.story-modal-figure-layout {
+  display: flex;
+  gap: 16px;
+  align-items: center; /* a short speech sits level with the figure's middle */
+}
+.story-modal-figure-col {
+  flex: 0 0 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.story-modal-figure-frame {
+  position: relative;
+  width: 96px;
+  height: 220px;
+  overflow: hidden;
+}
+.story-modal-figure-img {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: auto;
+  transform: translateX(-50%);
+}
+.story-modal-figure .story-modal-name { margin: 0 0 8px; text-align: center; } /* a centred title over the words */
+.story-modal-figure-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 22px 0 0; /* clear of the corner X */
+  margin-bottom: 8px;
+}
+.story-modal-figure-text .story-modal-text {
+  font-size: var(--text-3xl); /* the story modal's own size: the speech is short enough (2026-11-16) */
+  line-height: 1.45;
+  padding: 0;
+  margin: 0 0 10px;
+}
+.story-modal-figure-text .story-modal-text:last-child { margin-bottom: 0; }
+
+/* figureEffect 'ghost': a spirit or a statue speaking (Gertrude, turned to stone): sepia,
+   softened and a little see-through (owner 2026-11-16) */
+.story-modal-figure-ghost {
+  filter: sepia(0.85) saturate(0.7) contrast(0.9) brightness(1.05);
+  opacity: 0.82;
+}

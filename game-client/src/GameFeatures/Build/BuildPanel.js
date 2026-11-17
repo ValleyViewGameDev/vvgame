@@ -16,7 +16,8 @@ import { getMayorUsername } from '../Government/GovUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import { updatePlayerSettings } from '../../settings';
 import { loadMasterResources } from '../../Utils/TuningManager';
-import { sortByLevel } from '../../Utils/levelOrder'; // offers by unlock level (owner 2026-11-10)
+import { sortByLevel } from '../../Utils/levelOrder';
+import { withScaledStationCost } from '../../Utils/stationPricing'; // each extra station of a type costs more (owner 2026-11-16) // offers by unlock level (owner 2026-11-10)
 
 const BuildPanel = ({
   TILE_SIZE,
@@ -288,7 +289,9 @@ const BuildPanel = ({
           <p>{strings[98]}</p>
         ) : (
           <>
-            {buildOptions.map((item) => {
+            {buildOptions.map((baseItem) => {
+              // a crafting station's Money price rises with each one of its type already here (Utils/stationPricing.js)
+              const item = withScaledStationCost(baseItem, resources, globalTuning?.craftingStationInflation);
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory, backpack);
               const meetsSkillRequirement = hasRequiredSkill(item.requires);

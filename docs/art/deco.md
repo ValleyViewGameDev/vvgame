@@ -56,6 +56,18 @@ commissioned and approved 2026-10-22.
   late-game coin sink: bust $2,000, lion $4,000, marble statue $10,000, Shakespeare $30,000,
   the Obelisk $50,000 (the most expensive thing in the game). Bigger footprints cost more within
   a family. The Buy Deco panel always sorts cheapest first, on every tab.
+- **Tiers (owner, 2026-11-16: decorations are the open-ended coin sink; the low end does a lot for
+  little, the aspirational pieces grow).** Free: the Wooden Fence, Hedge and Stone Wall (price 0,
+  shown as Free, first in the list). Cheap (any level): the rest of the garden and farm props,
+  $10 to $60, and the starter pieces to $400, unchanged. Homely (level 8): Oak Table, Hand Cart,
+  Harp, Stone Urn, Stone Well, Maypole, Runner Rug, Bed, Birdbath, Sundial, Stone Bust, the palm,
+  prices unchanged. Grand (level 15, price x3): Gargoyle $9,000, Grand Rug and Stone Lion $12,000,
+  Fountain and Throne $18,000, Knight Statue $24,000, Marble Statue $30,000. Aspirational (level 15,
+  owner: everything by 15, so a player who buys Gold can buy them): Royal Bed $75,000, Fountain
+  Large $150,000, Round Tower $200,000, Gatehouse $350,000, Shakespeare Statue $500,000, Obelisk
+  $1,000,000. Grand and
+  Aspirational pieces have `copyInflation` 0.5: each copy already on the grid makes the next
+  1.5x dearer (a second Gatehouse $525,000). Decorations give no XP (XP is the clock).
 - **Names** go in `stringsEN.json`'s 2005xx block (the deco names; other languages fall back
   to English through `getLocalizedString`).
 - **The safety filter.** OpenAI refused "Venus de Milo" by name three ways (sexual), even

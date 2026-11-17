@@ -463,6 +463,8 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       symbol={modalSymbol}
       symbolNode={!currentStepData?.modalIcon ? <AvatarFace avatar={currentPlayer?.avatar} size={96} /> : null}
       npcFilename={currentStepData?.modalSprite}
+      figureFile={currentStepData?.modalFigure}
+      figureEffect={currentStepData?.modalFigureEffect}
       dialogKey={currentStepData.bodyKey}
       relationshipType="FTUE"
       username={currentPlayer?.username}

@@ -15,6 +15,8 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { updatePlayerSettings } from '../../settings';
 import { loadMasterResources } from '../../Utils/TuningManager';
+import { withScaledStationCost } from '../../Utils/stationPricing'; // grand decorations cost more per copy (owner 2026-11-16)
+import { getDerivedLevel } from '../../Utils/playerManagement';
 
 // The catalogue's sections (resources.json decoGroup, docs/art/deco-pass-plan.md §C), in this order;
 // a row with no group lands in "Other" at the end
@@ -53,6 +55,7 @@ const BuyDecoPanel = ({
   currentSeason,
   cursorMode,
   setCursorMode,
+  masterXPLevels,
 }) => {
   const { closePanel } = usePanelContext();
   const [buyOptions, setBuyOptions] = useState([]);
@@ -118,7 +121,8 @@ const BuyDecoPanel = ({
         );
         // Always cheapest first, on every tab (owner 2026-11-08): the price is the one order a
         // catalogue of deco needs, and a sub-sort keeps it; an unpriced row (dev-only) goes last
-        const priceOf = (it) => (Number(it.ingredient1qty) > 0 ? Number(it.ingredient1qty) : Infinity);
+        // a free piece (a priced row at 0: the Wooden Fence, Hedge and Stone Wall) comes first
+        const priceOf = (it) => (it.ingredient1 ? Number(it.ingredient1qty) || 0 : Infinity);
         purchasableItems.sort((a, b) => priceOf(a) - priceOf(b));
         setBuyOptions(purchasableItems);
       } catch (error) {
@@ -199,10 +203,13 @@ const BuyDecoPanel = ({
             </div>
             {[null].map(() => (
             <React.Fragment key="list">
-            {buyOptions.filter((it) => decoTab === 'all' || decoGroupsOf(it).includes(decoTab)).map((item) => {
+            {buyOptions.filter((it) => decoTab === 'all' || decoGroupsOf(it).includes(decoTab)).map((baseItem) => {
+              // a grand or aspirational piece's Money price rises with each copy already here (copyInflation)
+              const item = withScaledStationCost(baseItem, resources);
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory);
-              const requirementsMet = hasRequiredSkill(item.requires);
+              const meetsLevel = !item.level || getDerivedLevel(currentPlayer, masterXPLevels) >= Number(item.level); // the bigger pieces open by level
+              const requirementsMet = hasRequiredSkill(item.requires) && meetsLevel;
               const isDisabled = !affordable || !requirementsMet;
               const isSelectedForCursor = cursorMode?.type === 'build' && cursorMode?.item === item.type;
 
@@ -220,10 +227,12 @@ const BuyDecoPanel = ({
                 return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, allResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
-              const skillColor = requirementsMet ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+              const skillColor = hasRequiredSkill(item.requires) ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+              const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
               const details =
+                (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
                 (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
-                `${strings[461]}<div>${formattedCosts}</div>`;
+                `${strings[461]}<div>${formattedCosts || (item.ingredient1 ? strings[17028] : '')}</div>`;
 
               return (
                 <ResourceButton

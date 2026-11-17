@@ -94,6 +94,46 @@ can check the current value rather than trust this page.
    season stage (carnivalScheduler.js). Season rank rewards and one-time trophies stay. A new
    Gem reward is checked against this rule.
 
+13. **The Trade Stall is a Money tap: keep it narrow** (owner, 2026-11-16: "careful how much players
+   can sell at the Trade Stall"). Selling to the game pays `maxprice` x amount after the slot's wait,
+   with no demand behind it, so the slot limits ARE the cap. Listing slots (`globalTuning.tradeStallSlots`):
+   10 / 20 / 30 / 50 units (were 10 / 50 / 75 / 100; waits unchanged: 5 min, 8 h, 24 h, 24 h; Wood
+   5 / 50 / 500 / 1,000), plus two paid slots of 25 units with a 2-day wait, unlocked for 25 and 50
+   Gems (`unlockCurrency: "Gem"`). Potions A, B and C are `noTradeStall` (Potion C sold for 157,264;
+   players hold hundreds, Oberon 1,332): watch Potion wallets and add sinks (spells) rather than an
+   outlet. The coffee line (Coffee Cherry to Queen's Coffee, nine rows) had its `minprice`/`maxprice`
+   halved the same day (Common Coffee 12,441 -> 6,220, Queen's Coffee 34,749 -> 17,374), the whole
+   chain together so no step is worth more sold raw than made up. Prices are hand-set columns, not
+   derived from `effort`/`parallel`: change the price columns to change a price.
+   Selling a listing TO THE GAME pays it less `globalTuning.tradeStallHaircut` (0.3: 70%; owner
+   2026-11-16, deliberately not explained in the UI, which simply shows the net amount); another
+   player buying the listing pays its full price.
+
+14. **Each extra crafting station costs more** (owner, 2026-11-16; Hay Day's rising price per
+   extra machine, as a coin sink). The Money in a station's recipe is multiplied by
+   (1 + `globalTuning.craftingStationInflation`) ^ (stations of that type already on the grid),
+   rounded up to 50; 0.1 (softened from 0.6 the same day, owner: "more like 10% each time"), so
+   the 2nd to 4th copies cost 1.1x, 1.21x and 1.33x. Wood, Stone and the other ingredients do not
+   scale. Plots and trees stay flat; farm animals keep their own `farmAnimalInflation` (0.1).
+   Server `playerEconomy.withScaledStationCost` in `/action/place`; client twin
+   `Utils/stationPricing.js` (Build and Deco panels: price, affordability, gem top-up, status line).
+   Removing a station refunds nothing, so there is no sell path to scale. A row's own
+   `copyInflation` (ECONOMY column) puts any other buildable on the same rule: the Grand and
+   Aspirational decorations use 0.5 (docs/art/deco.md, the decoration tiers).
+
+15. **Money costs ramp with level** (owner, 2026-11-16, plan 2: sinks must keep up with income).
+   The Money in every crafting station, skill and power (gear and combat magic) from level 13 up
+   was multiplied by a level ramp: x1 through level 12, rising evenly to x3 at level 20 and x4 at
+   level 30, x4 after; rounded to 500 (5,000 above 100,000), never lower; Books and materials
+   unchanged. 110 costs changed (Beehive 8,000 -> 10,000, Silkery 60,000 -> 180,000, Coffee
+   Factory 150,000 -> 525,000, Titan 200,000 -> 800,000); the full list is
+   docs/audits/money-cost-ramp-2026-11-16.md. It is a best guess with no player data: income was
+   modelled from Kent's own cards (Money per card by level x 10 to 25 cards a day, +60% for the
+   stall, Caravan and Bank: about 25K a day at L10, 110K at L16-20, 170K at L25, 300-430K from L28)
+   and moehong (old-game wealth) and Oberon (cheats) were left out. Replace the ramp with measured
+   Money income per level once there is some. A new station, skill or power above level 12 takes
+   its Money from the same ramp.
+
 ## 3. The level curve (xpLevels.json)
 
 XP needed to advance (thresholds in `xpLevels.json`: row `lvl N` holds the XP that reaches

@@ -9,7 +9,7 @@ import '../../UI/Buttons/SharedButtons.css';
 import './InventoryPanel.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { deriveWarehouseAndBackpackCapacity, isCurrency, KEY_TYPES, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { deriveWarehouseAndBackpackCapacity, isCurrency, KEY_TYPES, secretTypes, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import ManageContentsModal from './ManageContentsModal';
 import BackpackManageModal from './BackpackManageModal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
@@ -308,6 +308,11 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                             );
                         })
                     }
+                    {/* last: the Secrets, one "shhh" face with how many the player holds in all (owner 2026-11-16) */}
+                    <div className="currency-item currency-item--secrets">
+                        <span className="currency-emoji"><img className="resource-icon currency-secret-icon" src="/assets/icons/mark-secret.svg" alt="" draggable="false" /></span>
+                        <span className="currency-amount">{secretTypes(masterResources).reduce((n, type) => n + getPlayerQuantity(type, inventory, backpack), 0)}</span>
+                    </div>
                 </div>
             </div>
             {showCurrencies && createPortal(

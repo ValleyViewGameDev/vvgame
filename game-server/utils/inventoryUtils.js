@@ -15,7 +15,15 @@ function isCurrency(resourceType) {
          resourceType === "Hecate's Torch" || // held like a key (lights the Black Fog), owner 2026-11-07
          resourceType === 'Yellow Heart' ||
          resourceType === 'Green Heart' ||
-         resourceType === 'Purple Heart';
+         resourceType === 'Purple Heart' ||
+         isSecret(resourceType);
 }
 
-module.exports = { isCurrency };
+// The Secrets (Portia's Secret, Caliban's Secret, ...): held like keys, free of backpack and
+// warehouse capacity, kept in the warehouse list wherever they are picked up (owner 2026-11-16).
+// Any resource whose type ends in "'s Secret" is one; the client has the same rule.
+function isSecret(resourceType) {
+  return typeof resourceType === 'string' && /'s Secret$/.test(resourceType);
+}
+
+module.exports = { isCurrency, isSecret };

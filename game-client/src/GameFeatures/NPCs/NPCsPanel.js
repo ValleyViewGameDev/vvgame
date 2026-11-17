@@ -51,6 +51,7 @@ import { sellSection } from '../../UI/Panels/SellSection';
 import { prereqsMet } from '../Quests/questPrereqs';
 import { XP_STAR_TOKEN, XP_STAR_HTML } from '../../UI/Icons/XpStar';
 import { sortByLevel } from '../../Utils/levelOrder'; // offers by unlock level (owner 2026-11-10)
+import { markMoment } from '../../Utils/moments';
 
 const NPCPanel = ({
   onClose,
@@ -864,6 +865,8 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     // Silent account (docs/onboarding-plan.md §4.2): the Home Deed is where the player picks a name.
     // The modal re-runs this trade with `named` once /player/name has succeeded.
     if (recipe?.type === 'Home Deed' && currentPlayer?.named === false && !named) {
+      // Analytics: the FTUE funnel's "Opened name prompt" bar (first time only; Utils/moments.js)
+      markMoment(currentPlayer, 'nameAsk', setCurrentPlayer);
       setPendingDeedTrade({ transactionId, transactionKey, recipe });
       return;
     }

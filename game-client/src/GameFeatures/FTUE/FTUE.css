@@ -161,3 +161,46 @@
   }
 
 }
+/* ========== DOINKER RADAR (DoinkerRadar.js, owner 2026-11-16) ========== */
+/* Deep red rings growing out from around the target and fading, six staggered, like a radar.
+   Over the board, under the panels, toasts and modals; never catches a tap. */
+.ftue-radar {
+  --radar-red: 176, 0, 32; /* deep red (#b00020) */
+  --radar-size: 780px;    /* the rings fade out at a radius of a phone's width (owner 2026-11-16: twice the first reach) */
+  position: absolute;
+  width: var(--radar-size);
+  height: var(--radar-size);
+  z-index: 999;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+/* over the board, UNDER the board arrows (980), the notification toasts (Notifications.css 985), the
+   panels (990) and everything above them (owner 2026-11-16: no doinker or radar is ever on a panel).
+   During a Scrim Moment over the scrim (1500) so the rings are not dimmed, under its lifted toasts
+   and modals (FTUEScrim.css 1600). Taps pass through. */
+.ftue-radar--fixed { position: fixed; z-index: 975; }
+body.ftue-scrim-active .ftue-radar--fixed { z-index: 1550; }
+.ftue-radar-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 100%;
+  height: 100%;
+  border: 4px solid rgba(var(--radar-red), 1);
+  /* a thin white halo outside the red, so a ring still reads over dark, red or busy art: the point
+     is to lead an eye that cannot find the arrow to it (owner 2026-11-16) */
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.55), 0 0 16px 3px rgba(var(--radar-red), 0.75);
+  /* just the rings (owner 2026-11-16): no fill, no inner glow, no centre glow over the target */
+  animation: ftue-radar-ping 4.5s cubic-bezier(0.25, 0.55, 0.4, 1) infinite;
+}
+@keyframes ftue-radar-ping {
+  0%   { transform: translate(-50%, -50%) scale(0.06); opacity: 0; border-width: 8px; } /* born about icon-sized, around it, not on it */
+  8%   { opacity: 1; }
+  50%  { opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; border-width: 1.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ftue-radar-ring { animation-duration: 9s; }
+}
