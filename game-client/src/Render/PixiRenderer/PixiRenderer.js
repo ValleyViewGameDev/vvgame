@@ -1829,7 +1829,7 @@ const PixiRenderer = ({
     npcs, currentPlayer, playersInGrid, gridId, TILE_SIZE, masterResources, masterSkills, masterTrophies,
     globalTuning, strings, onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
     setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel, setActiveStation,
-    isDeveloper, onWalkTo,
+    isDeveloper, onWalkTo, resources, handleTileClick,
   };
 
   /**
@@ -1866,6 +1866,35 @@ const PixiRenderer = ({
       onArrive: arrive,
     });
     if (steps === 0 && openIfStuck) arrive();
+  }, []);
+
+  /**
+   * A tap on a BUILDING out of range (owner 2026-11-16): walk toward its nearest tile and, the
+   * moment it is in range with nothing in the way (the same test as the tap: Euclidean distance to
+   * its nearest footprint tile against the derived range, and no wall in the line), stop there and
+   * open its panel as if it had been tapped from there. A new tap replaces the walk (and drops it).
+   */
+  const walkToBuilding = useCallback((r) => {
+    const L = latestRef.current;
+    if (!L?.onWalkTo) return;
+    const inReach = () => {
+      const now = latestRef.current;
+      const pos = getPlayerTile();
+      if (!now || !pos) return false;
+      const t = nearestFootprintTile(pos, r);
+      if (Math.hypot(pos.x - t.x, pos.y - t.y) > getDerivedRange(now.currentPlayer, now.masterResources)) return false;
+      return !isWallBlocking(pos, t);
+    };
+    const arrive = () => {
+      const now = latestRef.current;
+      // still there (not removed or moved while walking), and reached
+      const still = now?.resources?.find((x) => x && x.type === r.type && x.x === r.x && x.y === r.y);
+      if (!still || !inReach() || !now.handleTileClick) return;
+      now.handleTileClick(still.y, still.x);
+    };
+    const start = getPlayerTile();
+    const t = start ? nearestFootprintTile(start, r) : { x: r.x, y: r.y };
+    L.onWalkTo(t.y, t.x, { until: inReach, onArrive: arrive });
   }, []);
 
   /**
@@ -1994,7 +2023,13 @@ const PixiRenderer = ({
       if (outOfRange(t.x, t.y)) return true;
       return !onOwnHomestead && !!playerPos && r.category !== 'npc' && isWallBlocking(playerPos, t);
     };
-    const walkToward = (r) => { const t = nearestOf(r); if (onWalkTo) onWalkTo(t.y, t.x); };
+    // a building (anything with a panel) opens once the walk brings it into range; anything else
+    // (a tree, a rock, a crop) is only walked up to: tap again once there
+    const BUILDING_CATEGORIES = ['training', 'crafting', 'trainingAndShop', 'station', 'farmhouse', 'shop'];
+    const walkToward = (r) => {
+      if (BUILDING_CATEGORIES.includes(r.category)) { walkToBuilding(r); return; }
+      const t = nearestOf(r); if (onWalkTo) onWalkTo(t.y, t.x);
+    };
 
     // At frontier zoom during relocation, clicking on the current settlement should
     // trigger a grid-level click (same as other settlements)
@@ -2118,7 +2153,7 @@ const PixiRenderer = ({
     if (handleTileClick) {
       handleTileClick(row, col);
     }
-  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, cursorMode, onWalkTo, walkToNpc, walkToAttack, findHostileAtScreen, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
+  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, cursorMode, onWalkTo, walkToNpc, walkToAttack, walkToBuilding, findHostileAtScreen, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
       onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,
@@ -2502,6 +2537,7 @@ const PixiRenderer = ({
         masterResources={masterResources}
         resources={resources}
         tileTypes={tileTypes}
+        gridType={currentPlayer?.location?.gtype}
       />}
       {/* VFX layer for range indicators and other effects */}
       {!scene && <PixiRendererVFX
@@ -2537,7 +2573,6 @@ const PixiRenderer = ({
         pcs={pcs}
         currentPlayer={currentPlayer}
         TILE_SIZE={TILE_SIZE}
-        gridType={currentPlayer?.location?.gtype}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
         hidden={actorsHidden}
       />
