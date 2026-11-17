@@ -64,7 +64,7 @@
   {
     "event": "heal",
     "file1": "sfx_heal1.m4a",
-    "file2": "sfx_heal2.mp3"
+    "file2": "sfx_heal.mp3"
   },
   {
     "event": "equip",
@@ -97,7 +97,7 @@
   },
   {
     "event": "success",
-    "file1": "sfx_success.mp3"
+    "file1": "sfx_succes.mp3"
   },
   {
     "event": "door_town",
@@ -118,5 +118,17 @@
   {
     "event": "door_locked",
     "file1": "sfx_door_locked.mp3"
+  },
+  {
+    "event": "animal_moo",
+    "file1": "sfx_animal_moo.mp3"
+  },
+  {
+    "event": "animal_baa",
+    "file1": "sfx_animal_baa.mp3"
+  },
+  {
+    "event": "animal_snort",
+    "file1": "sfx_animal_snort.mp3"
   }
 ]

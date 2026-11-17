@@ -6,6 +6,7 @@ import SFXMap from './SFXMap.json';
 const FADE_DURATION_MS = 2000; // 2 second fade for music
 const MUSIC_BASE_PATH = '/sound/music/';
 const SFX_BASE_PATH = '/sound/sfx/';
+const SFX_VOLUME = 0.5; // every sound effect, Web Audio and the fallback alike
 
 class SoundManager {
   constructor() {
@@ -25,6 +26,15 @@ class SoundManager {
     // Each call to playTrack increments this, and handlers check if their
     // generation matches before taking action
     this.audioGeneration = 0;
+
+    // Sound effects through Web Audio (playSFX): decoded once, played instantly
+    this.audioCtx = null;
+    this.sfxGain = null;
+    this.sfxBuffers = new Map(); // file -> AudioBuffer
+    this.sfxLoading = new Map(); // file -> Promise
+    this.sfxPreloaded = false;
+    this.sfxUnlockInstalled = false;
+    this.installSFXUnlock();
   }
 
   /**
@@ -517,13 +527,7 @@ class SoundManager {
     }
 
     // Extract all file options (file1, file2, file3, etc.)
-    const files = [];
-    let i = 1;
-    while (sfxEntry[`file${i}`]) {
-      files.push(sfxEntry[`file${i}`]);
-      i++;
-    }
-
+    const files = sfxFiles(sfxEntry);
     if (files.length === 0) {
       console.warn(`SoundManager: No files defined for SFX event '${eventName}'`);
       return;
@@ -531,11 +535,28 @@ class SoundManager {
 
     // Pick a random file if multiple exist
     const selectedFile = files[Math.floor(Math.random() * files.length)];
-    const audioPath = `${SFX_BASE_PATH}${selectedFile}`;
 
+    // Web Audio: a decoded buffer starts the instant it is asked for. `new Audio()` per play
+    // fetched, decoded and spun up a media element every time, which lagged the tap by a
+    // noticeable beat on phones (owner 2026-11-16).
+    const buffer = this.sfxBuffers.get(selectedFile);
+    if (buffer && this.audioCtx && this.audioCtx.state === 'running') {
+      try {
+        const source = this.audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(this.sfxGain);
+        source.start(0);
+        return;
+      } catch (err) {
+        console.warn(`SoundManager: Web Audio play failed for '${eventName}'`, err);
+      }
+    }
+
+    // Not decoded yet (the first moments of a session) or no Web Audio: the old way, once
+    this.loadSFXBuffer(selectedFile);
     try {
-      const audio = new Audio(audioPath);
-      audio.volume = 0.5; // SFX volume (can be made configurable later)
+      const audio = new Audio(`${SFX_BASE_PATH}${selectedFile}`);
+      audio.volume = SFX_VOLUME;
       audio.play().catch(err => {
         // Autoplay may be blocked - silently fail for SFX
         console.warn(`SoundManager: Could not play SFX '${eventName}'`, err);
@@ -544,6 +565,78 @@ class SoundManager {
       console.error(`SoundManager: Error creating SFX audio for '${eventName}'`, err);
     }
   }
+
+  // ========== Web Audio for sound effects ==========
+
+  /**
+   * Browsers start an AudioContext suspended until a user gesture. The first touch, click or key
+   * resumes it and starts decoding every effect (about 600 KB, so not on page load: a new visitor
+   * on the login scene should not pay for it), so the sounds after it play without delay.
+   */
+  installSFXUnlock() {
+    if (typeof window === 'undefined' || this.sfxUnlockInstalled) return;
+    this.sfxUnlockInstalled = true;
+    const unlock = () => {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      if (ctx.state !== 'running') ctx.resume().catch(() => {});
+      // iOS only counts the gesture once something plays inside it: one silent sample
+      try {
+        const silent = ctx.createBufferSource();
+        silent.buffer = ctx.createBuffer(1, 1, 22050);
+        silent.connect(ctx.destination);
+        silent.start(0);
+      } catch (_) { /* nothing to unlock */ }
+      this.preloadSFX();
+      if (ctx.state === 'running') {
+        ['pointerdown', 'touchstart', 'keydown'].forEach(t => document.removeEventListener(t, unlock, true));
+      }
+    };
+    ['pointerdown', 'touchstart', 'keydown'].forEach(t => document.addEventListener(t, unlock, true));
+  }
+
+  getAudioContext() {
+    if (this.audioCtx) return this.audioCtx;
+    const Ctx = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
+    if (!Ctx) return null;
+    try {
+      this.audioCtx = new Ctx();
+      this.sfxGain = this.audioCtx.createGain();
+      this.sfxGain.gain.value = SFX_VOLUME;
+      this.sfxGain.connect(this.audioCtx.destination);
+    } catch (err) {
+      console.warn('SoundManager: no Web Audio', err);
+      this.audioCtx = null;
+    }
+    return this.audioCtx;
+  }
+
+  /** Decode every file SFXMap.json names (once). */
+  preloadSFX() {
+    if (this.sfxPreloaded) return;
+    this.sfxPreloaded = true;
+    new Set(SFXMap.flatMap(sfxFiles)).forEach(file => this.loadSFXBuffer(file));
+  }
+
+  /** Fetch and decode one effect into `sfxBuffers` (once; a failure is left to the fallback). */
+  loadSFXBuffer(file) {
+    const ctx = this.getAudioContext();
+    if (!ctx || this.sfxBuffers.has(file) || this.sfxLoading.has(file)) return;
+    const job = fetch(`${SFX_BASE_PATH}${file}`)
+      .then(res => (res.ok ? res.arrayBuffer() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then(data => new Promise((resolve, reject) => ctx.decodeAudioData(data, resolve, reject))) // callback form: older Safari
+      .then(buffer => { this.sfxBuffers.set(file, buffer); })
+      .catch(err => console.warn(`SoundManager: could not load SFX '${file}'`, err))
+      .finally(() => this.sfxLoading.delete(file));
+    this.sfxLoading.set(file, job);
+  }
+}
+
+/** The files an SFXMap entry names (file1, file2, ...). */
+function sfxFiles(entry) {
+  const files = [];
+  for (let i = 1; entry[`file${i}`]; i++) files.push(entry[`file${i}`]);
+  return files;
 }
 
 // Singleton instance

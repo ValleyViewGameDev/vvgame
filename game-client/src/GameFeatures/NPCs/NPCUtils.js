@@ -15,6 +15,13 @@ import soundManager from '../../Sound/SoundManager';
 import { isViewOnly } from '../../Utils/viewOnly';
 
 // Generate unique transaction ID
+// The sound a farm animal makes when its product is collected (SFXMap.json events)
+const ANIMAL_COLLECT_SFX = {
+  Cow: 'animal_moo', 'Brown Cow': 'animal_moo',
+  Sheep: 'animal_baa', Ram: 'animal_baa', Goat: 'animal_baa',
+  Pig: 'animal_snort',
+};
+
 function generateTransactionId() {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
@@ -82,8 +89,9 @@ async function handleProtectedFarmAnimalCollection(
   }
 
   // ===== OPTIMISTIC UI: Show visual feedback immediately =====
-  // 1. Play sound immediately
-  soundManager.playSFX('collect_item');
+  // 1. Play sound immediately: the animal's own voice (CC0 field recordings from freesound.org:
+  //    163727 cow, 677221 ewe, 536746 pig; trimmed and softened), else the generic collect
+  soundManager.playSFX(ANIMAL_COLLECT_SFX[npc.type] || 'collect_item');
 
   // 2. Visual feedback - poof effect and floating text
   createCollectEffect(col, row, TILE_SIZE);
