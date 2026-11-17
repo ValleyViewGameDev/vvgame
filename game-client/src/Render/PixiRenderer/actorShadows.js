@@ -7,7 +7,7 @@
  * ellipse, about 40% dark).
  *
  * One small sprite per figure, all of ONE shared texture (a pre-blurred ellipse drawn once on a
- * canvas: never a blur filter), in the y-sorted `objects` layer just under its figure, so it lies on
+ * canvas: never a blur filter), in the y-sorted `objects` layer under every figure of its row (depthSort.shadowZ), so it lies on
  * whatever the figure stands on (the ground, a rug) and behind anything further south.
  *
  * The renderers only say WHICH figures have one (`trackShadow` / `untrackShadow`); one ticker pass a
@@ -22,6 +22,7 @@
  *   - fading and shrinking with the figure (the death beat), hidden when it is, gone when it is.
  */
 import { Sprite, Texture } from 'pixi.js-legacy';
+import { shadowZ } from './depthSort';
 
 export const SHADOW = {
   colour: '7, 5, 3', // the painted shadows' own near-black
@@ -34,7 +35,6 @@ export const SHADOW = {
   hoverShare: 0.42,  // a hovering figure's blob, of the whole drawing's width (what the painted ones were)
   hoverMinW: 0.28,   // tiles: the Fairy is small
   hoverFlat: 6,      // a shadow cast from the air is flatter (the painted ones' shape)
-  under: 0.02,       // how far under its figure it sorts (zIndex)
 };
 const DEFAULT_FEET = { bottom: 0.94, left: 0.22, right: 0.78, minX: 0.1, maxX: 0.9 }; // art that could not be measured (an emoji)
 
@@ -118,7 +118,7 @@ function place(obj, t) {
   s.alpha = obj.alpha;
   s.width = box.w * left; s.height = box.h * left;
   s.position.set(obj.x + (obj.scale.x < 0 ? -1 : 1) * box.dx, obj.y + (obj.__bob || 0) + box.dy);
-  if (obj.parent === t.layer) s.zIndex = obj.zIndex - SHADOW.under;
+  if (obj.parent === t.layer) s.zIndex = shadowZ(obj.zIndex); // under every figure of its row: never over a neighbour's feet
 }
 
 function sync() {

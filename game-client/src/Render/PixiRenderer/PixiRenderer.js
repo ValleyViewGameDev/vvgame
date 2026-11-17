@@ -763,7 +763,7 @@ const PixiRenderer = ({
 
       // One y-sorted layer for everything that stands on the ground: resources, NPCs and the
       // player (PixiRendererPCs adds the player's sprite here). zIndex is the object's row
-      // (resources: the anchor tile's row; actors: their render row + 0.5), so whatever stands
+      // (resources: the anchor tile's row; actors: depthSort.actorZ, their row + 0.5 and on down the row), so whatever stands
       // further south draws in front, even when a taller sprite (a wall post, a building)
       // reaches up into the tile north of it. Pixi sorts siblings only, so they share a layer.
       const objectContainer = new Container();
