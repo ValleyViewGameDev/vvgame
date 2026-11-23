@@ -45,12 +45,12 @@ async function recordActivity(playerId, opts = {}) {
   if (!playerId) return;
   const pid = String(playerId);
   if (!HEX24.test(pid)) return; // ignore non-ObjectId ids (junk/malformed requests)
-  const { username = null, when = new Date(), visitorId = null, devSource = null } = opts;
+  const { username = null, when = new Date(), visitorId = null, devSource = null, device = null } = opts;
   const day = dayKeyUTC(when);
   const writes = [
     AnalyticsActivity.updateOne(
       { _id: `${pid}:${day}` },
-      { $setOnInsert: { playerId: pid, day, ts: when } },
+      { $setOnInsert: { playerId: pid, day, ts: when }, ...(device ? { $addToSet: { devices: device } } : {}) },
       { upsert: true },
     ),
   ];
@@ -139,9 +139,17 @@ function devSourceOf(req) {
   const from = (req && req.get && (req.get('origin') || req.get('referer'))) || '';
   return LOCAL_ORIGIN_RE.test(from) ? 'localhost-page' : null;
 }
+// 'mobile' / 'desktop' from the request's User-Agent: the same test as the client's
+// ftueFeedback.isMobile (Utils/clientDiagnostics.js), so signup and daily devices compare.
+// iPadOS Safari reports a Mac and counts as desktop, as it does at signup. Null with no UA.
+function deviceOf(req) {
+  const ua = (req && req.get && req.get('user-agent')) || '';
+  if (!ua) return null;
+  return /Mobile|Android|iPhone|iPad|iPod/i.test(ua) ? 'mobile' : 'desktop';
+}
 // What the auth paths pass to recordActivity with the username
 function requestSource(req, clientInfo = null) {
-  return { visitorId: visitorIdOf(req, clientInfo), devSource: devSourceOf(req) };
+  return { visitorId: visitorIdOf(req, clientInfo), devSource: devSourceOf(req), device: deviceOf(req) };
 }
 // A developer's session made a request from this browser: remember it as a developer device
 async function recordDevDevice(visitorId, playerId, when = new Date()) {
@@ -288,6 +296,6 @@ function sanitizeClientInfo(body) {
 
 module.exports = {
   recordActivity, recordPlayed, recordQuestCompleted, recordPurchase, recordGridEntered,
-  requestSource, visitorIdOf, recordDevDevice, isDeveloperTraffic, recordKentSale, recordValleyVisit, recordEnemyKill, recordLevelUps, levelForXp,
+  requestSource, visitorIdOf, recordDevDevice, isDeveloperTraffic, deviceOf, recordKentSale, recordValleyVisit, recordEnemyKill, recordLevelUps, levelForXp,
   recordPageview, ensurePageview, sanitizeClientInfo, dayKeyUTC, HEX24,
 };

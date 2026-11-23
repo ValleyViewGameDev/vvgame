@@ -164,9 +164,6 @@
     flex-shrink: 0; /* Prevent shrinking */
   }
 
-  /* (No Ko-fi buffer: panels stop above the nav bar, clear of the Ko-fi button, so the content
-     scrolls to the panel's bottom edge.) */
-
 /* Debug Panel */
 
 /* General panel content styling */

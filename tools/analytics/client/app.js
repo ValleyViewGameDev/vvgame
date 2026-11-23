@@ -552,6 +552,63 @@ function renderPlayersTable(data) {
     </tr>`, { key: 'last_active', dir: 'desc' });
 }
 
+// ---- Users tab reachability (ported from House's dashboard, owner 2026-11-21) ----
+// A two-slice doughnut: has-X (green) vs not
+function credPie(canvasId, { yes, no, yesLabel, noLabel, yesDetail }) {
+  const total = (yes + no) || 1;
+  chart(canvasId, {
+    type: 'doughnut',
+    data: { labels: [yesLabel, noLabel], datasets: [{ data: [yes, no], backgroundColor: ['#8bbf6a', '#6b6256'], borderColor: '#1a1714', borderWidth: 2 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: {
+      legend: { position: 'right', labels: { color: '#efe7d8', font: { size: 11 } } },
+      tooltip: { callbacks: { label: (c) => {
+        const p = Math.round((c.parsed / total) * 100);
+        return c.dataIndex === 0 ? ` ${yesLabel}: ${yes} (${p}%)${yesDetail ? `: ${yesDetail}` : ''}` : ` ${noLabel}: ${no} (${p}%)`;
+      } } },
+    } },
+  });
+}
+function renderCredPies(d) {
+  $('emailCount').textContent = (d.email_on_file || 0).toLocaleString();
+  credPie('emailPieChart', { yes: d.email_on_file || 0, no: d.no_email || 0, yesLabel: 'Email on file', noLabel: 'No email', yesDetail: `Google ${d.google || 0}, typed ${d.manual || 0}` });
+  $('passwordCount').textContent = (d.password_set || 0).toLocaleString();
+  credPie('passwordPieChart', { yes: d.password_set || 0, no: d.no_password || 0, yesLabel: 'Password set', noLabel: 'No password', yesDetail: `password ${d.real_password || 0}, via Google ${d.google_credential || 0}` });
+}
+function renderDauEmail(payload) {
+  const rows = payload.all || [];
+  chart('dauEmailChart', {
+    type: 'bar',
+    data: { labels: rows.map((r) => r.day), datasets: [
+      { type: 'bar', label: 'Email on file', data: rows.map((r) => r.email), backgroundColor: '#8bbf6a', stack: 'dau', yAxisID: 'y', order: 2 },
+      { type: 'bar', label: 'No email', data: rows.map((r) => r.no_email), backgroundColor: '#6b6256', stack: 'dau', yAxisID: 'y', order: 2 },
+      line('% of DAU with Email', rows.map((r) => { const dau = r.email + r.no_email; return dau > 0 ? pct(r.email, dau) : null; }), '#d8a657', { yAxisID: 'y2', order: 1, spanGaps: false }),
+    ] },
+    options: { ...BASE, interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { ...AXES.x, stacked: true },
+        y: { ...AXES.y, stacked: true },
+        y2: { position: 'right', stacked: false, beginAtZero: true, max: 100, ticks: { callback: (v) => `${v}%`, color: '#d8a657' }, grid: { display: false } },
+      },
+      plugins: { ...LEGEND, tooltip: { callbacks: {
+        afterTitle: (items) => `DAU: ${items.filter((it) => it.dataset.yAxisID !== 'y2').reduce((s, it) => s + (it.parsed.y || 0), 0)}`,
+        label: (c) => (c.dataset.yAxisID === 'y2' ? `${c.dataset.label}: ${c.parsed.y == null ? 'n/a' : `${c.parsed.y}%`}` : `${c.dataset.label}: ${c.parsed.y}`),
+      } } } },
+  });
+}
+function renderEmailsSent(payload) {
+  const rows = payload.all || [];
+  chart('emailsSentChart', {
+    type: 'bar',
+    data: { labels: rows.map((r) => r.day), datasets: [
+      { label: 'Welcome', data: rows.map((r) => r.welcome), backgroundColor: '#8bbf6a', stack: 'sent' },
+      { label: 'Event announcement', data: rows.map((r) => r.event), backgroundColor: '#7a9cc6', stack: 'sent' },
+    ] },
+    options: { ...BASE, interaction: { mode: 'index', intersect: false },
+      scales: { x: { ...AXES.x, stacked: true }, y: { ...AXES.y, stacked: true } },
+      plugins: { ...LEGEND, tooltip: { callbacks: { afterTitle: (items) => `Sent: ${items.reduce((s, it) => s + (it.parsed.y || 0), 0)}` } } } },
+  });
+}
+
 // ======================= ENGAGEMENT =======================
 function renderLastSeen(lastSeen, dau) {
   const labels = lastSeen.map((p) => p.day);
@@ -950,6 +1007,29 @@ function renderTailChart(canvasId, allRows) {
       plugins: { legend: { display: false } } },
   }, [pctOfTotalLabels]);
 }
+// DAU by device (stacked) + the signup-device vs later-device table (owner 2026-11-21)
+function renderDeviceActivity(payload) {
+  const s = payload.series || [];
+  const seg = (label, key, color) => ({ label, data: s.map((r) => r[key]), backgroundColor: color, stack: 'dau' });
+  chart('dauDeviceChart', {
+    type: 'bar',
+    data: { labels: s.map((r) => r.day), datasets: [
+      seg('Mobile', 'mobile', '#7aa2f7'), seg('Desktop', 'desktop', '#d8a657'), seg('Both', 'both', '#8bbf6a'), seg('Not recorded', 'unknown', '#6b6256'),
+    ] },
+    options: { ...BASE, scales: { x: { ...AXES.x, stacked: true }, y: { ...AXES.y, stacked: true } },
+      plugins: { ...LEGEND, tooltip: { callbacks: { afterTitle: (items) => `DAU: ${items.reduce((n, it) => n + (it.parsed.y || 0), 0)}` } } } },
+  });
+  const m = payload.migration || {};
+  const row = (from, to, d) => `
+    <tr><td>Started on ${from}</td><td class="num">${d.started}</td><td class="num">${d.tracked}</td>
+    <td class="num">${d.moved.length}${d.tracked ? ` (${pct(d.moved.length, d.tracked)}%)` : ''}</td>
+    <td>${d.moved.slice(0, 12).map((x) => esc(x.username)).join(', ') || '-'}${d.moved.length > 12 ? ', ...' : ''}</td></tr>`;
+  $('deviceMigration').innerHTML = `<div class="table-wrap"><table class="audit-table">
+    <thead><tr><th></th><th>Accounts</th><th>Tracked</th><th>Later active on the other</th><th>Who</th></tr></thead>
+    <tbody>${row('mobile', 'desktop', m.mobile || { started: 0, tracked: 0, moved: [] })}${row('desktop', 'mobile', m.desktop || { started: 0, tracked: 0, moved: [] })}</tbody>
+  </table></div>`;
+}
+
 function renderDemographics(data) {
   const cic = data.clientInfoCoverage || {};
   $('demo-note').textContent = `${data.total} new account${data.total === 1 ? '' : 's'} in range. Device, OS, browser, timezone and screen come from ftueFeedback (captured at signup); `
@@ -1040,10 +1120,14 @@ async function refresh() {
       const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
       const todayLabel = now.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
       const activeQs = `?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}${hideDevs ? '&hideDevs=1' : ''}`;
-      const [active, ignored, accounts, players] = await Promise.all([
+      const [active, ignored, accounts, players, emailPie, dauEmail, emailsSent] = await Promise.all([
         getJSON(`/api/active-users${activeQs}`), getJSON(`/api/ignored-users${devQS(hideDevs)}`),
         getJSON(`/api/new-accounts${qs}`), getJSON(`/api/players${devQS(hideDevs)}`),
+        getJSON(`/api/email-on-file${devQS(hideDevs)}`), getJSON(`/api/dau-email${qs}`), getJSON(`/api/emails-sent${qs}`),
       ]);
+      renderCredPies(emailPie);
+      renderDauEmail(dauEmail);
+      renderEmailsSent(emailsSent);
       renderUsers(active, todayLabel);
       renderIgnoredUsers(ignored);
       renderNewAccounts(accounts, `${from} to ${to}`);
@@ -1080,8 +1164,9 @@ async function refresh() {
       const n = purchases.series.reduce((s, p) => s + p.purchases, 0);
       setStatus(`${from} to ${to} / ${n} purchases / ${dollars(cents)}${devSuffix}`);
     } else if (activeTab === 'demographics') {
-      const [data, language] = await Promise.all([getJSON(`/api/demographics${qs}`), getJSON(`/api/language${qs}`)]);
+      const [data, language, devices] = await Promise.all([getJSON(`/api/demographics${qs}`), getJSON(`/api/language${qs}`), getJSON(`/api/device-activity${qs}`)]);
       renderDemographics(data);
+      renderDeviceActivity(devices);
       renderLanguage(language);
       setStatus(`${from} to ${to} / ${data.total} new account${data.total === 1 ? '' : 's'} in range${devSuffix}`);
     }

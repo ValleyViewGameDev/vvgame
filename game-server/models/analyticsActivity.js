@@ -45,6 +45,10 @@ const AnalyticsActivitySchema = new mongoose.Schema({
   // Kent (/action/kent-sell), entered a Valley grid (enter-grid onto gridType valley*), killed an
   // enemy (/action/npc-kill). Rows written before that deploy lack the fields, which is how the
   // dashboard tells "no data yet" from "didn't": keep the defaults so every new row carries them.
+  // The devices the player was active on that day ('mobile' / 'desktop', $addToSet from the
+  // heartbeats' User-Agent, the same test as the client's ftueFeedback.isMobile; 2026-11-21) so the
+  // dashboard can see DAU by device and who moves from phone to desktop. Absent on older rows.
+  devices: { type: [String], default: undefined },
   kent_sold: { type: Boolean, default: false },
   valley_visited: { type: Boolean, default: false },
   enemy_killed: { type: Boolean, default: false },

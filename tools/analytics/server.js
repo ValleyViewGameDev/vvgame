@@ -51,6 +51,7 @@ const Frontier = require(path.join(GAME_SERVER, 'models', 'frontier'));
 const Settlement = require(path.join(GAME_SERVER, 'models', 'settlement'));
 const Grid = require(path.join(GAME_SERVER, 'models', 'grid'));
 const Purchase = require(path.join(GAME_SERVER, 'models', 'purchase'));
+const EmailSend = require(path.join(GAME_SERVER, 'models', 'emailSend'));
 const AnalyticsActivity = require(path.join(GAME_SERVER, 'models', 'analyticsActivity'));
 const AnalyticsPurge = require(path.join(GAME_SERVER, 'models', 'analyticsPurge'));
 const AnalyticsPlayer = require(path.join(GAME_SERVER, 'models', 'analyticsPlayer'));
@@ -901,6 +902,131 @@ async function playersTable(excludeIds = []) {
   };
 }
 
+// ---- Demographics: DAU by device + who moved between devices (owner 2026-11-21) ----
+// Daily devices come from analytics_activity.devices (each heartbeat's User-Agent, recorded from
+// 2026-11-21); rows before that carry none and count as "not recorded". A player active on both
+// in one day is "both". Migration compares the device at SIGNUP (players.ftueFeedback.isMobile,
+// the same UA test) with every device the player has been active on since recording began.
+async function deviceActivityForRange({ from, to, start, end, tz }, excludeIds = []) {
+  const [dayRows, seenRows, players] = await Promise.all([
+    AnalyticsActivity.aggregate([
+      { $match: { ts: { $gte: start, $lte: end }, source: 'live', ...exActQ(excludeIds) } },
+      { $group: { _id: { day: localDayExpr('$ts', tz), pid: '$playerId' }, devs: { $push: { $ifNull: ['$devices', []] } } } },
+      { $project: { devs: { $reduce: { input: '$devs', initialValue: [], in: { $setUnion: ['$$value', '$$this'] } } } } },
+      { $group: { _id: '$_id.day',
+        mobile: { $sum: { $cond: [{ $eq: ['$devs', ['mobile']] }, 1, 0] } },
+        desktop: { $sum: { $cond: [{ $eq: ['$devs', ['desktop']] }, 1, 0] } },
+        both: { $sum: { $cond: [{ $eq: [{ $size: '$devs' }, 2] }, 1, 0] } },
+        unknown: { $sum: { $cond: [{ $eq: [{ $size: '$devs' }, 0] }, 1, 0] } } } },
+    ]),
+    AnalyticsActivity.aggregate([
+      { $match: { devices: { $exists: true, $ne: [] }, ...exActQ(excludeIds) } },
+      { $unwind: '$devices' },
+      { $group: { _id: { pid: '$playerId', dev: '$devices' }, first: { $min: '$ts' } } },
+    ]),
+    Player.find({ 'ftueFeedback.isMobile': { $in: [true, false] }, ...exPlQ(excludeIds) }, { username: 1, 'ftueFeedback.isMobile': 1 }).lean(),
+  ]);
+  const by = Object.fromEntries(dayRows.map((r) => [r._id, r]));
+  const seen = {};
+  for (const r of seenRows) (seen[r._id.pid] ||= {})[r._id.dev] = r.first;
+  const mig = { mobile: { started: 0, tracked: 0, moved: [] }, desktop: { started: 0, tracked: 0, moved: [] } };
+  for (const p of players) {
+    const startedOn = p.ftueFeedback.isMobile ? 'mobile' : 'desktop';
+    const other = startedOn === 'mobile' ? 'desktop' : 'mobile';
+    const s = seen[String(p._id)];
+    mig[startedOn].started++;
+    if (!s) continue;
+    mig[startedOn].tracked++;
+    if (s[other]) mig[startedOn].moved.push({ username: redactName(p._id, p.username), since: s[other] });
+  }
+  for (const m of Object.values(mig)) m.moved.sort((a, b) => new Date(b.since) - new Date(a.since));
+  return {
+    series: daysBetween(from, to).map((day) => {
+      const r = by[day] || {};
+      return { day, mobile: r.mobile || 0, desktop: r.desktop || 0, both: r.both || 0, unknown: r.unknown || 0 };
+    }),
+    migration: mig,
+  };
+}
+
+// ---- Users tab: reachability (ported from House's dashboard, owner 2026-11-21) ----
+// Of the CURRENT accounts (players collection, standard exclusions): how many have an email on
+// record (Google sign-in supplies one, email_source 'oauth'; else one typed in the email ask,
+// 'manual') and how many have a credential. Accounts are passwordless by default (`password` holds
+// the 'none' sentinel, utils/publicPlayer.js), so "password set" = a real password OR a googleId.
+// Live accounts only: a deleted account carries no email to classify.
+async function emailOnFileStats(excludeIds = []) {
+  const realPw = { $and: [{ $eq: [{ $type: '$password' }, 'string'] }, { $ne: ['$password', 'none'] }, { $ne: ['$password', ''] }] };
+  const hasGoogle = { $eq: [{ $type: '$googleId' }, 'string'] };
+  const hasEmail = { $and: [{ $eq: [{ $type: '$email' }, 'string'] }, { $ne: ['$email', ''] }] };
+  const rows = await Player.aggregate([
+    { $match: exPlQ(excludeIds) },
+    { $group: {
+      _id: null,
+      total: { $sum: 1 },
+      email: { $sum: { $cond: [hasEmail, 1, 0] } },
+      google_email: { $sum: { $cond: [{ $and: [hasEmail, hasGoogle] }, 1, 0] } },
+      real_password: { $sum: { $cond: [realPw, 1, 0] } },
+      password_set: { $sum: { $cond: [{ $or: [realPw, hasGoogle] }, 1, 0] } },
+    } },
+  ]);
+  const r = rows[0] || { total: 0, email: 0, google_email: 0, real_password: 0, password_set: 0 };
+  return {
+    total: r.total,
+    email_on_file: r.email, no_email: r.total - r.email, google: r.google_email, manual: Math.max(0, r.email - r.google_email),
+    password_set: r.password_set, no_password: r.total - r.password_set,
+    real_password: r.real_password, google_credential: Math.max(0, r.password_set - r.real_password),
+  };
+}
+
+// Of the players active each LOCAL day, how many have an email on file today (the live players
+// doc; a since-deleted player falls into no_email). email + no_email = that day's DAU.
+async function dauEmailForRange({ from, to, start, end, tz }, excludeIds = []) {
+  const emailIds = (await Player.find({ email: { $type: 'string', $ne: '' }, ...exPlQ(excludeIds) }, { _id: 1 }).lean()).map((p) => String(p._id));
+  const [dauRows, emailRows] = await Promise.all([
+    AnalyticsActivity.aggregate([
+      { $match: { ts: { $gte: start, $lte: end }, ...exActQ(excludeIds) } },
+      { $group: { _id: localDayExpr('$ts', tz), players: { $addToSet: '$playerId' } } },
+      { $project: { n: { $size: '$players' } } },
+    ]),
+    // emailIds is already exclusion-filtered: do not spread exActQ here (same `playerId` key)
+    emailIds.length ? AnalyticsActivity.aggregate([
+      { $match: { ts: { $gte: start, $lte: end }, playerId: { $in: emailIds } } },
+      { $group: { _id: localDayExpr('$ts', tz), players: { $addToSet: '$playerId' } } },
+      { $project: { n: { $size: '$players' } } },
+    ]) : [],
+  ]);
+  const dauByDay = Object.fromEntries(dauRows.map((r) => [r._id, r.n]));
+  const emailByDay = Object.fromEntries(emailRows.map((r) => [r._id, r.n]));
+  return {
+    segments: ['email', 'no_email'],
+    all: daysBetween(from, to).map((day) => {
+      const dau = dauByDay[day] || 0;
+      const email = Math.min(emailByDay[day] || 0, dau);
+      return { day, email, no_email: Math.max(0, dau - email) };
+    }),
+  };
+}
+
+// Emails SENT per local day, by type, from real send history: the welcome email's once-per-player
+// stamp (welcome_email_sent_at, game-server utils/emailNotifications.js sendOnce) and the campaign
+// ledger (email_sends, one row per player per campaign: tools/send-event-announcement.js).
+async function emailsSentForRange({ from, to, start, end, tz }, excludeIds = []) {
+  const [welcomeRows, eventRows] = await Promise.all([
+    Player.aggregate([
+      { $match: { welcome_email_sent_at: { $gte: start, $lte: end }, ...exPlQ(excludeIds) } },
+      { $group: { _id: localDayExpr('$welcome_email_sent_at', tz), n: { $sum: 1 } } },
+    ]),
+    EmailSend.aggregate([
+      { $match: { sent_at: { $gte: start, $lte: end }, ...(excludeIds.length ? { player_id: { $nin: toObjectIds(excludeIds) } } : {}) } },
+      { $group: { _id: localDayExpr('$sent_at', tz), n: { $sum: 1 } } },
+    ]),
+  ]);
+  const w = Object.fromEntries(welcomeRows.map((r) => [r._id, r.n]));
+  const e = Object.fromEntries(eventRows.map((r) => [r._id, r.n]));
+  return { segments: ['welcome', 'event'], all: daysBetween(from, to).map((day) => ({ day, welcome: w[day] || 0, event: e[day] || 0 })) };
+}
+
 // ---- Engagement: the FTUE funnel (re-implemented from the retired
 // /api/analytics/ftue-analytics, against Mongo directly) ----
 // Cohort = players CREATED in the range (players.created), dev-excluded. The
@@ -1484,6 +1610,15 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { from: range.from, to: range.to, ...(await newAccountsInRange(range, ex)) });
     }
     if (p === '/api/players') return sendJSON(res, 200, await playersTable(await excludeFor(url)));
+    if (p === '/api/email-on-file') return sendJSON(res, 200, await emailOnFileStats(await excludeFor(url)));
+    if (p === '/api/dau-email') {
+      const range = rangeFrom(url); const ex = await excludeFor(url);
+      return sendJSON(res, 200, { from: range.from, to: range.to, ...(await dauEmailForRange(range, ex)) });
+    }
+    if (p === '/api/emails-sent') {
+      const range = rangeFrom(url); const ex = await excludeFor(url);
+      return sendJSON(res, 200, { from: range.from, to: range.to, ...(await emailsSentForRange(range, ex)) });
+    }
     if (p === '/api/ftue-funnel') {
       const range = rangeFrom(url); const ex = await excludeFor(url);
       return sendJSON(res, 200, { from: range.from, to: range.to, ...(await ftueFunnelForRange(range, ex)) });
@@ -1513,6 +1648,10 @@ const server = http.createServer(async (req, res) => {
     if (p === '/api/purchases') {
       const range = rangeFrom(url); const ex = await excludeFor(url);
       return sendJSON(res, 200, { from: range.from, to: range.to, ...(await purchasesForRange(range, ex)) });
+    }
+    if (p === '/api/device-activity') {
+      const range = rangeFrom(url); const ex = await excludeFor(url);
+      return sendJSON(res, 200, { from: range.from, to: range.to, ...(await deviceActivityForRange(range, ex)) });
     }
     if (p === '/api/demographics') {
       const range = rangeFrom(url); const ex = await excludeFor(url);

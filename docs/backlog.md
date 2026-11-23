@@ -11,9 +11,6 @@ item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
 
 - **BL-2.** Real session auth: built 2026-11-11 (signed session tokens); left: switch
   enforcement on (`SESSION_ENFORCE=on` on Render) once the new client is live.
-- **BL-30.** Season reset redesign, live before the 2026-11-20 reset (`docs/season-reset.md`).
-- **BL-25.** Test a season reset end to end before launch (it relocates every player and
-  rewrites every grid, and has not run since the single-player refactor).
 
 ## Open
 
@@ -109,6 +106,18 @@ decoded IMAGE (only its GPU copy is released; Pixi uploads it again if it is dra
 for `/assets/atlas/sheets/*` is in `render.yaml`; if the client service is not Blueprint-managed, add
 it in the Render dashboard (Headers): `Cache-Control: public, max-age=31536000, immutable`.
 
+BL-30 (season reset redesign, a launch blocker) closed 2026-11-17: built and pushed 2026-11-16
+(`docs/season-reset.md`, commit 84c69797) and run live the same night (see BL-25). What it left
+for later is BL-31.
+
+BL-25 (test a season reset, a launch blocker) closed 2026-11-17: the redesigned reset (BL-30,
+`docs/season-reset.md`) ran live on 2026-11-16 at 21:00 Eastern after a backup and a dry run
+(`scripts/season-reset-dry-run.js`). Checked afterwards on production: Fall #39 began two minutes
+later and runs 60 days (to 2027-01-16); the season log for #38 shows 7 players sent home, 4 Valley3
+copies rebuilt and no winners; no Valley3 copies are left; every player's Quest for Hope artifacts,
+Hope, `hopeFound` and `hopeReturned` are cleared while their other completed quests stayed (Oberon
+43, moehong 75); player copies catch up to #39 on entry (12 so far).
+
 BL-29 (four Dragons with no room for their 3 x 3 body) closed 2026-11-14: the trees were cleared
 round each one in the valley layouts, the Dragons left where they stand (owner: "don't move the
 dragons"). In `valleyFixedCoord/1012274.json` (54,59) and `1013320.json` (6,31 / 5,37 / 11,44)
@@ -149,30 +158,16 @@ finds a developer's id can call the admin routes. Replace it with a signed sessi
 than from the header or a `playerId` in the body. Found while closing the open admin routes
 (commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
 
-### BL-30: Season reset redesign (LAUNCH BLOCKER)
+### BL-31: Mark what players place, so a Reset for Everyone can keep their builds
 
-Added 2026-11-16 (owner). Plan: `docs/season-reset.md`. Must be live before the reset on
-2026-11-20 20:51 UTC. Fall #39 for 60 days, then Winter #40 for 30 days, then 90-day seasons;
-builds in the Town and Valley1/2 are never touched (Wood cleanup only, no new trees); Valley3 is
-unbuildable and rebuilt for everyone each season; the Quest for Hope resets (artifacts, Hope,
-`hopeFound`, `hopeReturned`, Elbow's Find quests, guardians), keeping keys, skills, relationships
-and woken characters; no season-end rewards (competition moves to the Harvest Fair); homestead
-columns 0-7 unbuildable. Next, not for this reset: a `placedBy` mark so Reset for Everyone can
-keep player builds.
+Added 2026-11-17 (carried over from BL-30). Not a launch blocker.
 
-### BL-25: Test a season reset (LAUNCH BLOCKER)
-
-Added 2026-11-10. Launch blocker (owner 2026-11-10).
-
-**What.** Run a full season end and reset and check the game comes out of it whole. The reset
-(`game-server/utils/seasonReset.js`, with `seasonFinalizer.js` and `seasonTiles.js`) runs 25
-minutes after the season timer ends, only with `NODE_ENV=production`, relocates every player and
-rewrites every grid; the world model changed under it in the single-player refactor (per-player
-grid copies caught up lazily by `seasonNumber` / `resetEpoch`, docs/phase-2-contract.md), so it
-has to be proven before an ad buy brings players in. **Where to start.** Never against the live
-data without the backup script (`game-server/scripts/backup.js`) first; check winners and
-rewards (test accounts excluded), relocation, the template grids, a player's copies catching up
-on next entry, and the client across the boundary.
+**What.** Town and Valley1/2 builds now survive a season, but the editor's Reset grid
+(`/reset-grid-all-copies`) still rebuilds every player's copy from the template and deletes
+whatever they built there. **Where to start.** Stamp a `placedBy` (the player's id) on every
+resource `/action/place` writes (`routes/actionRoutes.js`); then give Reset grid a "keep player
+builds" mode that re-applies the template and puts the stamped resources back (skipping any that
+now collide), and have the editor show how many copies hold player builds before it runs.
 
 ### BL-26: Three gameplay videos for social media
 

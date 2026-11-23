@@ -24,7 +24,7 @@
      SAFE AREA          landscape keeps env(safe-area-inset-left) clear (iPhone camera
                         housing) with a black strip; viewport-fit=cover supplies the inset.
      ALSO               modals centred with side buffers, notifications
-                        drop down from behind the header (nearly full width), Ko-fi hidden.
+                        drop down from behind the header (nearly full width).
 
    Geometry flows through the --m-* custom properties: each orientation sets the header
    height and the pill's reserve, the shared block derives the board, status bar, panel box
@@ -545,9 +545,6 @@
   @media (max-width: 767px) { .keyart-wrapper { background-size: 1512px auto; } }
   /* the key art stays pinned top-left at its natural size on phones too (App.css; KeyArtImage.js
      serves the phone file) */
-
-  /* The Ko-fi floating widget (injected by index.html) lands on the nav; off on phones */
-  [id^="kofi-widget-overlay"] { display: none !important; }
 
   /* Tooltips come from long-press; keep them clear of the thumb */
   .HoverTooltip { max-width: 70vw; }

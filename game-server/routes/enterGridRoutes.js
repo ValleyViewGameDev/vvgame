@@ -16,7 +16,7 @@ const {
   applyDungeonCatchUp, buildGridPayload, setPlayerLocation, sendPlayerHome, spawnNextTo, FTUE_KEY,
 } = require('../utils/gridResolver');
 
-const { recordActivity, recordGridEntered, recordValleyVisit } = require('../utils/analytics');
+const { recordActivity, recordGridEntered, recordValleyVisit, deviceOf } = require('../utils/analytics');
 const { seedRegionsVisited } = require('../utils/regionsVisited');
 const { isDeveloper } = require('../utils/developerHelpers');
 
@@ -253,7 +253,7 @@ router.post('/enter-grid', async (req, res) => {
     await leaveNpcs; // the leave is part of this round trip (§4.2)
     await player.save();
     // Analytics (fire-and-forget): day heartbeat + the grids_entered counter.
-    recordActivity(player._id).catch(() => {});
+    recordActivity(player._id, { device: deviceOf(req) }).catch(() => {});
     recordGridEntered(player._id).catch(() => {});
     if (/^valley/.test(grid.gridType || '')) recordValleyVisit(player._id).catch(() => {});
 

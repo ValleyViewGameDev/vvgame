@@ -33,7 +33,7 @@ const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const queue = require('../queue'); // Import the in-memory queue
 const sendMailboxMessage = require('../utils/messageUtils');
 const { awardTrophy } = require('../utils/trophyUtils');
-const { recordActivity, recordQuestCompleted, recordLevelUps } = require('../utils/analytics');
+const { recordActivity, recordQuestCompleted, recordLevelUps, deviceOf } = require('../utils/analytics');
 const { isCurrency } = require('../utils/inventoryUtils');
 const { isGridVisited, markGridVisited } = require('../utils/gridsVisitedUtils');
  
@@ -1593,7 +1593,7 @@ router.post('/update-last-active', async (req, res) => {
     });
     // Analytics heartbeat (fire-and-forget). Id only: this route cannot verify
     // the id belongs to a real player, so it must never mint a cohort row.
-    recordActivity(playerId).catch(() => {});
+    recordActivity(playerId, { device: deviceOf(req) }).catch(() => {});
     // the day-2 gift, on the first app load of a later day (utils/returnGift.js); never fails the call
     const returnGift = await maybeSendReturnGift(playerId, Number(tzOffset), req.app.get('socketio')).catch((err) => {
       console.error('Day-2 gift failed:', err);
@@ -1986,7 +1986,7 @@ router.post('/player/state', async (req, res) => {
     }
     const player = await Player.findByIdAndUpdate(playerId, { $set: set }, { new: true, projection: 'location hp maxhp' });
     if (!player) return res.status(404).json({ error: 'Player not found' });
-    recordActivity(playerId).catch(() => {});   // analytics heartbeat, fire-and-forget (id only)
+    recordActivity(playerId, { device: deviceOf(req) }).catch(() => {});   // analytics heartbeat, fire-and-forget (id only)
     res.json({ success: true, location: player.location, hp: player.hp, maxhp: player.maxhp });
   } catch (err) {
     console.error('player/state failed:', err);

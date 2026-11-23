@@ -190,6 +190,31 @@
 
     <!-- ================= USERS ================= -->
     <div id="tab-users" class="tabpanel" hidden>
+      <!-- Reachability, ported from House's Users tab (owner 2026-11-21) -->
+      <div class="users-charts">
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">All current accounts, split by whether an email is on record: from Google sign-in, or typed into the email ask after the FTUE feedback. Ignores the date range.</span></span>
+          <h2>Accounts with Email</h2>
+          <div class="pie-metric" id="emailCount">-</div>
+          <div class="chart-wrap small"><canvas id="emailPieChart"></canvas></div>
+        </section>
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">All current accounts, split by whether they can sign in with more than their name: a password set (Profile, Secure your profile) or Google sign-in. Profiles are passwordless by default. Ignores the date range.</span></span>
+          <h2>Accounts with Password</h2>
+          <div class="pie-metric" id="passwordCount">-</div>
+          <div class="chart-wrap small"><canvas id="passwordPieChart"></canvas></div>
+        </section>
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Bars (left axis) = that day's DAU, split into players with an email on record today vs. not. Line (right axis) = the % of that day's DAU that is email-reachable; a zero-DAU day breaks the line.</span></span>
+          <h2>DAU with Email</h2>
+          <div class="chart-wrap"><canvas id="dauEmailChart"></canvas></div>
+        </section>
+      </div>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Emails actually sent per day, stacked by type. Welcome comes from each player's once-only send stamp (welcome_email_sent_at); Event announcements from the campaign send ledger (email_sends, one row per player per campaign). Real send history, not estimates.</span></span>
+        <h2>Emails Sent</h2>
+        <div class="chart-wrap"><canvas id="emailsSentChart"></canvas></div>
+      </section>
       <div class="users-grid">
         <section class="card">
           <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Players with an activity row today (your local day). A leaf marks a player who harvested or crafted today. Hover a name for its account detail.</span></span>
@@ -350,6 +375,19 @@
     <!-- ================= DEMOGRAPHICS ================= -->
     <div id="tab-demographics" class="tabpanel" hidden>
       <p id="demo-note" class="chart-note"></p>
+      <!-- Device over time, not just at signup (owner 2026-11-21): does anyone move from phone to desktop? -->
+      <div class="demographics-grid">
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Active players per day by the device they played on (each heartbeat's User-Agent, the same mobile test as signup). Both = active on a phone AND a desktop that day. Recorded from the 2026-11-21 game-server deploy; earlier activity shows as Not recorded. iPads using desktop Safari count as desktop, as they do at signup.</span></span>
+          <h2>DAU by device</h2>
+          <div class="chart-wrap"><canvas id="dauDeviceChart"></canvas></div>
+        </section>
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Every current account by the device it SIGNED UP on (ftueFeedback.isMobile), against every device it has been active on since daily devices began recording (2026-11-21). Tracked = active at least once since then. Ignores the date range.</span></span>
+          <h2>Moved between devices</h2>
+          <div id="deviceMigration"></div>
+        </section>
+      </div>
       <div class="demographics-grid">
         <section class="card"><span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Share of new accounts in the selected range by device (ftueFeedback.isMobile, captured at signup), stacked by acquisition source (client_info; Unknown for accounts created before capture shipped).</span></span><h2>Device</h2><div class="chart-wrap small"><canvas id="demoDevice"></canvas></div></section>
         <section class="card"><span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Share of new accounts in the selected range by operating system (ftueFeedback.os).</span></span><h2>OS</h2><div class="chart-wrap small"><canvas id="demoOs"></canvas></div></section>

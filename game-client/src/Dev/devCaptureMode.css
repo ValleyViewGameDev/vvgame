@@ -14,8 +14,7 @@ html.dev-capture-mode .zoom-controls,
 html.dev-capture-mode .map-controls,
 html.dev-capture-mode .season-controls,
 html.dev-capture-mode .nav-column,
-html.dev-capture-mode [data-dev-ui], /* developer-only controls inside player UI (Kent's Debug Refresh): stamp data-dev-ui on new ones */
-html.dev-capture-mode [id^="kofi-widget-overlay"] {
+html.dev-capture-mode [data-dev-ui] { /* developer-only controls inside player UI (Kent's Debug Refresh): stamp data-dev-ui on new ones */
   display: none !important;
 }
 
