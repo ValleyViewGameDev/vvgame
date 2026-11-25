@@ -91,17 +91,25 @@ async function resolveCellGrid(player, frontier, gridCoord, hints = {}) {
   // hints: { found } a findCell result the caller already has; { existing } a Grid document the
   // caller already read (used instead of a second read when it is this very grid). Every DB
   // round trip here is ~35 ms, and enter-grid pays them in sequence (2026-10-07).
+  // { visitHomesteads } a developer may load someone else's homestead (read-only on the client,
+  // every write route refuses a grid the player does not own; owner 2026-11-25).
   const found = hints.found || await findCell(frontier, gridCoord);
   if (!found) throw Object.assign(new Error('no such cell'), { status: 404, reason: 'no-cell' });
   const { settlement, cell } = found;
   const existing = hints.existing || null;
 
   if (cell.gridType === 'homestead') {
-    if (!cell.gridId || !player.gridId || cell.gridId.toString() !== player.gridId.toString()) {
+    const own = !!cell.gridId && !!player.gridId && cell.gridId.toString() === player.gridId.toString();
+    if (!cell.gridId || (!own && !hints.visitHomesteads)) {
       throw Object.assign(new Error('not your homestead'), { status: 403, reason: 'not-your-homestead' });
     }
     const grid = (existing && String(existing._id) === String(cell.gridId)) ? existing : await Grid.findById(cell.gridId);
     if (!grid) throw Object.assign(new Error('homestead missing'), { status: 404, reason: 'no-homestead' });
+    // a visit lands only on a real, owned homestead: a cell whose grid is something else (Settlement_0_3
+    // (4,2) pointed at the Town's template, 2026-11-25) or has no owner is refused, never loaded
+    if (!own && (grid.gridType !== 'homestead' || !grid.ownerId || grid.isTemplate)) {
+      throw Object.assign(new Error('not a homestead'), { status: 404, reason: 'no-cell' });
+    }
     return { grid, settlement, cell };
   }
 

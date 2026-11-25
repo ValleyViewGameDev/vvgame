@@ -94,7 +94,7 @@ function getValleyTreeEmoji(settlementType) {
  * @param {number} settlementRow - Settlement row position (0-7)
  * @param {number} settlementCol - Settlement col position (0-7)
  * @param {Function} onGridClick - Callback when a grid cell is clicked (gridData, gridRow, gridCol, settlementRow, settlementCol)
- * @param {boolean} isRelocating - Whether in relocation mode (enables grid-level clicks)
+ * @param {boolean} isRelocating - Whether grid-level clicks are on: relocation mode, or a developer (who travels there)
  */
 function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlementRow, settlementCol, onGridClick, isRelocating, thumbCells) {
   const cells = [];
@@ -241,6 +241,7 @@ const PixiRendererFrontierSettlements = ({
   onGridClick,                 // Callback when a grid cell is clicked during relocation (gridData, gridRow, gridCol, settlementRow, settlementCol)
   containerOffset = { x: 0, y: 0 }, // Where the padded frontier's top-left sits, in BASE px (current grid at the origin); scaled by zoomScale
   isRelocating = false,        // true when in relocation mode (enables clicking on grid cells)
+  isDeveloper = false,         // a developer clicks a grid in another settlement to travel there (owner 2026-11-25)
 }) => {
   const currentRow = currentSettlementPosition?.row ?? 3;
   const currentCol = currentSettlementPosition?.col ?? 3;
@@ -342,7 +343,7 @@ const PixiRendererFrontierSettlements = ({
             settlementRow={row}
             settlementCol={col}
             onGridClick={onGridClick}
-            isRelocating={isRelocating}
+            isRelocating={isRelocating || isDeveloper} // grid clicks on: relocating, or a developer travelling
             thumbnail={settlementThumbnailImage(thumbnails, row, col)}
           />
         );
@@ -351,7 +352,7 @@ const PixiRendererFrontierSettlements = ({
 
     // Renders 8×8 settlements plus spillover padding for fixed player position camera
     return cells;
-  }, [frontierData, currentRow, currentCol, settlementPixelSize, frontierSettlementGrids, currentPlayer, zoomScale, screenScale, isRelocating, onGridClick, thumbnails]);
+  }, [frontierData, currentRow, currentCol, settlementPixelSize, frontierSettlementGrids, currentPlayer, zoomScale, screenScale, isRelocating, isDeveloper, onGridClick, thumbnails]);
 
   // Only render content when data is available
   // Content will smoothly appear when data loads rather than showing placeholders

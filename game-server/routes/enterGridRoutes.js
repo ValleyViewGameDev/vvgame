@@ -77,6 +77,13 @@ async function applyLeaveNpcs(player, leave) {
   }
 }
 
+/** The username a homestead payload names: the player's own, else its owner's (a developer's visit). */
+async function homesteadOwnerName(grid, player) {
+  if (!grid.ownerId || String(grid.ownerId) === String(player._id)) return player.username;
+  const owner = await Player.findById(grid.ownerId, 'username').lean();
+  return owner?.username ?? null;
+}
+
 /** Compact per-cell map of the frontier for client-side travel validation (§4.1). */
 router.get('/world-map/:frontierId', async (req, res) => {
   try {
@@ -147,10 +154,14 @@ router.post('/enter-grid', async (req, res) => {
     const xy = Number.isFinite(target.x) && Number.isFinite(target.y) ? { x: target.x, y: target.y } : null;
     let grid, settlementId = null, gridCoord = null, spawn = null, ownerUsername = null;
 
+    // A developer may stand on someone else's homestead for real (owner 2026-11-25): the location is
+    // saved there (a refresh keeps it), the client shows it read-only (Utils/viewOnly.js), and every
+    // write route refuses a grid the player does not own.
+    const visitHomesteads = isDeveloper(player.username);
     const enterCell = async (coord) => {
-      const r = await resolveCellGrid(player, frontier, coord);
+      const r = await resolveCellGrid(player, frontier, coord, { visitHomesteads });
       grid = r.grid; settlementId = r.settlement._id; gridCoord = Number(coord);
-      if (grid.gridType === 'homestead') ownerUsername = player.username;
+      if (grid.gridType === 'homestead') ownerUsername = await homesteadOwnerName(grid, player);
       setPlayerLocation(player, grid, settlementId, gridCoord, xy);
     };
 
@@ -267,42 +278,6 @@ router.post('/enter-grid', async (req, res) => {
     if (err.status) return fail(res, err.status, err.reason || err.message);
     console.error('❌ enter-grid failed:', err);
     return res.status(500).json({ error: 'enter-grid failed', detail: err.message });
-  }
-});
-
-/**
- * GET /api/homestead-snapshot/:gridCoord?playerId=  (refactor-plan D6, developers only for now)
- * Another player's homestead as last saved, for a read-only view. Writes nothing: the viewer's
- * location stays where it was, no catch-up runs, and the client blocks every write naming this
- * grid while the view is up (Utils/viewOnly.js).
- */
-router.get('/homestead-snapshot/:gridCoord', async (req, res) => {
-  const gridCoord = Number(req.params.gridCoord);
-  const playerId = req.query.playerId ? String(req.query.playerId) : null;
-  if (!playerId || !Number.isFinite(gridCoord)) return fail(res, 400, 'bad-target');
-  try {
-    const { player, frontier } = await loadPlayerAndFrontier(playerId, req.query.frontierId);
-    if (!player) return fail(res, 404, 'no-player');
-    if (!isDeveloper(player.username)) return fail(res, 403, 'not-your-homestead');
-    if (!frontier) return fail(res, 404, 'no-frontier');
-    const found = await findCell(frontier, gridCoord);
-    if (!found || found.cell.gridType !== 'homestead' || !found.cell.gridId) return fail(res, 404, 'no-cell');
-    const grid = await Grid.findById(found.cell.gridId);
-    if (!grid) return fail(res, 404, 'no-homestead');
-    const owner = grid.ownerId ? await Player.findById(grid.ownerId, 'username').lean() : null;
-    const ownerUsername = owner?.username ?? null;
-    return res.json({
-      grid: buildGridPayload(grid, playerId, { ownerUsername }),
-      location: {
-        g: String(grid._id), s: String(found.settlement._id), f: String(frontier._id),
-        gridCoord, gtype: 'homestead', region: grid.region ?? null,
-      },
-      ownerUsername,
-    });
-  } catch (err) {
-    if (err.status) return fail(res, err.status, err.reason || err.message);
-    console.error('❌ homestead-snapshot failed:', err);
-    return res.status(500).json({ error: 'homestead-snapshot failed' });
   }
 });
 

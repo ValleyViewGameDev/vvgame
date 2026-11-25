@@ -16,8 +16,7 @@ import farmState from '../FarmState';
 import ambientVFXManager from '../VFX/AmbientVFXManager';
 import soundManager from '../Sound/SoundManager';
 import { loadMasterResources, loadMasterTrophies, loadGlobalTuning } from './TuningManager';
-import { worldMapCell } from './WorldMap';
-import { canViewHomesteadSnapshots, isViewOnly, enterViewOnly, leaveViewOnly } from './viewOnly';
+import { isViewOnly, enterViewOnly, leaveViewOnly, isOthersHomestead } from './viewOnly';
 import { prepareAtlasForGrid, gridTypes } from '../Render/PixiRenderer/AtlasTextures';
 
 export const updateGridResource = async (
@@ -183,18 +182,6 @@ export async function enterGrid(playerId, target, leave = undefined, frontierId 
 }
 
 /**
- * Another player's homestead as last saved, for the read-only view (Utils/viewOnly.js;
- * developers only). Same `{ grid, location, ownerUsername }` shape as enter-grid; the server
- * writes nothing and the player's saved location does not move.
- */
-export async function fetchHomesteadSnapshot(playerId, gridCoord, frontierId = undefined) {
-  const params = { playerId };
-  if (frontierId) params.frontierId = String(frontierId);
-  const response = await axios.get(`${API_BASE}/api/homestead-snapshot/${gridCoord}`, { params });
-  return response.data;
-}
-
-/**
  * Seed every client store from an `enter-grid` grid payload: grid meta,
  * tiles + resources (+ FarmState, ambient VFX, music), NPCs, and the local PC
  * record. Used by changePlayerLocation and by App boot (`{type:'current'}`).
@@ -205,6 +192,10 @@ export async function fetchHomesteadSnapshot(playerId, gridCoord, frontierId = u
  */
 export async function seedGridFromBundle(grid, player, opts = {}) {
   const playerId = String(player._id || player.playerId);
+  // someone else's homestead (a developer's visit) is shown read-only, on every load path:
+  // a crossing, a refresh, a zoom back in (Utils/viewOnly.js)
+  if (isOthersHomestead(grid, player)) enterViewOnly(String(grid._id), opts.ownerUsername ?? grid.ownerUsername ?? null);
+  else leaveViewOnly();
   const masterResources = opts.masterResources || await loadMasterResources();
   const tuning = await loadGlobalTuning();
   const pixiBaseTileSize = opts.pixiBaseTileSize || tuning?.closeZoom || null;
@@ -356,13 +347,8 @@ export const changePlayerLocation = async (
   }
 
   const playerId = String(currentPlayer._id || currentPlayer.playerId);
-  // Someone else's homestead opens as a read-only snapshot for a developer (Utils/viewOnly.js);
-  // for anyone else enter-grid refuses it (10020). The world map is fetched at sign-in only, so a
-  // homestead claimed since then (or one in a closed settlement) still reads 'R': a developer
-  // asks for the snapshot on any cell that is not known to be theirs, a town or a valley, and the
-  // server decides from live data (an empty or reserved cell is refused there).
-  const mapCell = target.type === 'coord' ? worldMapCell(target.gridCoord) : null;
-  const toSnapshot = target.type === 'coord' && canViewHomesteadSnapshots() && (mapCell === 'H' || mapCell === 'R');
+  // Someone else's homestead: enter-grid takes a developer there for real and the load shows it
+  // read-only (seedGridFromBundle, Utils/viewOnly.js); for anyone else it refuses (10020).
   const fromView = isViewOnly();
   const fromLocation = currentPlayer.location || {};
   const fromGridId = fromLocation.g ? String(fromLocation.g) : null;
@@ -392,7 +378,7 @@ export const changePlayerLocation = async (
   // server), and a trip INTO one sends no enter-grid: the from-grid's NPC positions stay queued for
   // the batch timer and the player's own state is flushed before the view starts (below)
   if (fromView && fromGridId) NPCsInGridManager.drainPendingPositions(fromGridId);
-  const leave = fromGridId && !fromView && !toSnapshot
+  const leave = fromGridId && !fromView
     ? {
         fromGridId,
         npcPositions: NPCsInGridManager.drainPendingPositions(fromGridId),
@@ -418,9 +404,11 @@ export const changePlayerLocation = async (
    * commit React/localStorage, and run the trophy / region / camera / status
    * steps. Shared by both paths. Returns { x, y, toGridId, gtype, updatedPlayer }.
    */
-  const arrive = async ({ grid, location, spawn, ownerUsername, viewOnly = false }) => {
+  const arrive = async ({ grid, location, spawn, ownerUsername }) => {
     const toGridId = String(grid._id);
-    // Before seeding, so FarmState and the write guard already know this grid is a snapshot
+    // Someone else's homestead (a developer's visit): read-only. Before seeding, so FarmState and the
+    // write guard already know it (seedGridFromBundle decides the same on every load path)
+    const viewOnly = isOthersHomestead(grid, currentPlayer);
     if (viewOnly) enterViewOnly(toGridId, ownerUsername); else leaveViewOnly();
 
     // Player location: contract `location` merged over the old one
@@ -461,9 +449,9 @@ export const changePlayerLocation = async (
     // Place the PC on the arrival tile (no slide animation from the old grid's tile)
     playersInGridManager.updatePC(toGridId, playerId, { position: { x: finalX, y: finalY } }, { animate: false });
 
-    // Local gridsVisited mirror (the server marks the bit in enter-grid; a snapshot marks nothing)
+    // Local gridsVisited mirror (the server marks the bit in enter-grid)
     const toGridCoord = location.gridCoord ?? grid.gridCoord ?? null;
-    if (!viewOnly && isNum(toGridCoord) && toGridCoord >= 0 && !isGridVisited(currentPlayer.gridsVisited, toGridCoord)) {
+    if (isNum(toGridCoord) && toGridCoord >= 0 && !isGridVisited(currentPlayer.gridsVisited, toGridCoord)) {
       updatedPlayer.gridsVisited = toServerFormat(markGridVisited(currentPlayer.gridsVisited, toGridCoord));
     }
     // Local regionsVisited mirror (the server adds it in enter-grid): the Discover quest goal
@@ -471,14 +459,11 @@ export const changePlayerLocation = async (
       updatedPlayer.regionsVisited = [...(currentPlayer.regionsVisited || []), toRegion];
     }
 
-    // Commit React + localStorage state (a snapshot stays out of localStorage: a reload goes back
-    // to the grid the server has the player on)
+    // Commit React + localStorage state (someone else's homestead too: the server has the player there)
     setGridId(toGridId);
     setCurrentPlayer(updatedPlayer);
-    if (!viewOnly) {
-      localStorage.setItem('player', JSON.stringify(updatedPlayer));
-      localStorage.setItem('gridId', toGridId);
-    }
+    localStorage.setItem('player', JSON.stringify(updatedPlayer));
+    localStorage.setItem('gridId', toGridId);
 
     // ---------------------------------------------------------------- side effects
     // First time visiting a valley: trophy + notification
@@ -636,13 +621,7 @@ export const changePlayerLocation = async (
     // move (403 not-your-homestead, 404) leaves the player exactly where they were.
     let bundle;
     try {
-      if (toSnapshot) {
-        // the player's own x/y/hp are saved now; once the view is up the write guard blocks them
-        if (!fromView) await playersInGridManager.flushState();
-        bundle = await fetchHomesteadSnapshot(playerId, target.gridCoord, currentPlayer.frontierId || fromLocation.f);
-      } else {
-        bundle = await enterGrid(playerId, target, leave, currentPlayer.frontierId || fromLocation.f);
-      }
+      bundle = await enterGrid(playerId, target, leave, currentPlayer.frontierId || fromLocation.f);
     } catch (error) {
       restoreLeave();
       return fail(enterGridErrorStatus(error, strings), error);
@@ -655,10 +634,10 @@ export const changePlayerLocation = async (
 
     if (updateStatus) updateStatus('Entering ...');
 
-    const arrived = await arrive({ grid, location, spawn, ownerUsername, viewOnly: toSnapshot });
+    const arrived = await arrive({ grid, location, spawn, ownerUsername });
 
     // Persist the arrival x/y; not awaited (the 30 s tick and unload also cover it)
-    if (!toSnapshot) playersInGridManager.flushState();
+    playersInGridManager.flushState(); // stands down on someone else's homestead (Utils/viewOnly.js)
 
     // Let PixiJS render a few frames at the new camera position before fading up
     await waitForFrames(3);

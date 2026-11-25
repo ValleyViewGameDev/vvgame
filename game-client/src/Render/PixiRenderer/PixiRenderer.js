@@ -2520,6 +2520,7 @@ const PixiRenderer = ({
             onGridClick={onFrontierGridClick}
             containerOffset={frontierOffset}
             isRelocating={isRelocating}
+            isDeveloper={isDeveloper}
           />
           {/* Settlement grid previews (the current grid itself is the live canvas) */}
           <PixiRendererSettlementGrids

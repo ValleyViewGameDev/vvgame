@@ -633,6 +633,8 @@ useEffect(() => {
 const [isRelocating, setIsRelocating] = useState(null);
 
 const [visibleSettlementId, setVisibleSettlementId] = useState(null);
+const visibleSettlementIdRef = useRef(null);
+visibleSettlementIdRef.current = visibleSettlementId;
 useEffect(() => {
   // currentPlayer may be null on first render, so initialize only when available
   if (currentPlayer?.location?.s) {
@@ -646,11 +648,26 @@ const [settlementData, setSettlementData] = useState(null);
 const [settlementPlayers, setSettlementPlayers] = useState(null);
 const [visitedGridTiles, setVisitedGridTiles] = useState(null);
 
-// Fetch settlement data when entering settlement zoom with PixiJS
+// The settlement whose layout settlementData holds: a change of settlement (a developer's travel
+// to another one) drops the old layout at once, so it is never drawn at the new settlement's spot
+const settlementDataForRef = useRef(null);
 useEffect(() => {
-  if (zoomLevel !== 'settlement' || !usePixiJS || !visibleSettlementId) {
+  if (settlementDataForRef.current && settlementDataForRef.current !== visibleSettlementId) {
+    setSettlementData(null);
+    setSettlementPlayers(null);
+    setVisitedGridTiles(null);
+    settlementDataForRef.current = null;
+  }
+}, [visibleSettlementId]);
+
+// Fetch settlement data at settlement zoom, and at frontier zoom too: there the current settlement
+// is drawn from it (PixiRendererSettlementGrids)
+useEffect(() => {
+  if ((zoomLevel !== 'settlement' && zoomLevel !== 'frontier') || !usePixiJS || !visibleSettlementId) {
     return;
   }
+  if (settlementDataForRef.current === visibleSettlementId) return; // already this settlement's layout
+  const forSettlement = visibleSettlementId;
 
   const fetchSettlementData = async () => {
     try {
@@ -667,6 +684,8 @@ useEffect(() => {
         }
       }
 
+      if (forSettlement !== visibleSettlementIdRef.current) return; // the player moved on meanwhile
+      settlementDataForRef.current = forSettlement;
       setSettlementData(settlement?.grids || []);
       setSettlementPlayers(playersMap);
       console.log('📐 [PixiRenderer] Settlement data loaded:', settlement?.grids?.length, 'grids');
@@ -2462,10 +2481,18 @@ let isProcessing = false; // Guard against duplicate clicks
 const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   if (isProcessing) return; // Skip if still processing
 
-  // A read-only snapshot of someone else's homestead (Utils/viewOnly.js): only signposts work
+  // A read-only snapshot of someone else's homestead (Utils/viewOnly.js): only signposts and the
+  // Trade Stall work. The stall opens the viewer's OWN Trade Stall panel, whose Global Market lists
+  // the viewed settlement's players (the view sets the client location there), so a developer can
+  // buy from another settlement (owner 2026-11-25); none of its routes names the viewed grid.
   if (isViewOnly(gridId)) {
     const here = resources.find((res) => coversTile(res, colIndex, rowIndex));
-    if (here?.category !== 'travel') {
+    const isTradeStall = here?.category === 'station' && ['Trade Stall', 'Trade', 'Trading Post'].includes(here.type);
+    // Empty ground with no cursor goes on, so the developer's teleport works here too (it only moves
+    // the avatar locally; the write guard blocks the save). A tap on empty ground with teleport off
+    // never gets here: PixiRenderer walks there. Anything placed (a doober too) is just looked at.
+    const emptyGround = !here && !cursorMode;
+    if (here?.category !== 'travel' && !isTradeStall && !emptyGround) {
       if (here || cursorMode) updateStatus(strings[10023] || 'Just looking: nothing here can be changed.');
       return;
     }
@@ -2946,6 +2973,25 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   isProcessing = false; // Reset flag here
 
 }, [resources, gridId, inventory, currentPlayer, playerPosition, activeTileSize, cursorMode]);
+
+// A developer's grid travel from the Settlement or Frontier view (keyed on gridCoord: cells hold
+// template ids). Someone else's homestead opens as a read-only snapshot (changePlayerLocation).
+const developerGridTravel = async (gridData, row, col) => {
+  if (!isDeveloper) return;
+  if (gridData?.gridCoord == null) {
+    console.log(`🏘️ Grid click ignored (no gridCoord at ${row}, ${col})`);
+    return;
+  }
+  const gridType = gridData.gridType || gridData.type || 'valley';
+  const arrival = gridType === 'homestead' ? { findSignpost: 'Signpost Town', offset: { x: 1, y: 0 } }
+                : gridType === 'town' ? { findSignpost: 'Signpost Home' }
+                : { fallback: { x: 0, y: 0 } };
+  await changePlayerLocation(
+    currentPlayer, { type: 'coord', gridCoord: gridData.gridCoord },
+    setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
+    updateStatus, closeAllPanels, bulkOperationContext, strings, transitionFadeControl, arrival
+  );
+};
 
 // Latest click handler and cursor mode, for callers outside React's render (the movement loop)
 const tileClickRef = useRef(null);
@@ -3559,23 +3605,7 @@ return (
           settlementPlayers={settlementPlayers}
           currentGridPosition={currentGridPosition}
           isVisuallyInSettlement={isVisuallyInSettlement}
-          onSettlementGridClick={async (gridData, row, col) => {
-            // Developer mode grid travel from settlement zoom (keyed on gridCoord: cells hold template ids now)
-            if (!isDeveloper) return;
-            if (gridData?.gridCoord == null) {
-              console.log(`🏘️ Grid click ignored (no gridCoord at ${row}, ${col})`);
-              return;
-            }
-            const gridType = gridData.gridType || gridData.type || 'valley';
-            const arrival = gridType === 'homestead' ? { findSignpost: 'Signpost Town', offset: { x: 1, y: 0 } }
-                          : gridType === 'town' ? { findSignpost: 'Signpost Home' }
-                          : { fallback: { x: 0, y: 0 } };
-            await changePlayerLocation(
-              currentPlayer, { type: 'coord', gridCoord: gridData.gridCoord },
-              setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
-              updateStatus, closeAllPanels, bulkOperationContext, strings, transitionFadeControl, arrival
-            );
-          }}
+          onSettlementGridClick={(gridData, row, col) => developerGridTravel(gridData, row, col)}
           // Frontier zoom props
           frontierData={frontierData}
           frontierSettlementGrids={frontierSettlementGrids}
@@ -3585,8 +3615,11 @@ return (
             console.log(`🌍 Clicked frontier settlement at (${row}, ${col})`);
           }}
           onFrontierGridClick={async (gridData, gridRow, gridCol, settlementRow, settlementCol) => {
+            // A developer (not relocating) travels to a grid in any settlement, as in their own one
+            // (owner 2026-11-25): someone else's homestead opens read-only (Utils/viewOnly.js) and
+            // the client location moves to that settlement; the saved home never changes
+            if (!isRelocating) { if (isDeveloper) await developerGridTravel(gridData, gridRow, gridCol); return; }
             // Handle grid clicks from other settlements at frontier zoom during relocation
-            if (!isRelocating) return;
 
             if (!gridData) {
               console.log(`🏠 Relocation: Grid click ignored (no grid data at settlement ${settlementRow},${settlementCol} grid ${gridRow},${gridCol})`);
@@ -3638,6 +3671,7 @@ return (
             // Clear cached settlement and frontier data to force re-fetch
             // This ensures the new settlement shows correct grid data after relocation
             setSettlementData(null);
+            settlementDataForRef.current = null; // refetch, even for the same settlement
             setSettlementPlayers(null);
             setVisitedGridTiles(null);
             setFrontierData(null);
