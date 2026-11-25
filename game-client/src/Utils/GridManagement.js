@@ -260,6 +260,7 @@ function enterGridErrorStatus(error, strings) {
   if (status === 404) {
     if (reason === 'no-homestead') return 113; // "Your homestead is being prepared..."
     if (reason === 'no-dungeon-here') return 105; // no dungeon registered for the grid we left: a travel problem, not a closed dungeon
+    if (reason === 'no-cell') return 10021; // an empty or reserved cell (a developer's snapshot try lands here): "You can't go that way."
     return 105; // "There was a problem trying to travel."
   }
   if (status === 503) {
@@ -356,8 +357,12 @@ export const changePlayerLocation = async (
 
   const playerId = String(currentPlayer._id || currentPlayer.playerId);
   // Someone else's homestead opens as a read-only snapshot for a developer (Utils/viewOnly.js);
-  // for anyone else enter-grid refuses it (10020)
-  const toSnapshot = target.type === 'coord' && canViewHomesteadSnapshots() && worldMapCell(target.gridCoord) === 'H';
+  // for anyone else enter-grid refuses it (10020). The world map is fetched at sign-in only, so a
+  // homestead claimed since then (or one in a closed settlement) still reads 'R': a developer
+  // asks for the snapshot on any cell that is not known to be theirs, a town or a valley, and the
+  // server decides from live data (an empty or reserved cell is refused there).
+  const mapCell = target.type === 'coord' ? worldMapCell(target.gridCoord) : null;
+  const toSnapshot = target.type === 'coord' && canViewHomesteadSnapshots() && (mapCell === 'H' || mapCell === 'R');
   const fromView = isViewOnly();
   const fromLocation = currentPlayer.location || {};
   const fromGridId = fromLocation.g ? String(fromLocation.g) : null;

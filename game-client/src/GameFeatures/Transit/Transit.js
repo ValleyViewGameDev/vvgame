@@ -85,6 +85,9 @@ export function canTravel(fromGridCoord, direction) {
   // a developer crosses into someone else's homestead as a read-only snapshot (Utils/viewOnly.js)
   if (cell === 'H') return canViewHomesteadSnapshots() ? { ok: true, gridCoord, snapshot: true } : { ok: false, reason: 10020 };
   if (cell === 'M' || cell === 'T' || cell === 'V') return { ok: true, gridCoord };
+  // the map is from sign-in: an 'R' may be a homestead claimed since (or in a closed settlement), so
+  // a developer asks the server for the snapshot, which refuses a truly empty or reserved cell
+  if (canViewHomesteadSnapshots()) return { ok: true, gridCoord, snapshot: true };
   return { ok: false, reason: 10021 }; // reserved / closed cell: "You can't go that way."
 }
 
